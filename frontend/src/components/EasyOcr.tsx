@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import billImage from '../assets/bill.png'
 
-import '@patternfly/react-core/dist/styles/base.css';
-import { Card, CardTitle, CardBody, CardFooter } from '@patternfly/react-core';
+import '@patternfly/react-core/dist/styles/base.css'
+import {
+  Card,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  FileUpload,
+} from '@patternfly/react-core'
 
 interface OcrWord {
   text: string
@@ -24,13 +30,21 @@ export function EasyOcr() {
   const [result, setResult] = useState<OcrResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileName, setFileName] = useState<string>('') // PatternFly file upload display
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setSelectedFile(e.target.files[0])
+  const handleFileUpload: FileUploadCallbackHandler = (_event, file, _fileName) => {
+    // PatternFly passes File[] or string; handle File[]
+    if (Array.isArray(file) && file[0] instanceof File) {
+      setSelectedFile(file[0])
+      setFileName(file[0].name)
       setResult(null)
       setError(null)
     }
+  }
+
+  const clearFile = () => {
+    setSelectedFile(null)
+    setFileName('')
   }
 
   const testOcr = async (fileToTest: File) => {
@@ -45,7 +59,7 @@ export function EasyOcr() {
       const response = await fetch('https://console.easyocr.org/api/ocr', {
         method: 'POST',
         headers: {
-          'X-Access-Key': "eocr_CC_o-BV5tLYe4DktHn1WNs-UdCDlrziN",
+          'X-Access-Key': 'eocr_CC_o-BV5tLYe4DktHn1WNs-UdCDlrziN',
         },
         body: formData,
       })
@@ -58,7 +72,6 @@ export function EasyOcr() {
       setResult(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
-      setResult(null)
     } finally {
       setLoading(false)
     }
@@ -70,7 +83,7 @@ export function EasyOcr() {
       const blob = await response.blob()
       const file = new File([blob], 'bill.png', { type: 'image/png' })
       await testOcr(file)
-    } catch (err) {
+    } catch {
       setError('Failed to load bill.png image')
     }
   }
@@ -84,55 +97,59 @@ export function EasyOcr() {
   }
 
   return (
-	  <>
-    <Card ouiaId="BasicCard">
-      <CardTitle>Easy OCR API Tester</CardTitle>
+    <>
+      <Card ouiaId="BasicCard">
+        <CardTitle>Easy OCR API Tester</CardTitle>
+        <CardBody>
+          <p>This allows you to upload a file and test the API.</p>
 
-      <CardBody>
-        <div className="button-section">
-          <button
-            onClick={testWithBillImage}
-            disabled={loading}
-            className="primary"
-          >
-            {loading ? 'Processing...' : 'Test with bill.png'}
-          </button>
+          <FileUpload
+            id="easy-ocr-upload"
+            type="default"
+            value={fileName}
+            filename={fileName || 'Drag and drop a file or browse'}
+            filenamePlaceholder="Drag and drop a file or browse"
+            onChange={handleFileUpload}
+            onClearClick={clearFile}
+            browseButtonText="Upload"
+            isDisabled={loading}
+            allowEditingUploadedText={false}
+            dropzoneProps={{ accept: 'image/*,.pdf' }}
+          />
 
-          <div className="separator">OR</div>
+          <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={testWithBillImage} disabled={loading} className="pf-c-button pf-m-primary">
+              {loading ? 'Processing...' : 'Test with bill.png'}
+            </button>
 
-          <div className="file-upload">
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={handleFileSelect}
-              disabled={loading}
-              id="fileInput"
-            />
-            <label htmlFor="fileInput">
-              {selectedFile ? selectedFile.name : 'Choose a file'}
-            </label>
+            <div style={{ padding: '0 8px', color: '#6a6e73' }}>OR</div>
+
             <button
               onClick={testWithSelectedFile}
               disabled={loading || !selectedFile}
-              className="secondary"
+              className="pf-c-button pf-m-secondary"
             >
               {loading ? 'Processing...' : 'Test with Selected File'}
             </button>
           </div>
+        </CardBody>
+
+        <CardFooter>Footer</CardFooter>
+      </Card>
+
+      {error && (
+        <div style={{ marginTop: 12, color: '#c9190b' }}>
+          {error}
         </div>
-      </CardBody>
+      )}
 
-      <CardFooter>Footer</CardFooter>
-    </Card>
-
-    {error && <div className="error">{error}</div>}
-
-    {result && (
-      <div className="result-section">
-        <h3>API Response</h3>
-        <pre>{JSON.stringify(result, null, 2)}</pre>
-      </div>
-    )}
-  </>
+      {result && (
+        <div style={{ marginTop: 12 }}>
+          <h3>API Response</h3>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
+    </>
   )
 }
+

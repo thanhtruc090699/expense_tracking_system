@@ -18,7 +18,8 @@ import {
   MastheadContent,
   Button,
   Flex,
-  FlexItem
+  FlexItem,
+  SearchInput
 } from '@patternfly/react-core';
 
 
@@ -38,10 +39,10 @@ export function EasyOcrPage() {
 	<Flex>
 	    <Button>EasyOcr</Button>
 	    <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }}>
-	    <Button variant="secondary">OcrSpace</Button>
+	    <Button isDisabled>OcrSpace</Button>
 	    </FlexItem>
 	    <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }}>
-	    <Button variant="tertiary">Lisa</Button>
+	    <Button isDisabled>Lisa</Button>
 	    </FlexItem>
 	</Flex>
 	</MastheadContent>
