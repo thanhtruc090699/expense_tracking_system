@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import axios, { AxiosRequestConfig } from 'axios';
+//import axios, { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class OcrService {
@@ -8,6 +8,9 @@ export class OcrService {
 		'https://api.ocr.space/parse/imageurl?apikey=helloworld&url=https://dl.a9t9.com/ocr/solarcell.jpg';
 
 	async fetchOcr() {
+
+		// TODO: remove axios code. I think it's now part of the stdlib or something.
+		/*
 		const config: AxiosRequestConfig = {
 			url: this.remoteUrl,
 			method: 'GET',
@@ -26,5 +29,6 @@ export class OcrService {
 			const data = err?.response?.data ?? { message: err?.message ?? 'Unknown error' };
 			throw new HttpException({ status, data }, status);
 		}
+		*/
 	}
 }
