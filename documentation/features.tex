@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{charter}
+\usepackage[ngerman]{babel}
+\usepackage[margin=1.6cm]{geometry}
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[document]{ragged2e}
+\usepackage[shortcuts]{extdash}
+
+\hyphenpenalty=10000
+\exhyphenpenalty=0
+\emergencystretch=2em
+
+\pagestyle{empty}
+
+\setlist[itemize]{
+  noitemsep,
+  topsep=5pt,
+  leftmargin=2em,
+}
+
+\setlist[description]{
+  leftmargin=!,
+  labelwidth=1.5cm,
+  style=nextline
+}
+
+\titleformat{\section}{\fontsize{18}{22}\bfseries}{}{0em}{}[{\titlerule[1.5pt]}]
+\titlespacing*{\section}{0pt}{18pt}{10pt}
+
+\begin{document}
+
+\noindent
+{\fontsize{24}{28}\selectfont\bfseries Features} \\
+\begin{minipage}[t]{0.7\textwidth}
+  \vspace{8pt}
+  {\itshape \textbf{Fach:} RESTFUL Web Services} \\
+  {\itshape \textbf{Gruppe:} Blue Team}
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
+  \flushright
+  \vspace{8pt}
+  \itshape \textbf{Datum:} \today
+\end{minipage}
+
+\section{User}
+\subsection{Registrierung}
+Benutzer können ein Konto registrieren, indem sie ihre grundlegenden 
+Informationen angeben.
+
+\subsection{Authentifizierung}
+
+Bei jeder Anmeldung durchlaufen Benutzer einen Authentifizierungsschritt, 
+um die Sicherheit ihres Kontos zu gewährleisten. Dieser zusätzliche Schritt 
+dient dazu, unbefugten Zugriff zu verhindern und die Identität des Benutzers 
+zu bestätigen.
+
+\subsection{Profilverwaltung}
+Benutzer können ein persönliches Profil erstellen und verwalten, das 
+grundlegende Informationen wie Avatar, Benutzername, E-Mail-Adresse 
+und Passwort enthält. Sie haben die Möglichkeit, ihre persönlichen Daten 
+jederzeit einzusehen und zu bearbeiten.
+
+\subsection{Kategorienverwaltung}
+
+Benutzer können vordefinierte Kategorien verwenden, um schneller zu starten. 
+Zusätzlich haben sie die Möglichkeit, eigene Kategorien zu erstellen, zu 
+bearbeiten und zu löschen, um ihre Ausgaben individuell zu strukturieren und 
+zu organisieren.
+
+\subsection{Budgetverwaltung}
+
+Benutzer können Budgets festlegen, um ihre Ausgaben besser zu planen und zu 
+kontrollieren. Dabei können sie sowohl ein Gesamtbudget als auch monatliche 
+oder kategoriebasierte Budgets definieren. Zusätzlich haben sie die Möglichkeit, 
+Budgetlimits jederzeit zu bearbeiten, um flexibel auf Veränderungen zu reagieren.
+
+\subsection{Benachrichtigungen}
+
+Benutzer werden benachrichtigt, wenn sie ihr Budget fast erreichen oder überschreiten. 
+Dadurch können sie ihre Ausgaben rechtzeitig anpassen und eine bessere Kontrolle über 
+ihre Finanzen behalten.
+
+\subsection{Rechnungsscan}
+
+Benutzer können Rechnungen als Bild oder PDF hochladen und scannen lassen. 
+Dabei werden relevante Informationen automatisch erkannt und ausgelesen, 
+sodass die Ausgaben einfach und schnell erfasst werden können.
+
+\subsection{Ausgabenprüfung nach Upload}
+
+Nach dem Hochladen einer Rechnung können Benutzer eine Übersicht der 
+erkannten Ausgaben einsehen. Diese enthält einzelne Ausgaben, zugewiesene 
+Kategorien sowie den Gesamtbetrag. Zusätzlich können Benutzer Details wie Betrag, 
+Datum und Kategorie überprüfen und erkannte Kategorien bei Bedarf anpassen, um 
+eine korrekte Zuordnung sicherzustellen. Benutzer kann die erfassten Daten bestätigen 
+und speichern, nachdem er sie überprüft hat.
+
+\subsection{Erkennung doppelter Rechnungen}
+
+Das System erkennt automatisch mögliche doppelte Rechnungen, um doppelte Buchungen 
+zu vermeiden. Benutzer werden entsprechend benachrichtigt, wenn eine Rechnung als 
+potenziell doppelt erkannt wird.
+
+\subsection{Manuelle Erfassung von Ausgaben}
+
+Benutzer können Ausgaben manuell eingeben, wenn kein Beleg vorhanden ist. Dabei 
+können sie relevante Informationen wie Betrag, Datum und Kategorie angeben, um 
+ihre Ausgaben vollständig zu erfassen.
+
+\subsection{Automatische Kategorisierung}
+
+Ausgaben werden automatisch Kategorien zugeordnet, um den Erfassungsprozess zu 
+beschleunigen und den Benutzer zu entlasten.
+
+\subsection{Ausgabenanalyse und Visualisierung}
+
+Benutzer können ihre Ausgaben in Form von visuellen Diagrammen analysieren, 
+um ihr Ausgabeverhalten besser zu verstehen. Dabei werden wöchentliche und 
+monatliche Ausgaben sowie Trends im Zeitverlauf dargestellt. Zusätzlich können 
+Benutzer Ausgaben nach Kategorien auswerten und die wichtigsten Kategorien identifizieren, 
+um fundierte finanzielle Entscheidungen zu treffen.
+
+\subsection{Personalisierte Empfehlungen}
+
+Benutzer erhalten personalisierte Empfehlungen basierend auf ihrem Ausgabeverhalten, um Einsparpotenziale zu erkennen und ihre Finanzen effizienter zu verwalten.
+
+\end{document}
