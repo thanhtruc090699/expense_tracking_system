@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{charter}
+\usepackage[ngerman]{babel}
+\usepackage[margin=1.6cm]{geometry}
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[document]{ragged2e}
+\usepackage[shortcuts]{extdash}
+
+\usepackage[dvipsnames]{xcolor}
+\definecolor{DoingColor}{HTML}{2E5A88}
+\definecolor{MaybeColor}{HTML}{eb363f}
+\definecolor{NotDoingColor}{HTML}{6B7280}
+
+\newcommand{\doing}[1]{\textbf{{#1}}}
+\newcommand{\maybe}[1]{\textit{\textcolor{MaybeColor}{#1}}}
+\newcommand{\notdoing}[1]{\textcolor{NotDoingColor}{#1}}
+
+\hyphenpenalty=10000
+\exhyphenpenalty=0
+\emergencystretch=2em
+
+\pagestyle{empty}
+
+\setlist[itemize]{
+  noitemsep,
+  topsep=5pt,
+  leftmargin=2em,
+}
+
+\setlist[description]{
+  leftmargin=!,
+  labelwidth=1.5cm,
+  style=nextline
+}
+
+\titleformat{\section}{\fontsize{18}{22}\bfseries}{}{0em}{}[{\titlerule[1.5pt]}]
+\titlespacing*{\section}{0pt}{18pt}{10pt}
+
+\begin{document}
+
+\noindent
+{\fontsize{24}{28}\selectfont\bfseries User Stories} \\
+\begin{minipage}[t]{0.7\textwidth}
+  \vspace{8pt}
+  {\itshape \textbf{Fach:} RESTFUL Web Services} \\
+  {\itshape \textbf{Gruppe:} Blue Team}
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
+  \flushright
+  \vspace{8pt}
+  \itshape \textbf{Datum:} \today
+\end{minipage}
+
+\section*{Legende}
+\begin{description}[style=multiline, leftmargin=3cm]
+  \item[\doing{Fett/Schwarz}] Aktive Umsetzung: Diese User Story wird
+    derzeit bearbeitet.
+  \item[\maybe{Kursiv/Rot}] Vielleicht: In Planung oder Rücksprache
+    erforderlich.
+  \item[\notdoing{Grau}] Pausiert: Diese Story wird aktuell nicht umgesetzt.
+\end{description}
+
+\section{User Stories}
+
+\subsection{Nutzer}
+\begin{itemize}
+    \item \doing {Als Benutzer kann ich ein Konto registrieren. und eine E-Mail-Bestätigung erhalten, damit ich weiß, dass mein Konto erfolgreich erstellt wurde.}
+    \item \maybe {Als Benutzer kann ich eine E-Mail-Bestätigung erhalten, damit ich weiß, dass mein Konto erfolgreich erstellt wurde.}
+    \item \doing {Als Benutzer durchlaufe ich bei jeder Anmeldung einen Authentifizierungsschritt, um die Sicherheit zu gewährleisten.}
+    \item \maybe {Als Benutzer möchte ich eine „Passwort vergessen“-Funktion haben, damit ich mein Passwort zurücksetzen kann, wenn ich es vergesse.}
+    \item \doing {Als Benutzer habe ich ein Profil, das meinen Avatar und sicherheitsrelevante Informationen wie Benutzername, E-Mail und Passwort anzeigt, und ich kann meine persönlichen Informationen bearbeiten.}
+    \item \doing {Als Benutzer kann ich vordefinierte Kategorien verwenden, um schneller zu starten.}
+    \item \doing {Als Benutzer kann ich Kategorien erstellen, um meine Ausgaben zu strukturieren.}
+    \item \doing {Als Benutzer kann ich Kategorien bearbeiten, um sie anzupassen.}
+    \item \doing {Als Benutzer kann ich Kategorien löschen, um Ordnung zu halten.}
+    \item \doing {Als Benutzer kann ich ein Gesamtbudget festlegen, um meine Ausgaben zu kontrollieren.}
+    \item \doing {Als Benutzer kann ich ein monatliches Budget festlegen, um meine Finanzen zu planen.}
+    \item \doing {Als Benutzer kann ich Budgets pro Kategorie festlegen, um gezielt zu steuern.}
+    \item \doing {Als Benutzer kann ich Budgetlimits bearbeiten, um flexibel zu bleiben.}
+    \item \doing {Als Benutzer kann ich Ausgaben manuell hinzufügen, wenn kein Beleg vorhanden ist.}
+    \item \doing {Als Benutzer kann ich meine Gesamtausgaben und mein Gesamtbudget sowie die Ausgaben pro Kategorie klar sehen, um den Überblick zu behalten.}
+    \item \doing {Als Benutzer kann ich benachrichtigt werden, wenn ich mein Budget fast erreiche.}
+    \item \doing {Als Benutzer kann ich benachrichtigt werden, wenn ich mein Budget überschreite.}
+    \item \doing {Als Benutzer kann ich eine Rechnung hochladen, damit relevante Daten automatisch extrahiert werden.}
+    \item \doing {Als Benutzer kann ich Rechnungen als Bild oder PDF hochladen, um flexibel zu sein.}
+    \item \doing {Als Benutzer kann ich nach dem Upload eine Übersicht sehen, die Folgendes enthält: einzelne Ausgaben, zugewiesene Kategorien und den Gesamtbetrag.}
+    \item \doing {Als Benutzer kann ich jede erkannte Ausgabe mit Betrag, Datum und Kategorie sehen, um die Details zu überprüfen.}
+    \item \doing {Als Benutzer kann ich erkannte Kategorien für einzelne Ausgaben ändern, um sie korrekt zuzuordnen.}
+    \item \doing {Als Benutzer kann ich erkannte Werte (z. B. Betrag, Datum oder Items) bearbeiten, wenn sie falsch sind.}
+    \item \doing {Als Benutzer kann ich die erfassten Daten bestätigen und speichern, nachdem ich sie überprüft habe.}
+    \item \doing {Als Benutzer kann ich doppelte Rechnungen erkennen lassen, um doppelte Buchungen zu vermeiden.}
+    \item \doing {Als Benutzer kann ich benachrichtigt werden, wenn eine Rechnung möglicherweise doppelt ist.}
+    \item \doing {Als Benutzer kann ich Ausgaben automatisch kategorisieren lassen, um Zeit zu sparen.}
+    \item \nodoing {Als Benutzer kann ich, dass das System aus meinen Korrekturen lernt, um zukünftige Ergebnisse zu verbessern.}
+    \item \doing {Als Benutzer kann ich visuelle Diagramme meiner Ausgaben sehen, um mein Ausgabeverhalten zu verstehen.}
+    \item \doing {Als Benutzer kann ich meine wöchentlichen Ausgaben sowie den Vergleich zur Vorwoche sehen, um Trends zu erkennen.}
+    \item \doing {Als Benutzer kann ich ein Balkendiagramm sehen, das meine Ausgaben pro Kategorie innerhalb einer Woche zeigt, um zu erkennen, wofür ich am meisten Geld ausgebe.}
+    \item \doing {Als Benutzer kann ich meine monatlichen Ausgaben sowie Trends im Vergleich zu vorherigen Monaten sehen.}
+    \item \doing {Als Benutzer kann ich die Top 5 Kategorien meiner Ausgaben pro Woche und pro Monat sehen, um meine Hauptausgaben zu identifizieren.}
+    \item \maybe {Als Benutzer kann ich personalisierte Empfehlungen erhalten, um Geld zu sparen.}
+
+\end{itemize}
+\end{document}
