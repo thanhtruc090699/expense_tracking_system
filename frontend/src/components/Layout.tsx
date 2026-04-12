@@ -17,6 +17,7 @@ import {
   Icon,
 } from '@patternfly/react-core';
 import { BarsIcon, HomeIcon, FileInvoiceIcon, CogIcon, CameraIcon } from '@patternfly/react-icons';
+import logo from '../assets/billbuddy.svg';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -75,7 +76,9 @@ export function Layout({ children }: LayoutProps) {
             <BarsIcon />
           </Button>
         </MastheadToggle>
-        <MastheadBrand>BillBuddy</MastheadBrand>
+        <MastheadBrand>
+          <img src={logo} alt="BillBuddy" style={{ height: '30px' }} />
+        </MastheadBrand>
       </MastheadMain>
       <MastheadContent />
     </Masthead>
