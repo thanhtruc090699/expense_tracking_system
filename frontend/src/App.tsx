@@ -4,19 +4,21 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { BillsPage } from "./pages/BillsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { EasyOcrPage } from "./pages/EasyOcrPage";
+import { LoginPage } from "./pages/LoginPage";
 
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/bills" element={<BillsPage />} />
-          <Route path="/ocr" element={<EasyOcrPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Layout>
+          <Navigate to="/dashboard" replace />
+        </Layout>} />
+        <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
+        <Route path="/bills" element={<Layout><BillsPage /></Layout>} />
+        <Route path="/ocr" element={<Layout><EasyOcrPage /></Layout>} />
+        <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+      </Routes>
     </BrowserRouter>
   );
 }
