@@ -76,8 +76,8 @@ export function Layout({ children }: LayoutProps) {
             <BarsIcon />
           </Button>
         </MastheadToggle>
-        <MastheadBrand>
-          <img src={logo} alt="BillBuddy" style={{ height: '30px' }} />
+        <MastheadBrand component="a" href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
+          <img src={logo} alt="BillBuddy" style={{ height: '30px', cursor: 'pointer' }} />
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent />
