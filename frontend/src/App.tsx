@@ -1,19 +1,24 @@
-import { useState } from 'react'
-import React, { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-
-import { EasyOcrPage } from './pages/EasyOcrPage';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Layout } from "./components/Layout";
+import { DashboardPage } from "./pages/DashboardPage";
+import { BillsPage } from "./pages/BillsPage";
+import { SettingsPage } from "./pages/SettingsPage";
+import { EasyOcrPage } from "./pages/EasyOcrPage";
 
 function App() {
-	const [count, setCount] = useState(0)
-
-	return (
-		<BrowserRouter>
-		<Routes>
-			<Route path="/" element={<EasyOcrPage />} />
-		</Routes>
-		</BrowserRouter>
-	)
+  return (
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/bills" element={<BillsPage />} />
+          <Route path="/ocr" element={<EasyOcrPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

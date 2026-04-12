@@ -1,11 +1,5 @@
-import { useState } from 'react'
-
 import { EasyOcr } from '../components/EasyOcr'
 
-//import { Button, Flex } from '@patternfly/react-core';
-//import { Gallery, GalleryItem } from '@patternfly/react-core';
-
-import '@patternfly/react-core/dist/styles/base.css';
 import { Bullseye } from '@patternfly/react-core';
 import { Card, CardTitle, CardBody, CardFooter } from '@patternfly/react-core';
 
