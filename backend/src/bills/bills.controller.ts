@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { BillsService } from './bills.service';
 
 @Controller('bills')
@@ -6,7 +15,15 @@ export class BillsController {
   constructor(private readonly billsService: BillsService) {}
 
   @Post()
-  create(@Body() body: { fileUrl: string; fileType: string; ocrData?: object; userId: string }) {
+  create(
+    @Body()
+    body: {
+      fileUrl: string;
+      fileType: string;
+      ocrData?: object;
+      userId: string;
+    },
+  ) {
     return this.billsService.create(body);
   }
 
@@ -21,7 +38,16 @@ export class BillsController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: { fileUrl?: string; fileType?: string; ocrData?: object; isDuplicate?: boolean }) {
+  update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      fileUrl?: string;
+      fileType?: string;
+      ocrData?: object;
+      isDuplicate?: boolean;
+    },
+  ) {
     return this.billsService.update(id, body);
   }
 

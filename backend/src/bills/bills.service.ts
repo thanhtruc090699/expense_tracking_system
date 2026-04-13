@@ -3,7 +3,12 @@ import { prisma } from '../prisma';
 
 @Injectable()
 export class BillsService {
-  async create(data: { fileUrl: string; fileType: string; ocrData?: object; userId: string }) {
+  async create(data: {
+    fileUrl: string;
+    fileType: string;
+    ocrData?: object;
+    userId: string;
+  }) {
     return prisma.bill.create({ data });
   }
 
@@ -20,7 +25,15 @@ export class BillsService {
     return bill;
   }
 
-  async update(id: string, data: { fileUrl?: string; fileType?: string; ocrData?: object; isDuplicate?: boolean }) {
+  async update(
+    id: string,
+    data: {
+      fileUrl?: string;
+      fileType?: string;
+      ocrData?: object;
+      isDuplicate?: boolean;
+    },
+  ) {
     await this.findOne(id);
     return prisma.bill.update({ where: { id }, data });
   }
