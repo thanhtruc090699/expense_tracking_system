@@ -1,12 +1,52 @@
-import { Title, Card, CardBody, Button, ButtonVariant } from '@patternfly/react-core';
+import { useState, useEffect } from 'react';
+import {
+  Title,
+  Button,
+  Card,
+  CardTitle,
+  CardBody,
+  Badge,
+} from '@patternfly/react-core';
+import { TrashIcon, EyeIcon } from '@patternfly/react-icons';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+
+interface Bill {
+  id: string;
+  fileUrl: string;
+  fileType: string;
+  ocrData: object | null;
+  isDuplicate: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function BillsPage() {
-  const columns = ['Bill Name', 'Amount', 'Due Date', 'Status', 'Actions'];
-  const rows = [
-    ['Electric Bill', '$120.00', '2024-01-15', 'Pending', 'View'],
-    ['Water Bill', '$45.00', '2024-01-20', 'Paid', 'View'],
-    ['Internet', '$80.00', '2024-01-25', 'Pending', 'View'],
-  ];
+  const [bills, setBills] = useState<Bill[]>([]);
+
+  const fetchBills = async () => {
+    try {
+      const res = await fetch('http://10.0.0.2:3000/bills');
+      const data = await res.json();
+      setBills(data);
+    } catch (err) {
+      console.error('Failed to fetch bills:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  const handleDeleteBill = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this bill?')) return;
+    try {
+      await fetch(`http://10.0.0.2:3000/bills/${id}`, { method: 'DELETE' });
+      fetchBills();
+    } catch (err) {
+      console.error('Failed to delete bill:', err);
+    }
+  };
 
   return (
     <>
@@ -14,28 +54,59 @@ export function BillsPage() {
       <p>Manage and track your bills</p>
 
       <Card>
+        <CardTitle>Bill List</CardTitle>
         <CardBody>
-          <table>
-            <thead>
-              <tr>
-                {columns.map((col) => (
-                  <th key={col} style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <td key={cellIndex} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{cell}</td>
-                  ))}
-                  <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                    <Button variant={ButtonVariant.secondary} size="sm">View</Button>
-                  </td>
-                </tr>
+          <Table variant="compact" aria-label="Bills table">
+            <Thead>
+              <Tr>
+                <Th>File URL</Th>
+                <Th>File Type</Th>
+                <Th>Status</Th>
+                <Th>Created</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {bills.map((bill) => (
+                <Tr key={bill.id}>
+                  <Td>{bill.fileUrl}</Td>
+                  <Td>{bill.fileType}</Td>
+                  <Td>
+                    {bill.isDuplicate ? (
+                      <Badge isRead>Duplicate</Badge>
+                    ) : (
+                      <Badge isRead={false}>New</Badge>
+                    )}
+                  </Td>
+                  <Td>{new Date(bill.createdAt).toLocaleDateString()}</Td>
+                  <Td>
+                    <Button
+                      variant="secondary"
+                      icon={<EyeIcon />}
+                      onClick={() => console.log('View', bill.id)}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      variant="danger"
+                      icon={<TrashIcon />}
+                      onClick={() => handleDeleteBill(bill.id)}
+                      style={{ marginLeft: '8px' }}
+                    >
+                      Delete
+                    </Button>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+              {bills.length === 0 && (
+                <Tr>
+                  <Td colSpan={5} style={{ textAlign: 'center' }}>
+                    No bills found
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
         </CardBody>
       </Card>
     </>
