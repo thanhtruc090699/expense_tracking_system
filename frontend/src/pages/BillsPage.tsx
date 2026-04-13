@@ -23,6 +23,7 @@ interface Bill {
 
 export function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
+  const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
 
   const fetchBills = async () => {
     try {
@@ -68,35 +69,49 @@ export function BillsPage() {
             </Thead>
             <Tbody>
               {bills.map((bill) => (
-                <Tr key={bill.id}>
-                  <Td>{bill.fileUrl}</Td>
-                  <Td>{bill.fileType}</Td>
-                  <Td>
-                    {bill.isDuplicate ? (
-                      <Badge isRead>Duplicate</Badge>
-                    ) : (
-                      <Badge isRead={false}>New</Badge>
-                    )}
-                  </Td>
-                  <Td>{new Date(bill.createdAt).toLocaleDateString()}</Td>
-                  <Td>
-                    <Button
-                      variant="secondary"
-                      icon={<EyeIcon />}
-                      onClick={() => console.log('View', bill.id)}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      variant="danger"
-                      icon={<TrashIcon />}
-                      onClick={() => handleDeleteBill(bill.id)}
-                      style={{ marginLeft: '8px' }}
-                    >
-                      Delete
-                    </Button>
-                  </Td>
-                </Tr>
+                <>
+                  <Tr key={bill.id}>
+                    <Td>{bill.fileUrl}</Td>
+                    <Td>{bill.fileType}</Td>
+                    <Td>
+                      {bill.isDuplicate ? (
+                        <Badge isRead>Duplicate</Badge>
+                      ) : (
+                        <Badge isRead={false}>New</Badge>
+                      )}
+                    </Td>
+                    <Td>{new Date(bill.createdAt).toLocaleDateString()}</Td>
+                    <Td>
+                      <Button
+                        variant="secondary"
+                        icon={<EyeIcon />}
+                        onClick={() => setExpandedBillId(expandedBillId === bill.id ? null : bill.id)}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="danger"
+                        icon={<TrashIcon />}
+                        onClick={() => handleDeleteBill(bill.id)}
+                        style={{ marginLeft: '8px' }}
+                      >
+                        Delete
+                      </Button>
+                    </Td>
+                  </Tr>
+                  {expandedBillId === bill.id && (
+                    <Tr key={`${bill.id}-expand`}>
+                      <Td colSpan={5}>
+                        <div style={{ padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                          <strong>Bill Details:</strong>
+                          <pre style={{ marginTop: '8px', whiteSpace: 'pre-wrap' }}>
+                            {JSON.stringify(bill, null, 2)}
+                          </pre>
+                        </div>
+                      </Td>
+                    </Tr>
+                  )}
+                </>
               ))}
               {bills.length === 0 && (
                 <Tr>
