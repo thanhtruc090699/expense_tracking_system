@@ -58,7 +58,7 @@ export function LoginPage() {
                 label="Remember me"
               />
             </FormGroup>
-            <Button type="submit" variant="primary" block style={{ marginTop: '16px' }}>
+            <Button type="submit" variant="primary" isBlock style={{ marginTop: '16px' }}>
               Sign in
             </Button>
           </Form>
