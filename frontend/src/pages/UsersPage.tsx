@@ -87,7 +87,7 @@ export function UsersPage() {
       <Card>
         <CardTitle>User List</CardTitle>
         <CardBody>
-          <Table variant="compact" aria-label="Users table">
+          <Table variant="compact" isStriped aria-label="Users table">
             <Thead>
               <Tr>
                 <Th>Email</Th>

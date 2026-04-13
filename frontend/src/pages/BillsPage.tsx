@@ -57,7 +57,7 @@ export function BillsPage() {
       <Card>
         <CardTitle>Bill List</CardTitle>
         <CardBody>
-          <Table variant="compact" aria-label="Bills table">
+          <Table variant="compact" isStriped aria-label="Bills table">
             <Thead>
               <Tr>
                 <Th>File URL</Th>
