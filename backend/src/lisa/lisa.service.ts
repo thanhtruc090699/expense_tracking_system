@@ -39,4 +39,12 @@ export class LisaService {
       throw new HttpException({ message }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async processData(apiKey: string, model: string, data: unknown, prompt: string) {
+    const messages: Message[] = [
+      { role: 'system', content: prompt },
+      { role: 'user', content: JSON.stringify(data, null, 2) },
+    ];
+    return this.chat(apiKey, model, messages);
+  }
 }
