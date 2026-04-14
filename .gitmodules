@@ -1,0 +1,3 @@
+[submodule "invoiceOCR"]
+	path = invoiceOCR
+	url = https://github.com/rathin1514/invoiceOCR.git
