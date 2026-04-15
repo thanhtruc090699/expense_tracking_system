@@ -1,0 +1,32 @@
+"""
+Access Lisa (lisa-pro-03-2026) via raw HTTP requests.
+
+Requires: pip install requests
+"""
+
+import os
+import requests
+
+
+def main():
+    api_key = "sk-xxxxxxxxxxx"  #replace with your own key, you can get that via your profile on the LISA UI
+
+    url = "https://chat-1.ki-awz.iisys.de/api/chat/completions"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload = {
+        "model": "lisa-pro-03-2026", #or whatever other LISA model you want to use
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Tell me a funny joke!"},
+        ],
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    response.raise_for_status()
+    result = response.json()
+
+    print(result["choices"][0]["message"]["content"])
+
+
+if __name__ == "__main__":
+    main()

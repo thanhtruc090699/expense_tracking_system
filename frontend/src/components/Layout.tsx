@@ -16,7 +16,7 @@ import {
   Button,
   Icon,
 } from '@patternfly/react-core';
-import { BarsIcon, HomeIcon, FileInvoiceIcon, CogIcon, CameraIcon, UsersIcon } from '@patternfly/react-icons';
+import { BarsIcon, HomeIcon, FileInvoiceIcon, CogIcon, CameraIcon, UsersIcon, ChatIcon } from '@patternfly/react-icons';
 import logo from '../assets/billbuddy.svg';
 
 interface LayoutProps {
@@ -36,6 +36,7 @@ export function Layout({ children }: LayoutProps) {
     { groupId: 'main', itemId: 'dashboard', title: 'Dashboard', icon: <Icon><HomeIcon /></Icon> },
     { groupId: 'main', itemId: 'bills', title: 'Bills', icon: <Icon><FileInvoiceIcon /></Icon> },
     { groupId: 'main', itemId: 'ocr', title: 'OCR Test', icon: <Icon><CameraIcon /></Icon> },
+    { groupId: 'main', itemId: 'lisa', title: 'LISA Chat', icon: <Icon><ChatIcon /></Icon> },
     { groupId: 'main', itemId: 'users', title: 'Users', icon: <Icon><UsersIcon /></Icon> },
     { groupId: 'main', itemId: 'settings', title: 'Settings', icon: <Icon><CogIcon /></Icon> },
   ];
