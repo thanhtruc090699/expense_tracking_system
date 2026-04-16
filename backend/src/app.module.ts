@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { OcrModule } from './ocr/ocr.module';
 import { UsersModule } from './users/users.module';
 import { BillsModule } from './bills/bills.module';
+import { LisaModule } from './lisa/lisa.module';
 
 @Module({
-  imports: [OcrModule, UsersModule, BillsModule, ConfigModule.forRoot()],
+  imports: [OcrModule, UsersModule, BillsModule, LisaModule, ConfigModule.forRoot()],
   controllers: [AppController],
   providers: [AppService],
 })

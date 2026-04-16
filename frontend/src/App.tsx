@@ -6,6 +6,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LoginPage } from "./pages/LoginPage";
 import { UsersPage } from "./pages/UsersPage";
+import { LisaChatPage } from "./pages/LisaChatPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
         <Route path="/bills" element={<Layout><BillsPage /></Layout>} />
         <Route path="/ocr" element={<Layout><EasyOcrPage /></Layout>} />
+        <Route path="/lisa" element={<Layout><LisaChatPage /></Layout>} />
         <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
         <Route path="/users" element={<Layout><UsersPage /></Layout>} />
       </Routes>
