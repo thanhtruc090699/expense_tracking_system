@@ -1,5 +1,4 @@
 import { Inject, Body, Controller, Delete, Get, Post, Put, Param, Query, Req } from '@nestjs/common';
-import type { Observable } from 'rxjs';
 import type { Bill, CreateBillDto, DeleteBill200Response, UpdateBillDto } from '../generated/models';
 import { BillsApi } from '../generated/api/BillsApi';
 import { BILLS_API_PROVIDER } from './bills.constants';
