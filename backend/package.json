@@ -24,6 +24,7 @@
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@openapitools/openapi-generator-cli": "^2.31.1",
     "@prisma/client": "^5.22.0",
     "dotenv": "^17.4.2",
     "pg": "^8.20.0",

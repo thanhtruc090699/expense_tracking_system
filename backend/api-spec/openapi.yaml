@@ -1,0 +1,23 @@
+openapi: 3.0.3
+info:
+  title: Bill Buddy API
+  description: API for managing bills, expenses, and OCR processing
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /bills:
+    $ref: './bills.yaml#/paths/~1bills'
+  /bills/{id}:
+    $ref: './bills.yaml#/paths/~1bills~1{id}'
+components:
+  schemas:
+    Bill:
+      $ref: './bills.yaml#/components/schemas/Bill'
+    CreateBillDto:
+      $ref: './bills.yaml#/components/schemas/CreateBillDto'
+    UpdateBillDto:
+      $ref: './bills.yaml#/components/schemas/UpdateBillDto'
+    Error:
+      $ref: './bills.yaml#/components/schemas/Error'
