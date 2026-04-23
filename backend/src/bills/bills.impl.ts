@@ -3,18 +3,27 @@ import type { Bill, CreateBillDto, UpdateBillDto, DeleteBill200Response } from '
 import { BillsApi } from '../generated/api/BillsApi';
 import { BillsService } from './bills.service';
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  username: string;
+  roles: string[];
+}
+
 @Injectable()
 export class BillsApiImpl extends BillsApi {
   constructor(private readonly billsService: BillsService) {
     super();
   }
 
-  async createBill(createBillDto: CreateBillDto): Promise<Bill> {
-    return this.billsService.create(createBillDto);
+  async createBill(createBillDto: CreateBillDto, request: Request): Promise<Bill> {
+    const user = request['user'] as AuthUser;
+    return this.billsService.create({ ...createBillDto, userId: user.id });
   }
 
-  async findAllBills(userId?: string): Promise<Bill[]> {
-    return this.billsService.findAll(userId);
+  async findAllBills(userId: string | undefined, request: Request): Promise<Bill[]> {
+    const user = request['user'] as AuthUser;
+    return this.billsService.findAll(user.id);
   }
 
   async findOneBill(id: string): Promise<Bill> {
