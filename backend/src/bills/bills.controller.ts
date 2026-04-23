@@ -1,58 +1,35 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-} from '@nestjs/common';
-import { BillsService } from './bills.service';
+import { Inject, Body, Controller, Delete, Get, Post, Put, Param, Query, Req } from '@nestjs/common';
+import type { Observable } from 'rxjs';
+import type { Bill, CreateBillDto, DeleteBill200Response, UpdateBillDto } from '../generated/models';
+import { BillsApi } from '../generated/api/BillsApi';
+import { BILLS_API_PROVIDER } from './bills.constants';
 
 @Controller('bills')
 export class BillsController {
-  constructor(private readonly billsService: BillsService) {}
+  constructor(@Inject(BILLS_API_PROVIDER) private readonly billsApi: BillsApi) {}
 
   @Post()
-  create(
-    @Body()
-    body: {
-      fileUrl: string;
-      fileType: string;
-      ocrData?: object;
-      userId: string;
-    },
-  ) {
-    return this.billsService.create(body);
+  createBill(@Body() createBillDto: CreateBillDto, @Req() request: Request): ReturnType<BillsApi['createBill']> {
+    return this.billsApi.createBill(createBillDto, request);
   }
 
   @Get()
-  findAll(@Query('userId') userId?: string) {
-    return this.billsService.findAll(userId);
+  findAllBills(@Query('userId') userId: string | undefined, @Req() request: Request): ReturnType<BillsApi['findAllBills']> {
+    return this.billsApi.findAllBills(userId, request);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.billsService.findOne(id);
+  findOneBill(@Param('id') id: string, @Req() request: Request): ReturnType<BillsApi['findOneBill']> {
+    return this.billsApi.findOneBill(id, request);
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      fileUrl?: string;
-      fileType?: string;
-      ocrData?: object;
-      isDuplicate?: boolean;
-    },
-  ) {
-    return this.billsService.update(id, body);
+  updateBill(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto, @Req() request: Request): ReturnType<BillsApi['updateBill']> {
+    return this.billsApi.updateBill(id, updateBillDto, request);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.billsService.delete(id);
+  deleteBill(@Param('id') id: string, @Req() request: Request): ReturnType<BillsApi['deleteBill']> {
+    return this.billsApi.deleteBill(id, request);
   }
 }
