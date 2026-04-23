@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Bill Buddy API - Bills
+  description: API for managing bills
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /bills:
+    get:
+      operationId: findAllBills
+      summary: List all bills
+      tags:
+        - Bills
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter bills by user ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bill'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createBill
+      summary: Create a new bill
+      tags:
+        - Bills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBillDto'
+      responses:
+        '201':
+          description: Bill created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /bills/{id}:
+    get:
+      operationId: findOneBill
+      summary: Get a bill by ID
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Bill ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '404':
+          description: Bill not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: updateBill
+      summary: Update a bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Bill ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBillDto'
+      responses:
+        '200':
+          description: Bill updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '404':
+          description: Bill not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteBill
+      summary: Delete a bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Bill ID
+      responses:
+        '200':
+          description: Bill deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Bill not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Bill:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileUrl:
+          type: string
+          format: uri
+        fileType:
+          type: string
+          description: MIME type of the bill file (e.g., application/pdf, image/png)
+        ocrData:
+          type: object
+          nullable: true
+          description: Extracted data from OCR processing
+        isDuplicate:
+          type: boolean
+          default: false
+        userId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fileUrl
+        - fileType
+        - userId
+        - createdAt
+        - updatedAt
+
+    CreateBillDto:
+      type: object
+      properties:
+        fileUrl:
+          type: string
+          format: uri
+        fileType:
+          type: string
+        ocrData:
+          type: object
+          nullable: true
+        userId:
+          type: string
+          format: uuid
+      required:
+        - fileUrl
+        - fileType
+        - userId
+
+    UpdateBillDto:
+      type: object
+      properties:
+        fileUrl:
+          type: string
+          format: uri
+        fileType:
+          type: string
+        ocrData:
+          type: object
+          nullable: true
+        isDuplicate:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+      required:
+        - statusCode
+        - message
