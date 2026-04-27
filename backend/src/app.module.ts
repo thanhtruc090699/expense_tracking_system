@@ -6,9 +6,10 @@ import { OcrModule } from './ocr/ocr.module';
 import { UsersModule } from './users/users.module';
 import { BillsModule } from './bills/bills.module';
 import { LisaModule } from './lisa/lisa.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [OcrModule, UsersModule, BillsModule, LisaModule, ConfigModule.forRoot()],
+  imports: [OcrModule, UsersModule, BillsModule, LisaModule, ConfigModule.forRoot(), AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

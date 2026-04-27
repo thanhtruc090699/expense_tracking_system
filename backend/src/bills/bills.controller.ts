@@ -1,9 +1,12 @@
-import { Inject, Body, Controller, Delete, Get, Post, Put, Param, Query, Req } from '@nestjs/common';
+import { Inject, Body, Controller, Delete, Get, Post, Put, Param, Query, Req, UseGuards } from '@nestjs/common';
+import type { Observable } from 'rxjs';
 import type { Bill, CreateBillDto, DeleteBill200Response, UpdateBillDto } from '../generated/models';
 import { BillsApi } from '../generated/api/BillsApi';
 import { BILLS_API_PROVIDER } from './bills.constants';
+import { JwtGuard } from '../auth/jwt/jwt.guard';
 
 @Controller('bills')
+@UseGuards(JwtGuard)
 export class BillsController {
   constructor(@Inject(BILLS_API_PROVIDER) private readonly billsApi: BillsApi) {}
 

@@ -12,6 +12,11 @@ paths:
   /bills/{id}:
     $ref: './bills.yaml#/paths/~1bills~1{id}'
 components:
+  securitySchemes:
+    keycloak:
+      type: openIdConnect
+      description: Keycloak OIDC authentication
+      openIdConnectUrl: http://localhost:8080/realms/bill-buddy/.well-known/openid-configuration
   schemas:
     Bill:
       $ref: './bills.yaml#/components/schemas/Bill'
@@ -21,3 +26,5 @@ components:
       $ref: './bills.yaml#/components/schemas/UpdateBillDto'
     Error:
       $ref: './bills.yaml#/components/schemas/Error'
+security:
+  - keycloak: []
