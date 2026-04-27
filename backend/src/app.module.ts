@@ -4,12 +4,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OcrModule } from './ocr/ocr.module';
 import { UsersModule } from './users/users.module';
-import { BillsModule } from './bills/bills.module';
 import { LisaModule } from './lisa/lisa.module';
 import { AuthModule } from './auth/auth.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { ExpenseItemsModule } from './expense-items/expense-items.module';
+import { MerchantsModule } from './merchants/merchants.module';
+import { CategoriesModule } from './categories/categories.module';
+import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
-  imports: [OcrModule, UsersModule, BillsModule, LisaModule, ConfigModule.forRoot(), AuthModule],
+  imports: [OcrModule, UsersModule, LisaModule, ConfigModule.forRoot(), AuthModule, ExpensesModule, ExpenseItemsModule, MerchantsModule, CategoriesModule, BudgetsModule],
   controllers: [AppController],
   providers: [AppService],
 })

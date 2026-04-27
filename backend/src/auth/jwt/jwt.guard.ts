@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { prisma } from '../../prisma';
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -20,20 +21,34 @@ export class JwtGuard implements CanActivate {
     try {
       const publicKey = await this.getPublicKey();
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: publicKey,
+        publicKey: publicKey,
         issuer: process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/bill-buddy',
         algorithms: ['RS256'],
       });
 
+      const dbUser = await prisma.user.findUnique({
+        where: { keycloakId: payload.sub },
+        select: { id: true, email: true, username: true },
+      });
+
+      if (!dbUser) {
+        throw new UnauthorizedException('User not found in database');
+      }
+
       request.user = {
-        id: payload.sub,
-        email: payload.email,
-        username: payload.preferred_username,
+        id: dbUser.id,
+        email: dbUser.email,
+        username: dbUser.username,
+        keycloakId: payload.sub,
         roles: payload.resource_access?.['bill-buddy']?.roles || [],
       };
 
       return true;
     } catch (error) {
+      console.error('Guard error:', error);
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid token');
     }
   }
