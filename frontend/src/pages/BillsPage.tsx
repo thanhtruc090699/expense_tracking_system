@@ -7,8 +7,9 @@ import {
   CardBody,
   Badge,
 } from '@patternfly/react-core';
-import { TrashIcon, EyeIcon } from '@patternfly/react-icons';
+import { TrashIcon, EyeIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { getToken, redirectToLogin, logout } from '../auth';
 
 interface Bill {
   id: string;
@@ -24,14 +25,27 @@ interface Bill {
 export function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchBills = async () => {
+    const token = getToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const res = await fetch('http://10.0.0.2:3000/bills');
+      const res = await fetch('http://10.0.0.2:3000/bills', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       setBills(data);
     } catch (err) {
       console.error('Failed to fetch bills:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,17 +55,51 @@ export function BillsPage() {
 
   const handleDeleteBill = async (id: string) => {
     if (!confirm('Are you sure you want to delete this bill?')) return;
+    const token = getToken();
+    if (!token) return;
+    
     try {
-      await fetch(`http://10.0.0.2:3000/bills/${id}`, { method: 'DELETE' });
+      await fetch(`http://10.0.0.2:3000/bills/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchBills();
     } catch (err) {
       console.error('Failed to delete bill:', err);
     }
   };
 
+  const token = getToken();
+  
+  if (!token) {
+    return (
+      <>
+        <Title headingLevel="h1" size="xl">Bills</Title>
+        <p>Authentication required to view bills</p>
+        <Button onClick={redirectToLogin}>Login with Keycloak</Button>
+      </>
+    );
+  }
+
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <>
-      <Title headingLevel="h1" size="xl">Bills</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title headingLevel="h1" size="xl">Bills</Title>
+        <Button variant="secondary" icon={<OutlinedQuestionCircleIcon />} onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
       <p>Manage and track your bills</p>
 
       <Card>

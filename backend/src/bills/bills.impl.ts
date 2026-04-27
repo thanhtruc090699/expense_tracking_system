@@ -22,8 +22,7 @@ export class BillsApiImpl extends BillsApi {
   }
 
   async findAllBills(userId: string | undefined, request: Request): Promise<Bill[]> {
-    const user = request['user'] as AuthUser;
-    return this.billsService.findAll(user.id);
+    return this.billsService.findAll();
   }
 
   async findOneBill(id: string): Promise<Bill> {
