@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(uuid())
+  keycloakId String     @unique @map("keycloak_id")
+  email      String     @unique
+  username   String?
+  currency   String     @default("USD")
+  userAvatar String?    @map("user_avatar")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  expenses   Expense[]
+  budgets    Budget[]
+
+  @@map("users")
+}
+
+model Merchant {
+  id        String   @id @default(uuid())
+  name      String
+  business  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("merchants")
+}
+
+model Category {
+  id        String          @id @default(uuid())
+  name      String
+  icon      String?
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  expenseItems ExpenseItem[]
+  budgets      Budget[]
+
+  @@map("categories")
+}
+
+model Budget {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  categoryId      String?  @map("category_id")
+  amount          Decimal  @db.Decimal(10, 2)
+  notifyThreshold Decimal  @db.Decimal(5, 2) @map("notify_threshold")
+  endDate         DateTime? @map("end_date")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("budgets")
+}
+
+model Expense {
+  id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  merchantId    String?       @map("merchant_id")
+  totalAmount   Decimal       @db.Decimal(10, 2) @map("total_amount")
+  expenseDate   DateTime      @map("expense_date")
+  isRecurring   Boolean       @default(false) @map("is_recurring")
+  note          String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  merchant     Merchant?     @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  expenseItems ExpenseItem[]
+
+  @@map("expenses")
+}
+
+model ExpenseItem {
+  id          String   @id @default(uuid())
+  expenseId   String   @map("expense_id")
+  itemName    String   @map("item_name")
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2) @map("unit_price")
+  totalPrice  Decimal  @db.Decimal(10, 2) @map("total_price")
+  categoryId  String   @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  expense  Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@map("expense_items")
+}
