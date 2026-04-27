@@ -1,24 +1,24 @@
 paths:
-  /users:
+  /merchants:
     get:
-      operationId: findAllUsers
-      summary: Get all users
-      tags: [Users]
+      operationId: findAllMerchants
+      summary: Get all merchants
+      tags: [Merchants]
       security:
         - keycloak: []
       responses:
         '200':
-          description: Array of users
+          description: Array of merchants
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Merchant'
     post:
-      operationId: createUser
-      summary: Create a user
-      tags: [Users]
+      operationId: createMerchant
+      summary: Create a merchant
+      tags: [Merchants]
       security:
         - keycloak: []
       requestBody:
@@ -26,19 +26,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserDto'
+              $ref: '#/components/schemas/CreateMerchantDto'
       responses:
         '201':
-          description: User created
+          description: Merchant created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-  /users/{id}:
+                $ref: '#/components/schemas/Merchant'
+  /merchants/{id}:
     get:
-      operationId: findOneUser
-      summary: Get a user by ID
-      tags: [Users]
+      operationId: findOneMerchant
+      summary: Get a merchant by ID
+      tags: [Merchants]
       security:
         - keycloak: []
       parameters:
@@ -49,21 +49,21 @@ paths:
             type: string
       responses:
         '200':
-          description: User found
+          description: Merchant found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Merchant'
         '404':
-          description: User not found
+          description: Merchant not found
           content:
             application/json:
               schema:
                 $ref: './lisa.yaml#/components/schemas/Error'
     put:
-      operationId: updateUser
-      summary: Update a user
-      tags: [Users]
+      operationId: updateMerchant
+      summary: Update a merchant
+      tags: [Merchants]
       security:
         - keycloak: []
       parameters:
@@ -77,18 +77,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserDto'
+              $ref: '#/components/schemas/UpdateMerchantDto'
       responses:
         '200':
-          description: User updated
+          description: Merchant updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Merchant'
     delete:
-      operationId: deleteUser
-      summary: Delete a user
-      tags: [Users]
+      operationId: deleteMerchant
+      summary: Delete a merchant
+      tags: [Merchants]
       security:
         - keycloak: []
       parameters:
@@ -99,33 +99,23 @@ paths:
             type: string
       responses:
         '200':
-          description: User deleted
+          description: Merchant deleted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteUser200Response'
+                $ref: '#/components/schemas/DeleteMerchant200Response'
 
 components:
   schemas:
-    User:
+    Merchant:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        keycloakId:
+        name:
           type: string
-          format: uuid
-        email:
-          type: string
-          format: email
-        username:
-          type: string
-          nullable: true
-        currency:
-          type: string
-          default: USD
-        userAvatar:
+        business:
           type: string
           nullable: true
         createdAt:
@@ -133,38 +123,25 @@ components:
           format: date-time
       required:
         - id
-        - keycloakId
-        - email
+        - name
         - createdAt
-    CreateUserDto:
+    CreateMerchantDto:
       type: object
       properties:
-        keycloakId:
+        name:
           type: string
-          format: uuid
-        email:
-          type: string
-          format: email
-        username:
-          type: string
-        currency:
-          type: string
-          default: USD
-        userAvatar:
+        business:
           type: string
       required:
-        - keycloakId
-        - email
-    UpdateUserDto:
+        - name
+    UpdateMerchantDto:
       type: object
       properties:
-        username:
+        name:
           type: string
-        currency:
+        business:
           type: string
-        userAvatar:
-          type: string
-    DeleteUser200Response:
+    DeleteMerchant200Response:
       type: object
       properties:
         message:

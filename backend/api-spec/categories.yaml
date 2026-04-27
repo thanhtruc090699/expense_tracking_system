@@ -1,24 +1,24 @@
 paths:
-  /users:
+  /categories:
     get:
-      operationId: findAllUsers
-      summary: Get all users
-      tags: [Users]
+      operationId: findAllCategories
+      summary: Get all categories
+      tags: [Categories]
       security:
         - keycloak: []
       responses:
         '200':
-          description: Array of users
+          description: Array of categories
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Category'
     post:
-      operationId: createUser
-      summary: Create a user
-      tags: [Users]
+      operationId: createCategory
+      summary: Create a category
+      tags: [Categories]
       security:
         - keycloak: []
       requestBody:
@@ -26,19 +26,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserDto'
+              $ref: '#/components/schemas/CreateCategoryDto'
       responses:
         '201':
-          description: User created
+          description: Category created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-  /users/{id}:
+                $ref: '#/components/schemas/Category'
+  /categories/{id}:
     get:
-      operationId: findOneUser
-      summary: Get a user by ID
-      tags: [Users]
+      operationId: findOneCategory
+      summary: Get a category by ID
+      tags: [Categories]
       security:
         - keycloak: []
       parameters:
@@ -49,21 +49,21 @@ paths:
             type: string
       responses:
         '200':
-          description: User found
+          description: Category found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Category'
         '404':
-          description: User not found
+          description: Category not found
           content:
             application/json:
               schema:
                 $ref: './lisa.yaml#/components/schemas/Error'
     put:
-      operationId: updateUser
-      summary: Update a user
-      tags: [Users]
+      operationId: updateCategory
+      summary: Update a category
+      tags: [Categories]
       security:
         - keycloak: []
       parameters:
@@ -77,18 +77,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserDto'
+              $ref: '#/components/schemas/UpdateCategoryDto'
       responses:
         '200':
-          description: User updated
+          description: Category updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Category'
     delete:
-      operationId: deleteUser
-      summary: Delete a user
-      tags: [Users]
+      operationId: deleteCategory
+      summary: Delete a category
+      tags: [Categories]
       security:
         - keycloak: []
       parameters:
@@ -99,33 +99,23 @@ paths:
             type: string
       responses:
         '200':
-          description: User deleted
+          description: Category deleted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteUser200Response'
+                $ref: '#/components/schemas/DeleteCategory200Response'
 
 components:
   schemas:
-    User:
+    Category:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        keycloakId:
+        name:
           type: string
-          format: uuid
-        email:
-          type: string
-          format: email
-        username:
-          type: string
-          nullable: true
-        currency:
-          type: string
-          default: USD
-        userAvatar:
+        icon:
           type: string
           nullable: true
         createdAt:
@@ -133,38 +123,25 @@ components:
           format: date-time
       required:
         - id
-        - keycloakId
-        - email
+        - name
         - createdAt
-    CreateUserDto:
+    CreateCategoryDto:
       type: object
       properties:
-        keycloakId:
+        name:
           type: string
-          format: uuid
-        email:
-          type: string
-          format: email
-        username:
-          type: string
-        currency:
-          type: string
-          default: USD
-        userAvatar:
+        icon:
           type: string
       required:
-        - keycloakId
-        - email
-    UpdateUserDto:
+        - name
+    UpdateCategoryDto:
       type: object
       properties:
-        username:
+        name:
           type: string
-        currency:
+        icon:
           type: string
-        userAvatar:
-          type: string
-    DeleteUser200Response:
+    DeleteCategory200Response:
       type: object
       properties:
         message:
