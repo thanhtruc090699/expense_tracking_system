@@ -7,6 +7,7 @@ import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LoginPage } from "./pages/LoginPage";
 import { UsersPage } from "./pages/UsersPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
+import { DocsPage } from "./pages/DocsPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/lisa" element={<Layout><LisaChatPage /></Layout>} />
         <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
         <Route path="/users" element={<Layout><UsersPage /></Layout>} />
+        <Route path="/docs" element={<Layout><DocsPage /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

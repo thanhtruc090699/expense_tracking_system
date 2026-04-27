@@ -15,9 +15,13 @@ import {
   NavList,
   Button,
   Icon,
+  Toolbar,
+  ToolbarItem,
+  ToolbarGroup,
 } from '@patternfly/react-core';
-import { BarsIcon, HomeIcon, FileInvoiceIcon, CogIcon, CameraIcon, UsersIcon, ChatIcon } from '@patternfly/react-icons';
+import { BarsIcon, HomeIcon, FileInvoiceIcon, CogIcon, CameraIcon, UsersIcon, ChatIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import logo from '../assets/billbuddy.svg';
+import { getToken, redirectToLogin, logout } from '../auth';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -27,6 +31,16 @@ export function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const token = getToken();
+
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
+
+  const handleLogin = () => {
+    redirectToLogin();
+  };
 
   const onSidebarToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -39,6 +53,7 @@ export function Layout({ children }: LayoutProps) {
     { groupId: 'main', itemId: 'lisa', title: 'LISA Chat', icon: <Icon><ChatIcon /></Icon> },
     { groupId: 'main', itemId: 'users', title: 'Users', icon: <Icon><UsersIcon /></Icon> },
     { groupId: 'main', itemId: 'settings', title: 'Settings', icon: <Icon><CogIcon /></Icon> },
+    { groupId: 'main', itemId: 'docs', title: 'API Docs', icon: <Icon><FileInvoiceIcon /></Icon> },
   ];
 
   const onNavSelect = (_event: React.FormEvent<HTMLDivElement>, result: { itemId: number | string }) => {
@@ -82,7 +97,30 @@ export function Layout({ children }: LayoutProps) {
           <img src={logo} alt="BillBuddy" style={{ height: '30px', cursor: 'pointer' }} />
         </MastheadBrand>
       </MastheadMain>
-      <MastheadContent />
+      <MastheadContent>
+        <Toolbar id="toolbar">
+          <ToolbarGroup align={{ default: 'alignEnd' }}>
+            <ToolbarItem>
+              {token ? (
+                <Button 
+                  variant="secondary" 
+                  icon={<OutlinedQuestionCircleIcon />} 
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <Button 
+                  variant="primary" 
+                  onClick={handleLogin}
+                >
+                  Login
+                </Button>
+              )}
+            </ToolbarItem>
+          </ToolbarGroup>
+        </Toolbar>
+      </MastheadContent>
     </Masthead>
   );
 

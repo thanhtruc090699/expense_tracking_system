@@ -7,9 +7,9 @@ import {
   CardBody,
   Badge,
 } from '@patternfly/react-core';
-import { TrashIcon, EyeIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
+import { TrashIcon, EyeIcon } from '@patternfly/react-icons';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { getToken, redirectToLogin, logout } from '../auth';
+import { getToken } from '../auth';
 
 interface Bill {
   id: string;
@@ -78,15 +78,9 @@ export function BillsPage() {
       <>
         <Title headingLevel="h1" size="xl">Bills</Title>
         <p>Authentication required to view bills</p>
-        <Button onClick={redirectToLogin}>Login with Keycloak</Button>
       </>
     );
   }
-
-  const handleLogout = () => {
-    logout();
-    window.location.reload();
-  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -94,12 +88,7 @@ export function BillsPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title headingLevel="h1" size="xl">Bills</Title>
-        <Button variant="secondary" icon={<OutlinedQuestionCircleIcon />} onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
+      <Title headingLevel="h1" size="xl">Bills</Title>
       <p>Manage and track your bills</p>
 
       <Card>
