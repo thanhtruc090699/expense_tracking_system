@@ -38,4 +38,19 @@ npx @openapitools/openapi-generator-cli generate \
 OpenAPI specs are located in `api-spec/`:
 
 - `bills.yaml` - Bills endpoint specification
+- `users.yaml` - Users endpoint specification
+- `lisa.yaml` - Lisa AI endpoint specification
 - `openapi.yaml` - Aggregator file that references all domain specs
+
+## Generate Documentation
+
+Generate static HTML documentation from OpenAPI spec:
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i ./api-spec/openapi.yaml \
+  -g html2 \
+  -o docs
+```
+
+The generated docs will be available at `docs/index.html`.

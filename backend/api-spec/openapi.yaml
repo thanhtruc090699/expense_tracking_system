@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Bill Buddy API
-  description: API for managing bills, expenses, and OCR processing
+  description: API for managing bills, users, and OCR processing
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -11,6 +11,14 @@ paths:
     $ref: './bills.yaml#/paths/~1bills'
   /bills/{id}:
     $ref: './bills.yaml#/paths/~1bills~1{id}'
+  /users:
+    $ref: './users.yaml#/paths/~1users'
+  /users/{id}:
+    $ref: './users.yaml#/paths/~1users~1{id}'
+  /lisa/chat:
+    $ref: './lisa.yaml#/paths/~1lisa~1chat'
+  /lisa/process:
+    $ref: './lisa.yaml#/paths/~1lisa~1process'
 components:
   securitySchemes:
     keycloak:
@@ -24,6 +32,18 @@ components:
       $ref: './bills.yaml#/components/schemas/CreateBillDto'
     UpdateBillDto:
       $ref: './bills.yaml#/components/schemas/UpdateBillDto'
+    User:
+      $ref: './users.yaml#/components/schemas/User'
+    CreateUserDto:
+      $ref: './users.yaml#/components/schemas/CreateUserDto'
+    ChatRequest:
+      $ref: './lisa.yaml#/components/schemas/ChatRequest'
+    ChatResponse:
+      $ref: './lisa.yaml#/components/schemas/ChatResponse'
+    ProcessRequest:
+      $ref: './lisa.yaml#/components/schemas/ProcessRequest'
+    ProcessResponse:
+      $ref: './lisa.yaml#/components/schemas/ProcessResponse'
     Error:
       $ref: './bills.yaml#/components/schemas/Error'
 security:

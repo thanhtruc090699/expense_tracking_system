@@ -1,46 +1,22 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { LisaService } from './lisa.service';
-
-const DEFAULT_PROMPT = 'You are a helpful assistant. Analyze the provided data and return a structured response with key insights.';
+import { Inject, Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import type { Observable } from 'rxjs';
+import type { ChatRequest, ChatResponse, ProcessRequest, ProcessResponse } from '../generated/models';
+import { LisaApi } from '../generated/api/LisaApi';
+import { LISA_API_PROVIDER } from './lisa.constants';
+import { JwtGuard } from '../auth/jwt/jwt.guard';
 
 @Controller('lisa')
+@UseGuards(JwtGuard)
 export class LisaController {
-  constructor(
-    private readonly lisaService: LisaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(@Inject(LISA_API_PROVIDER) private readonly lisaApi: LisaApi) {}
 
   @Post('chat')
-  async chat(
-    @Body() body: { model?: string; messages: { role: string; content: string }[] },
-  ) {
-    const apiKey = this.configService.get<string>('LISA_API_KEY');
-    if (!apiKey) {
-      throw new BadRequestException('LISA_API_KEY not configured');
-    }
-
-    if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
-      throw new BadRequestException('Missing messages array');
-    }
-
-    return this.lisaService.chat(apiKey, body.model || 'lisa-pro-03-2026', body.messages);
+  lisaChat(@Body() chatRequest: ChatRequest, @Req() request: Request): ReturnType<LisaApi['lisaChat']> {
+    return this.lisaApi.lisaChat(chatRequest, request);
   }
 
   @Post('process')
-  async process(
-    @Body() body: { model?: string; data: unknown; prompt?: string },
-  ) {
-    const apiKey = this.configService.get<string>('LISA_API_KEY');
-    if (!apiKey) {
-      throw new BadRequestException('LISA_API_KEY not configured');
-    }
-
-    if (body.data === undefined) {
-      throw new BadRequestException('Missing data');
-    }
-
-    const prompt = body.prompt || DEFAULT_PROMPT;
-    return this.lisaService.processData(apiKey, body.model || 'lisa-pro-03-2026', body.data, prompt);
+  lisaProcess(@Body() processRequest: ProcessRequest, @Req() request: Request): ReturnType<LisaApi['lisaProcess']> {
+    return this.lisaApi.lisaProcess(processRequest, request);
   }
 }
