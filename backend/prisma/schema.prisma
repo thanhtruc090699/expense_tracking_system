@@ -7,80 +7,88 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum BudgetType {
-  TOTAL
-  MONTHLY
-  CATEGORY
+model User {
+  id         String     @id @default(uuid())
+  keycloakId String     @unique @map("keycloak_id")
+  email      String     @unique
+  username   String?
+  currency   String     @default("USD")
+  userAvatar String?    @map("user_avatar")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  expenses   Expense[]
+  budgets    Budget[]
+
+  @@map("users")
 }
 
-model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  password  String
-  username  String?
-  avatar    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+model Merchant {
+  id        String    @id @default(uuid())
+  name      String
+  business  String?
+  createdAt DateTime  @default(now()) @map("created_at")
 
-  categories Category[]
-  budgets    Budget[]
-  expenses   Expense[]
-  bills      Bill[]
+  expenses  Expense[]
+
+  @@map("merchants")
 }
 
 model Category {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   name      String
-  isDefault Boolean  @default(false)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  budgets   Budget[]
-  expenses  Expense[]
+  icon      String?
+  createdAt DateTime        @default(now()) @map("created_at")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  expenseItems ExpenseItem[]
+  budgets      Budget[]
 
-  @@unique([name, userId])
+  @@map("categories")
 }
 
 model Budget {
-  id         String     @id @default(uuid())
-  type       BudgetType
-  amount     Decimal    @db.Decimal(10, 2)
-  categoryId String?
-  category   Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  userId     String
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  categoryId      String?  @map("category_id")
+  amount          Decimal  @db.Decimal(10, 2)
+  notifyThreshold Decimal  @db.Decimal(5, 2) @map("notify_threshold")
+  endDate         DateTime? @map("end_date")
+  createdAt       DateTime @default(now()) @map("created_at")
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  @@unique([type, categoryId, userId])
+  @@map("budgets")
 }
 
 model Expense {
-  id         String   @id @default(uuid())
-  amount     Decimal  @db.Decimal(10, 2)
-  date       DateTime
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billId     String?
+  id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  merchantId    String?       @map("merchant_id")
+  totalAmount   Decimal       @db.Decimal(10, 2) @map("total_amount")
+  expenseDate   DateTime      @map("expense_date")
+  isRecurring   Boolean       @default(false) @map("is_recurring")
+  note          String?
+  createdAt     DateTime      @default(now()) @map("created_at")
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  merchant     Merchant?     @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  expenseItems ExpenseItem[]
+
+  @@map("expenses")
 }
 
-model Bill {
+model ExpenseItem {
   id          String   @id @default(uuid())
-  fileUrl     String
-  fileType    String
-  ocrData     Json?
-  isDuplicate Boolean  @default(false)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenseId   String   @map("expense_id")
+  itemName    String   @map("item_name")
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2) @map("unit_price")
+  totalPrice  Decimal  @db.Decimal(10, 2) @map("total_price")
+  categoryId  String   @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  expense  Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@map("expense_items")
 }
