@@ -5,13 +5,7 @@ import { JwtGuard } from './jwt/jwt.guard';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.KEYCLOAK_CLIENT_SECRET,
-      verifyOptions: {
-        issuer: process.env.KEYCLOAK_ISSUER,
-        algorithms: ['RS256'],
-      },
-    }),
+    JwtModule.register({}),
   ],
   providers: [AuthService, JwtGuard],
   exports: [JwtModule, JwtGuard],

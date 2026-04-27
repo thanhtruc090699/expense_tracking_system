@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import type { User, CreateUserDto, DeleteBill200Response } from '../generated/models';
+import type { User, CreateUserDto, UpdateUserDto, DeleteUser200Response } from '../generated/models';
 import { UsersApi } from '../generated/api/UsersApi';
 import { UsersService } from './users.service';
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  username: string;
-  roles: string[];
-}
 
 @Injectable()
 export class UsersApiImpl extends UsersApi {
@@ -17,37 +10,42 @@ export class UsersApiImpl extends UsersApi {
   }
 
   async createUser(createUserDto: CreateUserDto, request: Request): Promise<User> {
-    const user = await this.usersService.create({
+    const authUser = request['user'] as { id: string };
+    const data = {
       email: createUserDto.email,
-      password: createUserDto.password,
       username: createUserDto.username,
-    });
+      currency: createUserDto.currency,
+      userAvatar: createUserDto.userAvatar,
+      keycloakId: authUser.id,
+    };
+    const user = await this.usersService.create(data);
     return this.toUser(user);
   }
 
   async findAllUsers(request: Request): Promise<User[]> {
     const users = await this.usersService.findAll();
-    return users.map(u => this.toUser(u));
+    return users.map((u) => this.toUser(u));
   }
 
-  async findOneUser(id: string, request: Request): Promise<User> {
+  async findOneUser(id: string): Promise<User> {
     const user = await this.usersService.findOne(id);
     return this.toUser(user);
   }
 
-  async deleteUser(id: string, request: Request): Promise<DeleteBill200Response> {
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.usersService.update(id, updateUserDto);
+    return this.toUser(user);
+  }
+
+  async deleteUser(id: string): Promise<DeleteUser200Response> {
     await this.usersService.delete(id);
     return { message: 'User deleted successfully' };
   }
 
-  private toUser(dbUser: any): User {
+  private toUser(user: any): User {
     return {
-      id: dbUser.id,
-      email: dbUser.email,
-      password: dbUser.password || '',
-      username: dbUser.username || undefined,
-      createdAt: dbUser.createdAt,
-      updatedAt: dbUser.updatedAt,
+      ...user,
+      createdAt: user.createdAt.toISOString(),
     };
   }
 }
