@@ -26,18 +26,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('scan')
-  async scanFromUrl(
-    @Query('url') url: string,
-    @Query('language') language?: string,
-  ) {
-    if (!url) {
-      throw new BadRequestException('Missing required query parameter: url');
-    }
-    return this.ocrService.fetchOcrFromUrl(url, language);
-  }
-
-  @Post('scan')
+  @Post('scan-legacy')
   @UseInterceptors(FileInterceptor('file'))
   async scanFromFile(
     @UploadedFile() file: { buffer: Buffer; originalname: string } | undefined,
@@ -78,10 +67,8 @@ export class AppController {
       }
     }
 
-    return this.ocrService.fetchOcrFromFile(
-      fileBuffer,
-      file.originalname,
-      language,
-    );
+    return this.ocrService.scanInvoice(fileBuffer, file.originalname, {
+      lang: language || 'eng',
+    });
   }
 }
