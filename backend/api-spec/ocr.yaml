@@ -1,0 +1,243 @@
+paths:
+  /ocr/scan:
+    post:
+      operationId: scanInvoice
+      summary: Scan an invoice or receipt
+      tags: [OCR]
+      security:
+        - keycloak: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Invoice/receipt file (image or PDF)
+                lang:
+                  type: string
+                  default: eng
+                  description: Tesseract language(s), e.g. eng+deu
+                psm:
+                  type: integer
+                  default: 6
+                  description: Tesseract page segmentation mode
+                oem:
+                  type: integer
+                  default: 1
+                  description: Tesseract OCR engine mode
+                min_conf:
+                  type: integer
+                  default: 30
+                  description: Minimum OCR token confidence
+                pdf_mode:
+                  type: string
+                  default: auto
+                  enum: [auto, native, ocr]
+                  description: PDF handling mode
+                include_tokens:
+                  type: string
+                  default: "0"
+                  description: Set to "1" to include spatial.tokens in response
+      responses:
+        '200':
+          description: Scan result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: './lisa.yaml#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: './lisa.yaml#/components/schemas/Error'
+
+components:
+  schemas:
+    ScanResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        data:
+          $ref: '#/components/schemas/ScanResult'
+    ScanResult:
+      type: object
+      required: [meta, spatial, invoice]
+      properties:
+        meta:
+          $ref: '#/components/schemas/Meta'
+        spatial:
+          $ref: '#/components/schemas/Spatial'
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+    Meta:
+      type: object
+      required: [source_file, ocr_engine, source_type, extraction_mode]
+      properties:
+        source_file:
+          type: string
+          description: Original filename
+        ocr_engine:
+          type: string
+          description: OCR engine name
+        source_type:
+          type: string
+          description: Source file type (png, jpg, pdf, ...)
+        extraction_mode:
+          type: string
+          description: ocr or pdf-text-layer
+    Spatial:
+      type: object
+      required: [rows]
+      properties:
+        tokens:
+          type: array
+          description: OCR tokens (only when include_tokens=1)
+          items:
+            $ref: '#/components/schemas/Token'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+    Token:
+      type: object
+      required: [text, conf, x, y, w, h, x2, y2, cx, cy]
+      properties:
+        text:
+          type: string
+        conf:
+          type: number
+        x:
+          type: integer
+        y:
+          type: integer
+        w:
+          type: integer
+        h:
+          type: integer
+        x2:
+          type: integer
+        y2:
+          type: integer
+        cx:
+          type: number
+        cy:
+          type: number
+    Row:
+      type: object
+      required: [id, tokens, text, x, y, w, h]
+      properties:
+        id:
+          type: integer
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        text:
+          type: string
+        x:
+          type: integer
+        y:
+          type: integer
+        w:
+          type: integer
+        h:
+          type: integer
+    Invoice:
+      type: object
+      required: [vendor, items, tax_lines, totals]
+      properties:
+        vendor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        tax_lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxLine'
+        totals:
+          $ref: '#/components/schemas/Totals'
+    InvoiceItem:
+      type: object
+      required: [item_name, quantity, amount_before_tax, tax_percent, final_amount, row_id, row_bbox]
+      properties:
+        item_name:
+          type: string
+        quantity:
+          type: number
+          nullable: true
+        amount_before_tax:
+          type: number
+          nullable: true
+        tax_percent:
+          type: number
+          nullable: true
+        final_amount:
+          type: number
+          nullable: true
+        row_id:
+          type: integer
+        row_bbox:
+          $ref: '#/components/schemas/RowBox'
+    RowBox:
+      type: object
+      required: [x, y, w, h]
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+        w:
+          type: integer
+        h:
+          type: integer
+    TaxLine:
+      type: object
+      description: Tax line extracted from receipt
+      properties:
+        tax_percent:
+          type: number
+        gross_amount:
+          type: number
+        net_amount:
+          type: number
+        tax_amount:
+          type: number
+    Totals:
+      type: object
+      required: [total_amount, total_items_declared, line_items_sum, sum_difference, line_sum_matches_total, total_items_detected]
+      properties:
+        total_amount:
+          type: number
+          nullable: true
+        total_items_declared:
+          type: integer
+          nullable: true
+        line_items_sum:
+          type: number
+        sum_difference:
+          type: number
+          nullable: true
+        line_sum_matches_total:
+          type: boolean
+          nullable: true
+        total_items_detected:
+          type: integer

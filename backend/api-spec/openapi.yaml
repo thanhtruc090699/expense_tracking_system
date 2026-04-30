@@ -35,6 +35,8 @@ paths:
     $ref: './budgets.yaml#/paths/~1budgets'
   /budgets/{id}:
     $ref: './budgets.yaml#/paths/~1budgets~1{id}'
+  /ocr/scan:
+    $ref: './ocr.yaml#/paths/~1ocr~1scan'
 components:
   securitySchemes:
     keycloak:
@@ -98,6 +100,28 @@ components:
       $ref: './budgets.yaml#/components/schemas/UpdateBudgetDto'
     DeleteBudget200Response:
       $ref: './budgets.yaml#/components/schemas/DeleteBudget200Response'
+    ScanResponse:
+      $ref: './ocr.yaml#/components/schemas/ScanResponse'
+    ScanResult:
+      $ref: './ocr.yaml#/components/schemas/ScanResult'
+    Meta:
+      $ref: './ocr.yaml#/components/schemas/Meta'
+    Spatial:
+      $ref: './ocr.yaml#/components/schemas/Spatial'
+    Token:
+      $ref: './ocr.yaml#/components/schemas/Token'
+    Row:
+      $ref: './ocr.yaml#/components/schemas/Row'
+    Invoice:
+      $ref: './ocr.yaml#/components/schemas/Invoice'
+    InvoiceItem:
+      $ref: './ocr.yaml#/components/schemas/InvoiceItem'
+    RowBox:
+      $ref: './ocr.yaml#/components/schemas/RowBox'
+    TaxLine:
+      $ref: './ocr.yaml#/components/schemas/TaxLine'
+    Totals:
+      $ref: './ocr.yaml#/components/schemas/Totals'
     Error:
       $ref: './lisa.yaml#/components/schemas/Error'
 security:
