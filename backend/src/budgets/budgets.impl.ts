@@ -40,6 +40,13 @@ export class BudgetsApiImpl extends BudgetsApi {
     return this.toBudget(budget);
   }
 
+  async partiallyUpdateBudget(id: string, updateBudgetDto: UpdateBudgetDto): Promise<Budget> {
+    const data = {...updateBudgetDto,
+      endDate: updateBudgetDto.endDate ? new Date(updateBudgetDto.endDate) : undefined,
+    };
+    const budget = await this.budgetsService.update(id, data);
+    return this.toBudget(budget);
+  }
   async deleteBudget(id: string): Promise<DeleteBudget200Response> {
     await this.budgetsService.delete(id);
     return { message: 'Budget deleted successfully' };

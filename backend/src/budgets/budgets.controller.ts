@@ -1,4 +1,4 @@
-import { Inject, Controller, Get, Post, Put, Delete, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Inject, Controller, Get, Post, Put, Delete, Body, Param, Query, Req, UseGuards, Patch } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 import type { Budget, CreateBudgetDto, DeleteBudget200Response, UpdateBudgetDto } from '../generated/models';
 import { BudgetsApi } from '../generated/api/BudgetsApi';
@@ -28,6 +28,11 @@ export class BudgetsController {
   @Put(':id')
   updateBudget(@Param('id') id: string, @Body() updateBudgetDto: UpdateBudgetDto, @Req() request: Request): ReturnType<BudgetsApi['updateBudget']> {
     return this.budgetsApi.updateBudget(id, updateBudgetDto, request);
+  }
+
+  @Patch(':id')
+  partiallyUpdateBudget(@Param('id') id: string, @Body() updateBudgetDto: UpdateBudgetDto, @Req() request: Request): ReturnType<BudgetsApi['partiallyUpdateBudget']> {
+    return this.budgetsApi.partiallyUpdateBudget(id, updateBudgetDto, request);
   }
 
   @Delete(':id')
