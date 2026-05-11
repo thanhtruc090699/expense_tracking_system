@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import type {
   User,
   CreateUserDto,
@@ -18,16 +22,28 @@ export class UsersApiImpl extends UsersApi {
     createUserDto: CreateUserDto,
     request: Request,
   ): Promise<User> {
-    const authUser = request['user'] as { id: string };
-    const data = {
-      email: createUserDto.email,
-      username: createUserDto.username,
-      currency: createUserDto.currency,
-      userAvatar: createUserDto.userAvatar,
-      keycloakId: authUser.id,
-    };
-    const user = await this.usersService.create(data);
-    return this.toUser(user);
+    if (!createUserDto.email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    const authUser = request['user'] as { id: string; keycloakId: string };
+    
+    try {
+      const data = {
+        email: createUserDto.email,
+        username: createUserDto.username,
+        currency: createUserDto.currency,
+        userAvatar: createUserDto.userAvatar,
+        keycloakId: authUser.keycloakId,
+      };
+      const user = await this.usersService.create(data);
+      return this.toUser(user);
+    } catch (error: any) {
+      if (error instanceof BadRequestException || error instanceof ConflictException) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid user data');
+    }
   }
 
   async findAllUsers(request: Request): Promise<User[]> {
