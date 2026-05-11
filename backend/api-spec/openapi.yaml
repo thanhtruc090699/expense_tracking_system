@@ -1,0 +1,146 @@
+openapi: 3.0.3
+info:
+  title: Bill Buddy API
+  description: API for managing expenses, budgets, merchants, categories, users, and AI features
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /users:
+    $ref: './users.yaml#/paths/~1users'
+  /users/{id}:
+    $ref: './users.yaml#/paths/~1users~1{id}'
+  /lisa/chat:
+    $ref: './lisa.yaml#/paths/~1lisa~1chat'
+  /lisa/process:
+    $ref: './lisa.yaml#/paths/~1lisa~1process'
+  /expenses:
+    $ref: './expenses.yaml#/paths/~1expenses'
+  /expenses/{id}:
+    $ref: './expenses.yaml#/paths/~1expenses~1{id}'
+  /expense-items:
+    $ref: './expense-items.yaml#/paths/~1expense-items'
+  /expense-items/{id}:
+    $ref: './expense-items.yaml#/paths/~1expense-items~1{id}'
+  /merchants:
+    $ref: './merchants.yaml#/paths/~1merchants'
+  /merchants/{id}:
+    $ref: './merchants.yaml#/paths/~1merchants~1{id}'
+  /categories:
+    $ref: './categories.yaml#/paths/~1categories'
+  /categories/{id}:
+    $ref: './categories.yaml#/paths/~1categories~1{id}'
+  /budgets:
+    $ref: './budgets.yaml#/paths/~1budgets'
+  /budgets/{id}:
+    $ref: './budgets.yaml#/paths/~1budgets~1{id}'
+  /ocr/scan:
+    $ref: './ocr.yaml#/paths/~1ocr~1scan'
+components:
+  securitySchemes:
+    keycloak:
+      type: openIdConnect
+      description: Keycloak OIDC authentication
+      openIdConnectUrl: http://localhost:8080/realms/bill-buddy/.well-known/openid-configuration
+  schemas:
+    User:
+      $ref: './users.yaml#/components/schemas/User'
+    CreateUserDto:
+      $ref: './users.yaml#/components/schemas/CreateUserDto'
+    UpdateUserDto:
+      $ref: './users.yaml#/components/schemas/UpdateUserDto'
+    DeleteUser200Response:
+      $ref: './users.yaml#/components/schemas/DeleteUser200Response'
+    ChatRequest:
+      $ref: './lisa.yaml#/components/schemas/ChatRequest'
+    ChatResponse:
+      $ref: './lisa.yaml#/components/schemas/ChatResponse'
+    ProcessRequest:
+      $ref: './lisa.yaml#/components/schemas/ProcessRequest'
+    ProcessResponse:
+      $ref: './lisa.yaml#/components/schemas/ProcessResponse'
+    Expense:
+      $ref: './expenses.yaml#/components/schemas/Expense'
+    CreateExpenseDto:
+      $ref: './expenses.yaml#/components/schemas/CreateExpenseDto'
+    UpdateExpenseDto:
+      $ref: './expenses.yaml#/components/schemas/UpdateExpenseDto'
+    DeleteExpense200Response:
+      $ref: './expenses.yaml#/components/schemas/DeleteExpense200Response'
+    ExpenseItem:
+      $ref: './expense-items.yaml#/components/schemas/ExpenseItem'
+    CreateExpenseItemDto:
+      $ref: './expense-items.yaml#/components/schemas/CreateExpenseItemDto'
+    UpdateExpenseItemDto:
+      $ref: './expense-items.yaml#/components/schemas/UpdateExpenseItemDto'
+    DeleteExpenseItem200Response:
+      $ref: './expense-items.yaml#/components/schemas/DeleteExpenseItem200Response'
+    Merchant:
+      $ref: './merchants.yaml#/components/schemas/Merchant'
+    CreateMerchantDto:
+      $ref: './merchants.yaml#/components/schemas/CreateMerchantDto'
+    UpdateMerchantDto:
+      $ref: './merchants.yaml#/components/schemas/UpdateMerchantDto'
+    DeleteMerchant200Response:
+      $ref: './merchants.yaml#/components/schemas/DeleteMerchant200Response'
+    Category:
+      $ref: './categories.yaml#/components/schemas/Category'
+    CreateCategoryDto:
+      $ref: './categories.yaml#/components/schemas/CreateCategoryDto'
+    UpdateCategoryDto:
+      $ref: './categories.yaml#/components/schemas/UpdateCategoryDto'
+    DeleteCategory200Response:
+      $ref: './categories.yaml#/components/schemas/DeleteCategory200Response'
+    Budget:
+      $ref: './budgets.yaml#/components/schemas/Budget'
+    CreateBudgetDto:
+      $ref: './budgets.yaml#/components/schemas/CreateBudgetDto'
+    UpdateBudgetDto:
+      $ref: './budgets.yaml#/components/schemas/UpdateBudgetDto'
+    DeleteBudget200Response:
+      $ref: './budgets.yaml#/components/schemas/DeleteBudget200Response'
+    ScanResponse:
+      $ref: './ocr.yaml#/components/schemas/ScanResponse'
+    ScanResult:
+      $ref: './ocr.yaml#/components/schemas/ScanResult'
+    Meta:
+      $ref: './ocr.yaml#/components/schemas/Meta'
+    Spatial:
+      $ref: './ocr.yaml#/components/schemas/Spatial'
+    Token:
+      $ref: './ocr.yaml#/components/schemas/Token'
+    Row:
+      $ref: './ocr.yaml#/components/schemas/Row'
+    Invoice:
+      $ref: './ocr.yaml#/components/schemas/Invoice'
+    InvoiceItem:
+      $ref: './ocr.yaml#/components/schemas/InvoiceItem'
+    RowBox:
+      $ref: './ocr.yaml#/components/schemas/RowBox'
+    TaxLine:
+      $ref: './ocr.yaml#/components/schemas/TaxLine'
+    Totals:
+      $ref: './ocr.yaml#/components/schemas/Totals'
+    Error:
+      $ref: './common.yaml#/components/schemas/Error'
+security:
+  - keycloak: []
+tags:
+  - name: Users
+    description: Operations related to user management
+  - name: Lisa
+    description: Operations related to the Lisa AI assistant
+  - name: Budgets
+    description: Operations related to budget management
+  - name: Expenses
+    description: Operations related to expense management
+  - name: Expense Items
+    description: Operations related to expense item management
+  - name: Merchants
+    description: Operations related to merchant management
+  - name: Categories
+    description: Operations related to category management
+  - name: OCR
+    description: Operations related to OCR scanning and processing
+    

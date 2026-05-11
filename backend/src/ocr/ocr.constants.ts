@@ -1,0 +1,1 @@
+export const OCR_API_PROVIDER = 'OCR_API_PROVIDER';

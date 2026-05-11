@@ -1,0 +1,148 @@
+paths:
+  /merchants:
+    get:
+      operationId: findAllMerchants
+      summary: Get all merchants
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      responses:
+        '200':
+          description: Array of merchants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Merchant'
+    post:
+      operationId: createMerchant
+      summary: Create a merchant
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMerchantDto'
+      responses:
+        '201':
+          description: Merchant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+  /merchants/{id}:
+    get:
+      operationId: findOneMerchant
+      summary: Get a merchant by ID
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Merchant found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        '404':
+          description: Merchant not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+    put:
+      operationId: updateMerchant
+      summary: Update a merchant
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMerchantDto'
+      responses:
+        '200':
+          description: Merchant updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+    delete:
+      operationId: deleteMerchant
+      summary: Delete a merchant
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Merchant deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMerchant200Response'
+
+components:
+  schemas:
+    Merchant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        business:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdAt
+    CreateMerchantDto:
+      type: object
+      properties:
+        name:
+          type: string
+        business:
+          type: string
+      required:
+        - name
+    UpdateMerchantDto:
+      type: object
+      properties:
+        name:
+          type: string
+        business:
+          type: string
+    DeleteMerchant200Response:
+      type: object
+      properties:
+        message:
+          type: string

@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: Bill Buddy API - Lisa
+  description: AI chat and data processing API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /lisa/chat:
+    post:
+      operationId: lisaChat
+      summary: Chat with Lisa AI
+      tags:
+        - Lisa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful chat response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /lisa/process:
+    post:
+      operationId: lisaProcess
+      summary: Process data with Lisa AI
+      tags:
+        - Lisa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessRequest'
+      responses:
+        '200':
+          description: Successful processing response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+      required:
+        - role
+        - content
+
+    ChatRequest:
+      type: object
+      properties:
+        model:
+          type: string
+          default: lisa-pro-03-2026
+          description: Model to use for chat
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Array of chat messages
+      required:
+        - messages
+
+    ChatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        model:
+          type: string
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+              message:
+                $ref: '#/components/schemas/Message'
+              finish_reason:
+                type: string
+        usage:
+          type: object
+          properties:
+            prompt_tokens:
+              type: integer
+            completion_tokens:
+              type: integer
+            total_tokens:
+              type: integer
+      required:
+        - id
+        - model
+        - choices
+
+    ProcessRequest:
+      type: object
+      properties:
+        model:
+          type: string
+          default: lisa-pro-03-2026
+          description: Model to use for processing
+        data:
+          type: object
+          description: Data to process
+        prompt:
+          type: string
+          description: Custom prompt for processing
+      required:
+        - data
+
+    ProcessResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          description: Processed result from Lisa AI
+      required:
+        - result
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+      required:
+        - statusCode
+        - message

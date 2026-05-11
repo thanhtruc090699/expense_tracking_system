@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getToken } from '../auth'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -22,9 +23,14 @@ export function LisaChatPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const token = getToken()
 
   const sendMessage = async () => {
     if (!input.trim()) return
+    if (!token) {
+      setError('Please login to chat');
+      return;
+    }
 
     const userMessage: Message = { role: 'user', content: input }
     setMessages((prev) => [...prev, userMessage])
@@ -35,7 +41,10 @@ export function LisaChatPage() {
     try {
       const response = await fetch(`${API_URL}/lisa/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           messages: [...messages, userMessage],
         }),
@@ -64,6 +73,15 @@ export function LisaChatPage() {
       e.preventDefault()
       sendMessage()
     }
+  }
+
+  if (!token) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>Chat with LISA</h1>
+        <p>Authentication required to use Lisa chat</p>
+      </div>
+    );
   }
 
   return (

@@ -1,67 +1,66 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-interface OcrResponse {
-  ParsedResults?: Array<{ ParsedText: string; FileParseExitCode: number }>;
-  OCRExitCode?: number;
-  IsErroredOnProcessing?: boolean;
-  ErrorMessage?: string[];
-  ErrorDetails?: string;
-}
+import type {
+  ScanResponse,
+  Invoice,
+  InvoiceItem,
+  Row,
+  RowBox,
+  TaxLine,
+  Totals,
+  Meta,
+  Spatial,
+  Token,
+} from '../generated/models';
 
 @Injectable()
 export class OcrService {
-  private readonly apiKey: string;
-  private readonly baseUrl = 'https://api.ocr.space/parse/image';
+  private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('OCR_API_KEY', 'helloworld');
+    this.baseUrl = this.configService.get<string>(
+      'INVOICE_OCR_URL',
+      'http://localhost:8000/scan',
+    );
   }
 
-  async fetchOcrFromUrl(
-    imageUrl: string,
-    language = 'eng',
-  ): Promise<OcrResponse> {
-    const formData = new FormData();
-    formData.set('apikey', this.apiKey);
-    formData.set('url', imageUrl);
-    formData.set('language', language);
-
-    return this.callOcrApi(formData);
-  }
-
-  async fetchOcrFromFile(
+  async scanInvoice(
     file: Buffer,
     filename: string,
-    language = 'eng',
-  ): Promise<OcrResponse> {
+    options: {
+      lang?: string;
+      psm?: number;
+      oem?: number;
+      minConf?: number;
+      pdfMode?: string;
+      includeTokens?: string;
+    },
+  ): Promise<any> {
     const formData = new FormData();
-    formData.set('apikey', this.apiKey);
-    formData.set('language', language);
+
     const blob = new Blob([new Uint8Array(file)]);
     formData.append('file', blob, filename);
 
-    return this.callOcrApi(formData);
-  }
+    if (options.lang) formData.set('lang', options.lang);
+    if (options.psm !== undefined) formData.set('psm', String(options.psm));
+    if (options.oem !== undefined) formData.set('oem', String(options.oem));
+    if (options.minConf !== undefined)
+      formData.set('min_conf', String(options.minConf));
+    if (options.pdfMode) formData.set('pdf_mode', options.pdfMode);
+    if (options.includeTokens)
+      formData.set('include_tokens', options.includeTokens);
 
-  private async callOcrApi(formData: FormData): Promise<OcrResponse> {
     try {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         body: formData,
-        headers: {
-          Accept: 'application/json',
-        },
       });
 
-      const data = (await response.json()) as OcrResponse;
+      const data = await response.json();
 
-      if (!response.ok || data.IsErroredOnProcessing) {
+      if (!response.ok) {
         throw new HttpException(
-          {
-            message: data.ErrorMessage?.[0] ?? 'OCR processing failed',
-            details: data,
-          },
+          { message: data.error || 'OCR processing failed' },
           response.status,
         );
       }

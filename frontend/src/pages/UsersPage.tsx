@@ -13,6 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { getToken } from '../auth';
 
 interface User {
   id: string;
@@ -28,14 +29,32 @@ export function UsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '', username: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const token = getToken();
+
+  if (!token) {
+    return (
+      <>
+        <Title headingLevel="h1" size="xl">Users</Title>
+        <p>Authentication required to view users</p>
+      </>
+    );
+  }
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://10.0.0.2:3000/users');
+      const res = await fetch('http://10.0.0.2:3000/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       setUsers(data);
     } catch (err) {
       console.error('Failed to fetch users:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,11 +64,15 @@ export function UsersPage() {
 
   const handleCreateUser = async () => {
     if (!formData.email || !formData.password) return;
+    if (!token) return;
     setIsLoading(true);
     try {
       await fetch('http://10.0.0.2:3000/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -67,13 +90,23 @@ export function UsersPage() {
 
   const handleDeleteUser = async (id: string) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!token) return;
     try {
-      await fetch(`http://10.0.0.2:3000/users/${id}`, { method: 'DELETE' });
+      await fetch(`http://10.0.0.2:3000/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchUsers();
     } catch (err) {
       console.error('Failed to delete user:', err);
     }
   };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>

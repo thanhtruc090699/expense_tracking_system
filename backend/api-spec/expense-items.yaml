@@ -1,0 +1,352 @@
+paths:
+  /expense-items:
+    get:
+      operationId: findAllExpenseItems
+      summary: Get all expense items
+      tags: [ExpenseItems]
+      security:
+        - keycloak: []
+      parameters:
+        - name: expenseId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of expense items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseItem'
+
+        '400':
+          description: Invalid query parameters
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+    post:
+      operationId: createExpenseItem
+      summary: Create an expense item
+      tags: [ExpenseItems]
+      security:
+        - keycloak: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseItemDto'
+      responses:
+        '201':
+          description: Expense item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseItem'
+
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '404':
+          description: Expense or category not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '409':
+          description: Expense item conflict
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+  /expense-items/{id}:
+    get:
+      operationId: findOneExpenseItem
+      summary: Get an expense item by ID
+      tags: [ExpenseItems]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expense item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseItem'
+
+        '400':
+          description: Invalid expense item ID
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '404':
+          description: Expense item not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+    put:
+      operationId: updateExpenseItem
+      summary: Update an expense item
+      tags: [ExpenseItems]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExpenseItemDto'
+      responses:
+        '200':
+          description: Expense item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseItem'
+
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '404':
+          description: Expense item not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+    delete:
+      operationId: deleteExpenseItem
+      summary: Delete an expense item
+      tags: [ExpenseItems]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expense item deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteExpenseItem200Response'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '404':
+          description: Expense item not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+
+components:
+  schemas:
+    ExpenseItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        expenseId:
+          type: string
+          format: uuid
+        itemName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: double
+        totalPrice:
+          type: number
+          format: double
+        categoryId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        category:
+          $ref: './categories.yaml#/components/schemas/Category'
+      required:
+        - id
+        - expenseId
+        - itemName
+        - quantity
+        - unitPrice
+        - totalPrice
+        - categoryId
+        - createdAt
+
+    CreateExpenseItemDto:
+      type: object
+      properties:
+        expenseId:
+          type: string
+          format: uuid
+        itemName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: double
+        totalPrice:
+          type: number
+          format: double
+        categoryId:
+          type: string
+          format: uuid
+      required:
+        - expenseId
+        - itemName
+        - quantity
+        - unitPrice
+        - totalPrice
+        - categoryId
+
+    UpdateExpenseItemDto:
+      type: object
+      properties:
+        itemName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        totalPrice:
+          type: number
+        categoryId:
+          type: string
+
+    DeleteExpenseItem200Response:
+      type: object
+      properties:
+        message:
+          type: string

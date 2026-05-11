@@ -1,0 +1,198 @@
+paths:
+  /expenses:
+    get:
+      operationId: findAllExpenses
+      summary: Get all expenses
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
+    post:
+      operationId: createExpense
+      summary: Create an expense
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseDto'
+      responses:
+        '201':
+          description: Expense created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+  /expenses/{id}:
+    get:
+      operationId: findOneExpense
+      summary: Get an expense by ID
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expense found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+    put:
+      operationId: updateExpense
+      summary: Update an expense
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExpenseDto'
+      responses:
+        '200':
+          description: Expense updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+    delete:
+      operationId: deleteExpense
+      summary: Delete an expense
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expense deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteExpense200Response'
+
+components:
+  schemas:
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        merchantId:
+          type: string
+          format: uuid
+          nullable: true
+        totalAmount:
+          type: number
+          format: double
+        expenseDate:
+          type: string
+          format: date-time
+        isRecurring:
+          type: boolean
+          default: false
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        merchant:
+          $ref: './merchants.yaml#/components/schemas/Merchant'
+        expenseItems:
+          type: array
+          items:
+            $ref: './expense-items.yaml#/components/schemas/ExpenseItem'
+      required:
+        - id
+        - userId
+        - totalAmount
+        - expenseDate
+        - createdAt
+    CreateExpenseDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        merchantId:
+          type: string
+          format: uuid
+        totalAmount:
+          type: number
+          format: double
+        expenseDate:
+          type: string
+          format: date-time
+        isRecurring:
+          type: boolean
+          default: false
+        note:
+          type: string
+      required:
+        - userId
+        - totalAmount
+        - expenseDate
+    UpdateExpenseDto:
+      type: object
+      properties:
+        merchantId:
+          type: string
+        totalAmount:
+          type: number
+        expenseDate:
+          type: string
+          format: date-time
+        isRecurring:
+          type: boolean
+        note:
+          type: string
+    DeleteExpense200Response:
+      type: object
+      properties:
+        message:
+          type: string
