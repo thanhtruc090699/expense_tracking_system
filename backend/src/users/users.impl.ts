@@ -27,7 +27,7 @@ export class UsersApiImpl extends UsersApi {
     }
 
     const authUser = request['user'] as { id: string; keycloakId: string };
-    
+
     try {
       const data = {
         email: createUserDto.email,
@@ -39,7 +39,10 @@ export class UsersApiImpl extends UsersApi {
       const user = await this.usersService.create(data);
       return this.toUser(user);
     } catch (error: any) {
-      if (error instanceof BadRequestException || error instanceof ConflictException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
         throw error;
       }
       throw new BadRequestException('Invalid user data');
