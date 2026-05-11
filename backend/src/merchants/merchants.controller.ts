@@ -14,7 +14,6 @@ import type { Observable } from 'rxjs';
 import type {
   Merchant,
   CreateMerchantDto,
-  DeleteMerchant200Response,
   UpdateMerchantDto,
 } from '../generated/models';
 import { MerchantsApi } from '../generated/api/MerchantsApi';
@@ -58,13 +57,5 @@ export class MerchantsController {
     @Req() request: Request,
   ): ReturnType<MerchantsApi['updateMerchant']> {
     return this.merchantsApi.updateMerchant(id, updateMerchantDto, request);
-  }
-
-  @Delete(':id')
-  deleteMerchant(
-    @Param('id') id: string,
-    @Req() request: Request,
-  ): ReturnType<MerchantsApi['deleteMerchant']> {
-    return this.merchantsApi.deleteMerchant(id, request);
   }
 }
