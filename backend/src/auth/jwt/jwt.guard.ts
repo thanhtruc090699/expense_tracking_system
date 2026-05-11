@@ -12,6 +12,25 @@ export class JwtGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+
+    if (process.env.DISABLE_AUTH === 'true') {
+      const mockUser = await prisma.user.findFirst();
+      request.user = mockUser ? {
+        id: mockUser.id,
+        email: mockUser.email,
+        username: mockUser.username,
+        keycloakId: mockUser.keycloakId,
+        roles: [] as string[],
+      } : {
+        id: 'mock-user-id',
+        email: 'mock@example.com',
+        username: 'mock',
+        keycloakId: 'mock-keycloak-id',
+        roles: [] as string[],
+      };
+      return true;
+    }
+
     const token = this.extractToken(request);
 
     if (!token) {
@@ -26,20 +45,31 @@ export class JwtGuard implements CanActivate {
         algorithms: ['RS256'],
       });
 
-      const dbUser = await prisma.user.findUnique({
-        where: { keycloakId: payload.sub },
+      const keycloakId = payload.sub;
+      const email = payload.email || `${keycloakId}@local`;
+
+      let dbUser = await prisma.user.findUnique({
+        where: { keycloakId },
         select: { id: true, email: true, username: true },
       });
 
       if (!dbUser) {
-        throw new UnauthorizedException('User not found in database');
+        dbUser = await prisma.user.create({
+          data: {
+            keycloakId,
+            email,
+            username: payload.preferred_username || email.split('@')[0],
+            currency: 'USD',
+          },
+          select: { id: true, email: true, username: true },
+        });
       }
 
       request.user = {
         id: dbUser.id,
         email: dbUser.email,
         username: dbUser.username,
-        keycloakId: payload.sub,
+        keycloakId,
         roles: payload.resource_access?.['bill-buddy']?.roles || [],
       };
 
