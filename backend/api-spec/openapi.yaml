@@ -25,6 +25,8 @@ paths:
     $ref: './expense-items.yaml#/paths/~1expense-items~1{id}'
   /merchants:
     $ref: './merchants.yaml#/paths/~1merchants'
+  /merchants/search:
+    $ref: './merchants.yaml#/paths/~1merchants~1search'
   /merchants/{id}:
     $ref: './merchants.yaml#/paths/~1merchants~1{id}'
   /categories:
