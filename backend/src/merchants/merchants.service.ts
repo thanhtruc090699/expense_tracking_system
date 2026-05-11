@@ -1,14 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { prisma } from '../prisma';
 
 @Injectable()
 export class MerchantsService {
   async create(data: { name: string; business?: string }) {
-    return prisma.merchant.create({ data });
+    try {
+      return await prisma.merchant.create({ data });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Merchant with this name already exists');
+      }
+      throw error;
+    }
   }
 
   async findAll() {
-    return prisma.merchant.findMany({ orderBy: { name: 'asc' } });
+    try {
+      return await prisma.merchant.findMany({ orderBy: { name: 'asc' } });
+    } catch (error: any) {
+      throw new BadRequestException('Failed to retrieve merchants');
+    }
   }
 
   async findOne(id: string) {
@@ -19,11 +35,16 @@ export class MerchantsService {
 
   async update(id: string, data: { name?: string; business?: string }) {
     await this.findOne(id);
-    return prisma.merchant.update({ where: { id }, data });
-  }
-
-  async delete(id: string) {
-    await this.findOne(id);
-    return prisma.merchant.delete({ where: { id } });
+    try {
+      return await prisma.merchant.update({ where: { id }, data });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Merchant with this name already exists');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Merchant not found');
+      }
+      throw error;
+    }
   }
 }

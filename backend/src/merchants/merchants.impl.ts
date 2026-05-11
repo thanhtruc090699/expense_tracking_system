@@ -3,7 +3,6 @@ import type {
   Merchant,
   CreateMerchantDto,
   UpdateMerchantDto,
-  DeleteMerchant200Response,
 } from '../generated/models';
 import { MerchantsApi } from '../generated/api/MerchantsApi';
 import { MerchantsService } from './merchants.service';
@@ -38,11 +37,6 @@ export class MerchantsApiImpl extends MerchantsApi {
   ): Promise<Merchant> {
     const merchant = await this.merchantsService.update(id, updateMerchantDto);
     return this.toMerchant(merchant);
-  }
-
-  async deleteMerchant(id: string): Promise<DeleteMerchant200Response> {
-    await this.merchantsService.delete(id);
-    return { message: 'Merchant deleted successfully' };
   }
 
   private toMerchant(merchant: any): Merchant {
