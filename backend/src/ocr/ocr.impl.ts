@@ -21,7 +21,7 @@ export class OcrApiImpl extends OCRApi {
   ): Promise<ScanResponse> {
     const buffer = Buffer.isBuffer(file)
       ? file
-      : Buffer.from(await (file as Blob).arrayBuffer());
+      : Buffer.from(await file.arrayBuffer());
     const filename = (file as any).name || 'invoice.png';
 
     const result = await this.ocrService.scanInvoice(buffer, filename, {
