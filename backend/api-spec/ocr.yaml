@@ -56,13 +56,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '500':
           description: Server error
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
 
 components:
   schemas:

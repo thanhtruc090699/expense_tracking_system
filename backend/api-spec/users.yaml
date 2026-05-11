@@ -20,13 +20,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     post:
       operationId: createUser
       summary: Create a user
@@ -51,25 +51,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '409':
           description: Conflict - User already exists
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
   /users/{id}:
     get:
       operationId: findOneUser
@@ -95,19 +95,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     put:
       operationId: updateUser
       summary: Update a user
@@ -138,31 +138,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '409':
           description: Conflict - Email already exists
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     delete:
       operationId: deleteUser
       summary: Delete a user
@@ -187,19 +187,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
 
 components:
   schemas:

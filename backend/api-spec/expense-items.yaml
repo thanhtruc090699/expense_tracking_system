@@ -65,7 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     put:
       operationId: updateExpenseItem
       summary: Update an expense item
