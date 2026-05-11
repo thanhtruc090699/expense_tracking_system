@@ -3,7 +3,13 @@ import { prisma } from '../prisma';
 
 @Injectable()
 export class UsersService {
-  async create(data: { keycloakId: string; email: string; username?: string; currency?: string; userAvatar?: string }) {
+  async create(data: {
+    keycloakId: string;
+    email: string;
+    username?: string;
+    currency?: string;
+    userAvatar?: string;
+  }) {
     return prisma.user.create({ data });
   }
 
@@ -55,7 +61,10 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, data: { username?: string; currency?: string; userAvatar?: string }) {
+  async update(
+    id: string,
+    data: { username?: string; currency?: string; userAvatar?: string },
+  ) {
     await this.findOne(id);
     return prisma.user.update({
       where: { id },

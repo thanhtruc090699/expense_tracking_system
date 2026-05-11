@@ -19,9 +19,11 @@ export class OcrApiImpl extends OCRApi {
     includeTokens: string | undefined,
     request: Request,
   ): Promise<ScanResponse> {
-    const buffer = Buffer.isBuffer(file) ? file : Buffer.from(await (file as Blob).arrayBuffer());
+    const buffer = Buffer.isBuffer(file)
+      ? file
+      : Buffer.from(await (file as Blob).arrayBuffer());
     const filename = (file as any).name || 'invoice.png';
-    
+
     const result = await this.ocrService.scanInvoice(buffer, filename, {
       lang,
       psm,

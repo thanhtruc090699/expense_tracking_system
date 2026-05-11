@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma } from '../../prisma';
 
@@ -15,33 +20,39 @@ export class JwtGuard implements CanActivate {
 
     if (process.env.DISABLE_AUTH === 'true') {
       const mockUser = await prisma.user.findFirst();
-      request.user = mockUser ? {
-        id: mockUser.id,
-        email: mockUser.email,
-        username: mockUser.username,
-        keycloakId: mockUser.keycloakId,
-        roles: [] as string[],
-      } : {
-        id: 'mock-user-id',
-        email: 'mock@example.com',
-        username: 'mock',
-        keycloakId: 'mock-keycloak-id',
-        roles: [] as string[],
-      };
+      request.user = mockUser
+        ? {
+            id: mockUser.id,
+            email: mockUser.email,
+            username: mockUser.username,
+            keycloakId: mockUser.keycloakId,
+            roles: [] as string[],
+          }
+        : {
+            id: 'mock-user-id',
+            email: 'mock@example.com',
+            username: 'mock',
+            keycloakId: 'mock-keycloak-id',
+            roles: [] as string[],
+          };
       return true;
     }
 
     const token = this.extractToken(request);
 
     if (!token) {
-      throw new UnauthorizedException('Missing or invalid authorization header');
+      throw new UnauthorizedException(
+        'Missing or invalid authorization header',
+      );
     }
 
     try {
       const publicKey = await this.getPublicKey();
       const payload = await this.jwtService.verifyAsync(token, {
         publicKey: publicKey,
-        issuer: process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/bill-buddy',
+        issuer:
+          process.env.KEYCLOAK_ISSUER ||
+          'http://localhost:8080/realms/bill-buddy',
         algorithms: ['RS256'],
       });
 

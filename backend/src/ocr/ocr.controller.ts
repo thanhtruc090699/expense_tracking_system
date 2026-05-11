@@ -1,4 +1,12 @@
-import { Inject, Controller, Post, UseGuards, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
+import {
+  Inject,
+  Controller,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { ScanResponse } from '../generated/models';
 import { OCRApi } from '../generated/api/OCRApi';
@@ -13,7 +21,8 @@ export class OcrController {
   @Post('scan')
   @UseInterceptors(FileInterceptor('file'))
   async scanInvoice(
-    @UploadedFile() file: { buffer: Buffer; originalname: string; mimetype: string },
+    @UploadedFile()
+    file: { buffer: Buffer; originalname: string; mimetype: string },
     @Body() body: any,
   ): Promise<ScanResponse> {
     const result = await this.ocrApi.scanInvoice(
@@ -26,7 +35,7 @@ export class OcrController {
       body.include_tokens,
       {} as Request,
     );
-    
+
     return result as ScanResponse;
   }
 }

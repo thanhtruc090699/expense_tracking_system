@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { User, CreateUserDto, UpdateUserDto, DeleteUser200Response } from '../generated/models';
+import type {
+  User,
+  CreateUserDto,
+  UpdateUserDto,
+  DeleteUser200Response,
+} from '../generated/models';
 import { UsersApi } from '../generated/api/UsersApi';
 import { UsersService } from './users.service';
 
@@ -9,7 +14,10 @@ export class UsersApiImpl extends UsersApi {
     super();
   }
 
-  async createUser(createUserDto: CreateUserDto, request: Request): Promise<User> {
+  async createUser(
+    createUserDto: CreateUserDto,
+    request: Request,
+  ): Promise<User> {
     const authUser = request['user'] as { id: string };
     const data = {
       email: createUserDto.email,
