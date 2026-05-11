@@ -18,10 +18,14 @@ export class UsersService {
     try {
       return await prisma.user.create({ data });
     } catch (error: any) {
-      if (error.code === 'P2002') { // Prisma code
-        throw new ConflictException('User with this email or keycloak ID already exists');
+      if (error.code === 'P2002') {
+        // Prisma code
+        throw new ConflictException(
+          'User with this email or keycloak ID already exists',
+        );
       }
-      if (error.code === 'P2003') { // Prisma code
+      if (error.code === 'P2003') {
+        // Prisma code
         throw new BadRequestException('Invalid user data');
       }
       throw error;

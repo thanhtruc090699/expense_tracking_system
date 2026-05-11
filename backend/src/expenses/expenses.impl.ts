@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import type {
   Expense,
   CreateExpenseDto,
@@ -18,14 +22,30 @@ export class ExpensesApiImpl extends ExpensesApi {
     createExpenseDto: CreateExpenseDto,
     request: Request,
   ): Promise<Expense> {
-    const user = request['user'] as { id: string };
-    const data = {
-      ...createExpenseDto,
-      userId: user.id,
-      expenseDate: new Date(createExpenseDto.expenseDate),
-    };
-    const expense = await this.expensesService.create(data);
-    return this.toExpense(expense);
+    if (!createExpenseDto.totalAmount || !createExpenseDto.expenseDate) {
+      throw new BadRequestException(
+        'Total amount and expense date are required',
+      );
+    }
+
+    try {
+      const user = request['user'] as { id: string };
+      const data = {
+        ...createExpenseDto,
+        userId: user.id,
+        expenseDate: new Date(createExpenseDto.expenseDate),
+      };
+      const expense = await this.expensesService.create(data);
+      return this.toExpense(expense);
+    } catch (error: any) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid expense data');
+    }
   }
 
   async findAllExpenses(
@@ -33,7 +53,7 @@ export class ExpensesApiImpl extends ExpensesApi {
     request: Request,
   ): Promise<Expense[]> {
     const user = request['user'] as { id: string };
-    const expenses = await this.expensesService.findAll(user.id);
+    const expenses = await this.expensesService.findAll(userId || user.id);
     return expenses.map((e) => this.toExpense(e));
   }
 
@@ -42,23 +62,45 @@ export class ExpensesApiImpl extends ExpensesApi {
     return this.toExpense(expense);
   }
 
+  async findExpensesByMerchant(merchantId: string): Promise<Expense[]> {
+    const expenses = await this.expensesService.findByMerchant(merchantId);
+    return expenses.map((e) => this.toExpense(e));
+  }
+
   async updateExpense(
     id: string,
     updateExpenseDto: UpdateExpenseDto,
   ): Promise<Expense> {
-    const data = {
-      ...updateExpenseDto,
-      expenseDate: updateExpenseDto.expenseDate
-        ? new Date(updateExpenseDto.expenseDate)
-        : undefined,
-    };
-    const expense = await this.expensesService.update(id, data);
-    return this.toExpense(expense);
+    try {
+      const data = {
+        ...updateExpenseDto,
+        expenseDate: updateExpenseDto.expenseDate
+          ? new Date(updateExpenseDto.expenseDate)
+          : undefined,
+      };
+      const expense = await this.expensesService.update(id, data);
+      return this.toExpense(expense);
+    } catch (error: any) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid expense data');
+    }
   }
 
   async deleteExpense(id: string): Promise<DeleteExpense200Response> {
-    await this.expensesService.delete(id);
-    return { message: 'Expense deleted successfully' };
+    try {
+      await this.expensesService.delete(id);
+      return { message: 'Expense deleted successfully' };
+    } catch (error: any) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   private toExpense(expense: any): Expense {
