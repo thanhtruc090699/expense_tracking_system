@@ -40,7 +40,11 @@ export class BudgetsService {
     },
   ) {
     await this.findOne(id);
-    return prisma.budget.update({ where: { id }, data, include: { category: true } });
+    return prisma.budget.update({
+      where: { id },
+      data,
+      include: { category: true },
+    });
   }
 
   async delete(id: string) {

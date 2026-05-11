@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { Merchant, CreateMerchantDto, UpdateMerchantDto, DeleteMerchant200Response } from '../generated/models';
+import type {
+  Merchant,
+  CreateMerchantDto,
+  UpdateMerchantDto,
+  DeleteMerchant200Response,
+} from '../generated/models';
 import { MerchantsApi } from '../generated/api/MerchantsApi';
 import { MerchantsService } from './merchants.service';
 
@@ -9,7 +14,10 @@ export class MerchantsApiImpl extends MerchantsApi {
     super();
   }
 
-  async createMerchant(createMerchantDto: CreateMerchantDto, request: Request): Promise<Merchant> {
+  async createMerchant(
+    createMerchantDto: CreateMerchantDto,
+    request: Request,
+  ): Promise<Merchant> {
     const merchant = await this.merchantsService.create(createMerchantDto);
     return this.toMerchant(merchant);
   }
@@ -24,7 +32,10 @@ export class MerchantsApiImpl extends MerchantsApi {
     return this.toMerchant(merchant);
   }
 
-  async updateMerchant(id: string, updateMerchantDto: UpdateMerchantDto): Promise<Merchant> {
+  async updateMerchant(
+    id: string,
+    updateMerchantDto: UpdateMerchantDto,
+  ): Promise<Merchant> {
     const merchant = await this.merchantsService.update(id, updateMerchantDto);
     return this.toMerchant(merchant);
   }

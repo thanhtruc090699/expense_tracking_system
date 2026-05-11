@@ -4,9 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtGuard } from './jwt/jwt.guard';
 
 @Module({
-  imports: [
-    JwtModule.register({}),
-  ],
+  imports: [JwtModule.register({})],
   providers: [AuthService, JwtGuard],
   exports: [JwtModule, JwtGuard],
 })

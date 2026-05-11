@@ -13,7 +13,18 @@ import { CategoriesModule } from './categories/categories.module';
 import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
-  imports: [OcrModule, UsersModule, LisaModule, ConfigModule.forRoot(), AuthModule, ExpensesModule, ExpenseItemsModule, MerchantsModule, CategoriesModule, BudgetsModule],
+  imports: [
+    OcrModule,
+    UsersModule,
+    LisaModule,
+    ConfigModule.forRoot(),
+    AuthModule,
+    ExpensesModule,
+    ExpenseItemsModule,
+    MerchantsModule,
+    CategoriesModule,
+    BudgetsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

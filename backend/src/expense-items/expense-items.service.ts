@@ -42,7 +42,11 @@ export class ExpenseItemsService {
     },
   ) {
     await this.findOne(id);
-    return prisma.expenseItem.update({ where: { id }, data, include: { category: true } });
+    return prisma.expenseItem.update({
+      where: { id },
+      data,
+      include: { category: true },
+    });
   }
 
   async delete(id: string) {

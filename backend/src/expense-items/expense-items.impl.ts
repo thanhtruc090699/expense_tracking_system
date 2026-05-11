@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { ExpenseItem, CreateExpenseItemDto, UpdateExpenseItemDto, DeleteExpenseItem200Response } from '../generated/models';
+import type {
+  ExpenseItem,
+  CreateExpenseItemDto,
+  UpdateExpenseItemDto,
+  DeleteExpenseItem200Response,
+} from '../generated/models';
 import { ExpenseItemsApi } from '../generated/api/ExpenseItemsApi';
 import { ExpenseItemsService } from './expense-items.service';
 
@@ -9,12 +14,18 @@ export class ExpenseItemsApiImpl extends ExpenseItemsApi {
     super();
   }
 
-  async createExpenseItem(createExpenseItemDto: CreateExpenseItemDto, request: Request): Promise<ExpenseItem> {
+  async createExpenseItem(
+    createExpenseItemDto: CreateExpenseItemDto,
+    request: Request,
+  ): Promise<ExpenseItem> {
     const item = await this.expenseItemsService.create(createExpenseItemDto);
     return this.toExpenseItem(item);
   }
 
-  async findAllExpenseItems(expenseId: string | undefined, request: Request): Promise<ExpenseItem[]> {
+  async findAllExpenseItems(
+    expenseId: string | undefined,
+    request: Request,
+  ): Promise<ExpenseItem[]> {
     const items = await this.expenseItemsService.findAll(expenseId);
     return items.map((i) => this.toExpenseItem(i));
   }
@@ -24,8 +35,14 @@ export class ExpenseItemsApiImpl extends ExpenseItemsApi {
     return this.toExpenseItem(item);
   }
 
-  async updateExpenseItem(id: string, updateExpenseItemDto: UpdateExpenseItemDto): Promise<ExpenseItem> {
-    const item = await this.expenseItemsService.update(id, updateExpenseItemDto);
+  async updateExpenseItem(
+    id: string,
+    updateExpenseItemDto: UpdateExpenseItemDto,
+  ): Promise<ExpenseItem> {
+    const item = await this.expenseItemsService.update(
+      id,
+      updateExpenseItemDto,
+    );
     return this.toExpenseItem(item);
   }
 

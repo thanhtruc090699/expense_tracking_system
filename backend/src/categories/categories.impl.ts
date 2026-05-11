@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { Category, CreateCategoryDto, UpdateCategoryDto, DeleteCategory200Response } from '../generated/models';
+import type {
+  Category,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  DeleteCategory200Response,
+} from '../generated/models';
 import { CategoriesApi } from '../generated/api/CategoriesApi';
 import { CategoriesService } from './categories.service';
 
@@ -9,7 +14,10 @@ export class CategoriesApiImpl extends CategoriesApi {
     super();
   }
 
-  async createCategory(createCategoryDto: CreateCategoryDto, request: Request): Promise<Category> {
+  async createCategory(
+    createCategoryDto: CreateCategoryDto,
+    request: Request,
+  ): Promise<Category> {
     const category = await this.categoriesService.create(createCategoryDto);
     return this.toCategory(category);
   }
@@ -24,7 +32,10 @@ export class CategoriesApiImpl extends CategoriesApi {
     return this.toCategory(category);
   }
 
-  async updateCategory(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+  async updateCategory(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
     const category = await this.categoriesService.update(id, updateCategoryDto);
     return this.toCategory(category);
   }
