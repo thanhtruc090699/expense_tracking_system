@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { prisma } from '../prisma';
 
 @Injectable()
@@ -11,18 +16,29 @@ export class ExpensesService {
     isRecurring?: boolean;
     note?: string;
   }) {
-    return prisma.expense.create({ data });
+    try {
+      return await prisma.expense.create({ data });
+    } catch (error: any) {
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid expense data');
+      }
+      throw error;
+    }
   }
 
   async findAll(userId?: string) {
-    return prisma.expense.findMany({
-      where: userId ? { userId } : undefined,
-      include: {
-        merchant: true,
-        expenseItems: true,
-      },
-      orderBy: { expenseDate: 'desc' },
-    });
+    try {
+      return await prisma.expense.findMany({
+        where: userId ? { userId } : undefined,
+        include: {
+          merchant: true,
+          expenseItems: true,
+        },
+        orderBy: { expenseDate: 'desc' },
+      });
+    } catch (error: any) {
+      throw new BadRequestException('Failed to retrieve expenses');
+    }
   }
 
   async findOne(id: string) {
@@ -37,6 +53,21 @@ export class ExpensesService {
     return expense;
   }
 
+  async findByMerchant(merchantId: string) {
+    try {
+      return await prisma.expense.findMany({
+        where: { merchantId },
+        include: {
+          merchant: true,
+          expenseItems: true,
+        },
+        orderBy: { expenseDate: 'desc' },
+      });
+    } catch (error: any) {
+      throw new BadRequestException('Failed to retrieve expenses');
+    }
+  }
+
   async update(
     id: string,
     data: {
@@ -48,11 +79,28 @@ export class ExpensesService {
     },
   ) {
     await this.findOne(id);
-    return prisma.expense.update({ where: { id }, data });
+    try {
+      return await prisma.expense.update({ where: { id }, data });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Expense already exists');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Expense not found');
+      }
+      throw new BadRequestException('Invalid expense data');
+    }
   }
 
   async delete(id: string) {
     await this.findOne(id);
-    return prisma.expense.delete({ where: { id } });
+    try {
+      return await prisma.expense.delete({ where: { id } });
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Expense not found');
+      }
+      throw error;
+    }
   }
 }
