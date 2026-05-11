@@ -126,3 +126,21 @@ components:
       $ref: './lisa.yaml#/components/schemas/Error'
 security:
   - keycloak: []
+tags:
+  - name: Users
+    description: Operations related to user management
+  - name: Lisa
+    description: Operations related to the Lisa AI assistant
+  - name: Budgets
+    description: Operations related to budget management
+  - name: Expenses
+    description: Operations related to expense management
+  - name: Expense Items
+    description: Operations related to expense item management
+  - name: Merchants
+    description: Operations related to merchant management
+  - name: Categories
+    description: Operations related to category management
+  - name: OCR
+    description: Operations related to OCR scanning and processing
+    

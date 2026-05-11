@@ -3,7 +3,9 @@ paths:
     get:
       operationId: findAllBudgets
       summary: Get all budgets
-      tags: [Budgets]
+      description: Retrieve all budgets for the authenticated user. If a userId query parameter is provided, only budgets for that user will be returned. If no userId is provided, budgets for all users will be returned (admin only).
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       parameters:
@@ -64,7 +66,9 @@ paths:
     post:
       operationId: createBudget
       summary: Create a budget
-      tags: [Budgets]
+      description: Create a new budget for the authenticated user. The categoryId is optional, but if provided, it must be unique for the user. If a budget with the same categoryId already exists for the user, a 409 Conflict error will be returned.
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       requestBody:
@@ -144,7 +148,9 @@ paths:
     get:
       operationId: findOneBudget
       summary: Get a budget by ID
-      tags: [Budgets]
+      description: Retrieve a single budget by its ID. The budget must belong to the authenticated user or the user must have admin privileges to access it.
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       parameters:
@@ -213,7 +219,9 @@ paths:
     put:
       operationId: updateBudget
       summary: Update a budget
-      tags: [Budgets]
+      description: Update an existing budget for the authenticated user. The budget must belong to the authenticated user or the user must have admin privileges to update it.
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       parameters:
@@ -308,7 +316,9 @@ paths:
     patch:
       operationId: partiallyUpdateBudget
       summary: Partially update a budget
-      tags: [Budgets]
+      description: Partially update an existing budget for the authenticated user. The budget must belong to the authenticated user or the user must have admin privileges to update it. Only the fields provided in the request body will be updated.
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       parameters:
@@ -403,7 +413,9 @@ paths:
     delete:
       operationId: deleteBudget
       summary: Delete a budget
-      tags: [Budgets]
+      description: Delete an existing budget for the authenticated user. The budget must belong to the authenticated user or the user must have admin privileges to delete it.
+      tags: 
+        - Budgets
       security:
         - keycloak: []
       parameters:
