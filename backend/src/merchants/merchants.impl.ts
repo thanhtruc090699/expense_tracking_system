@@ -15,14 +15,27 @@ export class MerchantsApiImpl extends MerchantsApi {
 
   async createMerchant(
     createMerchantDto: CreateMerchantDto,
-    request: Request,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: Request,
   ): Promise<Merchant> {
     const merchant = await this.merchantsService.create(createMerchantDto);
     return this.toMerchant(merchant);
   }
 
-  async findAllMerchants(request: Request): Promise<Merchant[]> {
+  async findAllMerchants(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: Request,
+  ): Promise<Merchant[]> {
     const merchants = await this.merchantsService.findAll();
+    return merchants.map((m) => this.toMerchant(m));
+  }
+
+  async searchMerchants(
+    name: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: Request,
+  ): Promise<Merchant[]> {
+    const merchants = await this.merchantsService.search(name);
     return merchants.map((m) => this.toMerchant(m));
   }
 
@@ -39,10 +52,10 @@ export class MerchantsApiImpl extends MerchantsApi {
     return this.toMerchant(merchant);
   }
 
-  private toMerchant(merchant: any): Merchant {
+  private toMerchant(merchant: Merchant): Merchant {
     return {
-      ...merchant,
-      createdAt: merchant.createdAt.toISOString(),
+      id: merchant.id,
+      name: merchant.name,
     };
   }
 }

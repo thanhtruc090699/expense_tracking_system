@@ -4,18 +4,13 @@ import {
   Get,
   Post,
   Put,
-  Delete,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import type {
-  Merchant,
-  CreateMerchantDto,
-  UpdateMerchantDto,
-} from '../generated/models';
+import type { CreateMerchantDto, UpdateMerchantDto } from '../generated/models';
 import { MerchantsApi } from '../generated/api/MerchantsApi';
 import { MERCHANTS_API_PROVIDER } from './merchants.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
@@ -40,6 +35,14 @@ export class MerchantsController {
     @Req() request: Request,
   ): ReturnType<MerchantsApi['findAllMerchants']> {
     return this.merchantsApi.findAllMerchants(request);
+  }
+
+  @Get('search')
+  searchMerchants(
+    @Query('name') name: string,
+    @Req() request: Request,
+  ): ReturnType<MerchantsApi['searchMerchants']> {
+    return this.merchantsApi.searchMerchants(name, request);
   }
 
   @Get(':id')
