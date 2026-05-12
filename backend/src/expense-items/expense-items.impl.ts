@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import type {
-  ExpenseItem,
-  CreateExpenseItemDto,
-  UpdateExpenseItemDto,
-  DeleteExpenseItem200Response,
-} from '../generated/models';
-import { ExpenseItemsApi } from '../generated/api/ExpenseItemsApi';
 import { ExpenseItemsService } from './expense-items.service';
 
+type ExpenseItem = any;
+type CreateExpenseItemDto = any;
+type UpdateExpenseItemDto = any;
+type DeleteExpenseItem200Response = any;
+
 @Injectable()
-export class ExpenseItemsApiImpl extends ExpenseItemsApi {
-  constructor(private readonly expenseItemsService: ExpenseItemsService) {
-    super();
-  }
+export class ExpenseItemsApiImpl {
+  constructor(
+    private readonly expenseItemsService: ExpenseItemsService,
+  ) {}
 
   async createExpenseItem(
     createExpenseItemDto: CreateExpenseItemDto,
@@ -38,25 +36,37 @@ export class ExpenseItemsApiImpl extends ExpenseItemsApi {
   async updateExpenseItem(
     id: string,
     updateExpenseItemDto: UpdateExpenseItemDto,
+    request: Request,
   ): Promise<ExpenseItem> {
     const item = await this.expenseItemsService.update(
       id,
       updateExpenseItemDto,
     );
+
     return this.toExpenseItem(item);
   }
 
-  async deleteExpenseItem(id: string): Promise<DeleteExpenseItem200Response> {
-    await this.expenseItemsService.delete(id);
-    return { message: 'Expense item deleted successfully' };
+  async deleteExpenseItem(
+    id: string,
+    request: Request,
+  ): Promise<DeleteExpenseItem200Response> {
+await this.expenseItemsService.delete(id);
+    return {
+      message: 'Expense item deleted successfully',
+    };
   }
 
   private toExpenseItem(item: any): ExpenseItem {
     return {
-      ...item,
-      unitPrice: Number(item.unitPrice),
-      totalPrice: Number(item.totalPrice),
-      createdAt: item.createdAt.toISOString(),
+      id: item.id,
+      expenseId: item.expenseId,
+      itemName: item.itemName,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
+      categoryId: item.categoryId,
+      createdAt: item.createdAt,
+      category: item.category,
     };
   }
 }

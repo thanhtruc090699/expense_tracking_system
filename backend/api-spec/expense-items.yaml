@@ -24,15 +24,31 @@ paths:
 
         '400':
           description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
       operationId: createExpenseItem
@@ -56,21 +72,45 @@ paths:
 
         '400':
           description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '404':
           description: Expense or category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '409':
           description: Expense item conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /expense-items/{id}:
     get:
@@ -95,22 +135,38 @@ paths:
 
         '400':
           description: Invalid expense item ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '404':
           description: Expense item not found
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'
 
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     put:
       operationId: updateExpenseItem
@@ -140,18 +196,38 @@ paths:
 
         '400':
           description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '404':
           description: Expense item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     delete:
       operationId: deleteExpenseItem
@@ -175,15 +251,31 @@ paths:
 
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '404':
           description: Expense item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -269,4 +361,14 @@ components:
       type: object
       properties:
         message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: integer
+        error:
           type: string
