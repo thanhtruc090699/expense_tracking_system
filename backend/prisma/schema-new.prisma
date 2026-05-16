@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -24,7 +23,7 @@ model User {
 
 model Merchant {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @unique @default("Unknown Merchant")
   business  String?
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -33,7 +32,7 @@ model Merchant {
 
 model Category {
   id        String          @id @default(uuid())
-  name      String
+  name      String          @unique @default("Other")
   icon      String?
   createdAt DateTime        @default(now()) @map("created_at")
 
