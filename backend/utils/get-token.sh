@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Keycloak configuration
-KEYCLOAK_URL="http://10.0.0.2:8080/realms/bill-buddy"
+KEYCLOAK_URL="http://localhost:8080/realms/bill-buddy"
 CLIENT_ID="bill-buddy-api"
 
 SILENT=false
