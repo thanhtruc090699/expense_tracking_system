@@ -28,7 +28,9 @@ export class CategoriesApiImpl extends CategoriesApi {
     }
 
     try {
-      const existing = await this.categoriesService.findByName(createCategoryDto.name);
+      const existing = await this.categoriesService.findByName(
+        createCategoryDto.name,
+      );
       if (existing) {
         throw new ConflictException('Category with this name already exists');
       }
@@ -77,13 +79,18 @@ export class CategoriesApiImpl extends CategoriesApi {
 
     try {
       if (updateCategoryDto.name) {
-        const existing = await this.categoriesService.findByName(updateCategoryDto.name);
+        const existing = await this.categoriesService.findByName(
+          updateCategoryDto.name,
+        );
         if (existing && existing.id !== id) {
           throw new ConflictException('Category with this name already exists');
         }
       }
 
-      const category = await this.categoriesService.update(id, updateCategoryDto);
+      const category = await this.categoriesService.update(
+        id,
+        updateCategoryDto,
+      );
       return this.toCategory(category);
     } catch (error: any) {
       if (
@@ -107,7 +114,9 @@ export class CategoriesApiImpl extends CategoriesApi {
       return { message: 'Category deleted successfully' };
     } catch (error: any) {
       if (error.code === 'P2003') {
-        throw new ConflictException('Category is still used by expenses, expense items, or budgets');
+        throw new ConflictException(
+          'Category is still used by expenses, expense items, or budgets',
+        );
       }
       if (
         error instanceof NotFoundException ||
@@ -120,7 +129,8 @@ export class CategoriesApiImpl extends CategoriesApi {
   }
 
   private isValidUuid(id: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(id);
   }
 

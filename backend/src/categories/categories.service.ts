@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { prisma } from '../prisma';
 
 @Injectable()
@@ -46,7 +50,9 @@ export class CategoriesService {
       return await prisma.category.delete({ where: { id } });
     } catch (error: any) {
       if (error.code === 'P2003') {
-        throw new ConflictException('Category is still referenced by expenses, expense items, or budgets');
+        throw new ConflictException(
+          'Category is still referenced by expenses, expense items, or budgets',
+        );
       }
       if (error.code === 'P2025') {
         throw new NotFoundException('Category not found');
