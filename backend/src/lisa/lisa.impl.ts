@@ -1,4 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ServiceUnavailableException,
+  GatewayTimeoutException,
+  UnprocessableEntityException,
+  RequestTimeoutException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import type {
   ChatRequest,
   ChatResponse,
@@ -20,18 +29,42 @@ export class LisaApiImpl extends LisaApi {
   ): Promise<ChatResponse> {
     const apiKey = process.env.LISA_API_KEY;
     if (!apiKey) {
-      throw new Error('LISA_API_KEY not configured');
+      throw new ServiceUnavailableException('LISA_API_KEY not configured');
     }
 
     if (!chatRequest.messages || chatRequest.messages.length === 0) {
-      throw new Error('Missing messages array');
+      throw new BadRequestException('Missing messages array');
     }
 
-    return this.lisaService.chat(
-      apiKey,
-      chatRequest.model || 'lisa-pro-03-2026',
-      chatRequest.messages as any,
-    );
+    try {
+      return await this.lisaService.chat(
+        apiKey,
+        chatRequest.model || 'lisa-pro-03-2026',
+        chatRequest.messages as any,
+      );
+    } catch (error: any) {
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        throw new RequestTimeoutException('Request timed out');
+      }
+      if (error.response?.status === 429) {
+        throw new HttpException(
+          'Too many requests',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      if (error.response?.status === 422) {
+        throw new UnprocessableEntityException('Unprocessable entity');
+      }
+      if (error.response?.status === 503) {
+        throw new ServiceUnavailableException(
+          'Service is currently unavailable',
+        );
+      }
+      if (error.response?.status === 504) {
+        throw new GatewayTimeoutException('Gateway timed out');
+      }
+      throw error;
+    }
   }
 
   async lisaProcess(
@@ -40,24 +73,50 @@ export class LisaApiImpl extends LisaApi {
   ): Promise<ProcessResponse> {
     const apiKey = process.env.LISA_API_KEY;
     if (!apiKey) {
-      throw new Error('LISA_API_KEY not configured');
+      throw new ServiceUnavailableException('LISA_API_KEY not configured');
     }
 
     if (processRequest.data === undefined) {
-      throw new Error('Missing data');
+      throw new BadRequestException('Missing data');
     }
 
     const DEFAULT_PROMPT =
       'You are a helpful assistant. Analyze the provided data and return a structured response with key insights.';
     const prompt = processRequest.prompt || DEFAULT_PROMPT;
 
-    const result = await this.lisaService.processData(
-      apiKey,
-      processRequest.model || 'lisa-pro-03-2026',
-      processRequest.data,
-      prompt,
-    );
-
-    return { result };
+    return await this.lisaService
+      .processData(
+        apiKey,
+        processRequest.model || 'lisa-pro-03-2026',
+        processRequest.data,
+        prompt,
+      )
+      .then((result) => ({ result }))
+      .catch((error: any) => {
+        if (
+          error.code === 'ECONNABORTED' ||
+          error.message?.includes('timeout')
+        ) {
+          throw new RequestTimeoutException('Request timed out');
+        }
+        if (error.response?.status === 429) {
+          throw new HttpException(
+            'Too many requests',
+            HttpStatus.TOO_MANY_REQUESTS,
+          );
+        }
+        if (error.response?.status === 422) {
+          throw new UnprocessableEntityException('Unprocessable entity');
+        }
+        if (error.response?.status === 503) {
+          throw new ServiceUnavailableException(
+            'Service is currently unavailable',
+          );
+        }
+        if (error.response?.status === 504) {
+          throw new GatewayTimeoutException('Gateway timed out');
+        }
+        throw error;
+      });
   }
 }
