@@ -1785,6 +1785,9 @@ ul.nav-tabs {
                     <li data-group="Merchants" data-name="findOneMerchant" class="">
                       <a href="#api-Merchants-findOneMerchant">findOneMerchant</a>
                     </li>
+                    <li data-group="Merchants" data-name="searchMerchants" class="">
+                      <a href="#api-Merchants-searchMerchants">searchMerchants</a>
+                    </li>
                     <li data-group="Merchants" data-name="updateMerchant" class="">
                       <a href="#api-Merchants-updateMerchant">updateMerchant</a>
                     </li>
@@ -17327,6 +17330,540 @@ pub fn main() {
                                   </script>
                                 </div>
                                 <input id='responses-Merchants-findOneMerchant-404-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Merchants-searchMerchants">
+                      <article id="api-Merchants-searchMerchants-0" data-group="User" data-name="searchMerchants" data-version="0">
+                        <div class="pull-left">
+                          <h1>searchMerchants</h1>
+                          <p>Search merchants by name</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Search for merchants by name to prevent duplicates and enable merchant selection. Used when users manually add/update expenses to find existing merchants before creating new ones.</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/merchants/search</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Merchants-searchMerchants-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-dart">Dart</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Merchants-searchMerchants-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Merchants-searchMerchants-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-python">Python</a></li>
+                          <li class=""><a href="#examples-Merchants-searchMerchants-0-rust">Rust</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Merchants-searchMerchants-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET \
+ \
+ -H "Accept: application/json" \
+ "http://localhost:3000/merchants/search?name=name_example"
+</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Merchants-searchMerchants-0-java">
+                            <pre class="prettyprint"><code class="language-java">import org.openapitools.client.*;
+import org.openapitools.client.auth.*;
+import org.openapitools.client.model.*;
+import org.openapitools.client.api.MerchantsApi;
+
+import java.io.File;
+import java.util.*;
+
+public class MerchantsApiExample {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+
+
+        // Create an instance of the API class
+        MerchantsApi apiInstance = new MerchantsApi();
+        String name = name_example; // String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+        try {
+            array[Merchant] result = apiInstance.searchMerchants(name);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling MerchantsApi#searchMerchants");
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Merchants-searchMerchants-0-dart">
+                            <pre class="prettyprint"><code class="language-dart">import 'package:openapi/api.dart';
+
+final api_instance = DefaultApi();
+
+final String name = new String(); // String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+try {
+    final result = await api_instance.searchMerchants(name);
+    print(result);
+} catch (e) {
+    print('Exception when calling DefaultApi->searchMerchants: $e\n');
+}
+
+</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Merchants-searchMerchants-0-android">
+                            <pre class="prettyprint"><code class="language-java">import org.openapitools.client.api.MerchantsApi;
+
+public class MerchantsApiExample {
+    public static void main(String[] args) {
+        MerchantsApi apiInstance = new MerchantsApi();
+        String name = name_example; // String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+        try {
+            array[Merchant] result = apiInstance.searchMerchants(name);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling MerchantsApi#searchMerchants");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Merchants-searchMerchants-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">Configuration *apiConfig = [Configuration sharedConfig];
+
+
+// Create an instance of the API class
+MerchantsApi *apiInstance = [[MerchantsApi alloc] init];
+String *name = name_example; // Partial merchant name to search for (e.g., 'star' finds 'Starbucks') (default to null)
+
+// Search merchants by name
+[apiInstance searchMerchantsWith:name
+              completionHandler: ^(array[Merchant] output, NSError* error) {
+    if (output) {
+        NSLog(@"%@", output);
+    }
+    if (error) {
+        NSLog(@"Error: %@", error);
+    }
+}];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var BillBuddyApi = require('bill_buddy_api');
+var defaultClient = BillBuddyApi.ApiClient.instance;
+
+
+// Create an instance of the API class
+var api = new BillBuddyApi.MerchantsApi()
+var name = name_example; // {String} Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.searchMerchants(name, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Merchants-searchMerchants-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using Org.OpenAPITools.Api;
+using Org.OpenAPITools.Client;
+using Org.OpenAPITools.Model;
+
+namespace Example
+{
+    public class searchMerchantsExample
+    {
+        public void main()
+        {
+            
+
+            // Create an instance of the API class
+            var apiInstance = new MerchantsApi();
+            var name = name_example;  // String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks') (default to null)
+
+            try {
+                // Search merchants by name
+                array[Merchant] result = apiInstance.searchMerchants(name);
+                Debug.WriteLine(result);
+            } catch (Exception e) {
+                Debug.Print("Exception when calling MerchantsApi.searchMerchants: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Create an instance of the API class
+$api_instance = new OpenAPITools\Client\Api\MerchantsApi();
+$name = name_example; // String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+try {
+    $result = $api_instance->searchMerchants($name);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling MerchantsApi->searchMerchants: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::OPenAPIClient::Configuration;
+use WWW::OPenAPIClient::MerchantsApi;
+
+
+# Create an instance of the API class
+my $api_instance = WWW::OPenAPIClient::MerchantsApi->new();
+my $name = name_example; # String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+
+eval {
+    my $result = $api_instance->searchMerchants(name => $name);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling MerchantsApi->searchMerchants: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import openapi_client
+from openapi_client.rest import ApiException
+from pprint import pprint
+
+
+# Create an instance of the API class
+api_instance = openapi_client.MerchantsApi()
+name = name_example # String | Partial merchant name to search for (e.g., 'star' finds 'Starbucks') (default to null)
+
+try:
+    # Search merchants by name
+    api_response = api_instance.search_merchants(name)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling MerchantsApi->searchMerchants: %s\n" % e)</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Merchants-searchMerchants-0-rust">
+                              <pre class="prettyprint"><code class="language-rust">extern crate MerchantsApi;
+
+pub fn main() {
+    let name = name_example; // String
+
+    let mut context = MerchantsApi::Context::default();
+    let result = client.searchMerchants(name, &context).wait();
+
+    println!("{:?}", result);
+}
+</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Scopes</h2>
+                          <table>
+                            
+                          </table>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">name*</td>
+<td>
+
+
+    <div id="d2e199_searchMerchants_name">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    String
+                </span>
+
+                    <div class="inner description marked">
+Partial merchant name to search for (e.g., &#39;star&#39; finds &#39;Starbucks&#39;)
+                    </div>
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3 id="examples-Merchants-searchMerchants-title-200"></h3>
+                            <p id="examples-Merchants-searchMerchants-description-200" class="marked"></p>
+                            <script>
+                              var responseMerchants200_description = `Array of matching merchants`;
+                              var responseMerchants200_description_break = responseMerchants200_description.indexOf('\n');
+                              if (responseMerchants200_description_break == -1) {
+                                $("#examples-Merchants-searchMerchants-title-200").text("Status: 200 - " + responseMerchants200_description);
+                              } else {
+                                $("#examples-Merchants-searchMerchants-title-200").text("Status: 200 - " + responseMerchants200_description.substring(0, responseMerchants200_description_break));
+                                $("#examples-Merchants-searchMerchants-description-200").html(responseMerchants200_description.substring(responseMerchants200_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Merchants-searchMerchants-200" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Merchants-searchMerchants-200-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Merchants-searchMerchants-200-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-Merchants-searchMerchants-200-schema">
+                                <div id="responses-Merchants-searchMerchants-schema-200" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Array of matching merchants",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/Merchant"
+        }
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-Merchants-searchMerchants-200-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-Merchants-searchMerchants-schema-200');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-Merchants-searchMerchants-200-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                            <h3 id="examples-Merchants-searchMerchants-title-400"></h3>
+                            <p id="examples-Merchants-searchMerchants-description-400" class="marked"></p>
+                            <script>
+                              var responseMerchants400_description = `Bad Request - name parameter is required`;
+                              var responseMerchants400_description_break = responseMerchants400_description.indexOf('\n');
+                              if (responseMerchants400_description_break == -1) {
+                                $("#examples-Merchants-searchMerchants-title-400").text("Status: 400 - " + responseMerchants400_description);
+                              } else {
+                                $("#examples-Merchants-searchMerchants-title-400").text("Status: 400 - " + responseMerchants400_description.substring(0, responseMerchants400_description_break));
+                                $("#examples-Merchants-searchMerchants-description-400").html(responseMerchants400_description.substring(responseMerchants400_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Merchants-searchMerchants-400" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Merchants-searchMerchants-400-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Merchants-searchMerchants-400-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-Merchants-searchMerchants-400-schema">
+                                <div id="responses-Merchants-searchMerchants-schema-400" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Bad Request - name parameter is required",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-Merchants-searchMerchants-400-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-Merchants-searchMerchants-schema-400');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-Merchants-searchMerchants-400-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                            <h3 id="examples-Merchants-searchMerchants-title-401"></h3>
+                            <p id="examples-Merchants-searchMerchants-description-401" class="marked"></p>
+                            <script>
+                              var responseMerchants401_description = `Unauthorized - authentication required`;
+                              var responseMerchants401_description_break = responseMerchants401_description.indexOf('\n');
+                              if (responseMerchants401_description_break == -1) {
+                                $("#examples-Merchants-searchMerchants-title-401").text("Status: 401 - " + responseMerchants401_description);
+                              } else {
+                                $("#examples-Merchants-searchMerchants-title-401").text("Status: 401 - " + responseMerchants401_description.substring(0, responseMerchants401_description_break));
+                                $("#examples-Merchants-searchMerchants-description-401").html(responseMerchants401_description.substring(responseMerchants401_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Merchants-searchMerchants-401" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Merchants-searchMerchants-401-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Merchants-searchMerchants-401-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-Merchants-searchMerchants-401-schema">
+                                <div id="responses-Merchants-searchMerchants-schema-401" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Unauthorized - authentication required",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-Merchants-searchMerchants-401-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-Merchants-searchMerchants-schema-401');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-Merchants-searchMerchants-401-schema-data' type='hidden' value=''></input>
                               </div>
                             </div>
                         </article>
