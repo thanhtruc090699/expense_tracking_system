@@ -239,7 +239,6 @@ components:
           type: string
         icon:
           type: string
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -254,7 +253,6 @@ components:
           type: string
         icon:
           type: string
-          nullable: true
       required:
         - name
     UpdateCategoryDto:
@@ -264,7 +262,6 @@ components:
           type: string
         icon:
           type: string
-          nullable: true
     DeleteCategory200Response:
       type: object
       properties:
