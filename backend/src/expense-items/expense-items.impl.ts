@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ExpenseItemsService } from './expense-items.service';
 
-type ExpenseItem = any;
-type CreateExpenseItemDto = any;
-type UpdateExpenseItemDto = any;
-type DeleteExpenseItem200Response = any;
+import type {
+  ExpenseItem,
+  CreateExpenseItemDto,
+  UpdateExpenseItemDto,
+  DeleteExpenseItem200Response,
+} from '../generated/models';
 
 @Injectable()
 export class ExpenseItemsApiImpl {
@@ -14,29 +16,39 @@ export class ExpenseItemsApiImpl {
 
   async createExpenseItem(
     createExpenseItemDto: CreateExpenseItemDto,
-    request: Request,
+    request?: Request,
   ): Promise<ExpenseItem> {
-    const item = await this.expenseItemsService.create(createExpenseItemDto);
+    const item = await this.expenseItemsService.create(
+      createExpenseItemDto,
+    );
+
     return this.toExpenseItem(item);
   }
 
   async findAllExpenseItems(
-    expenseId: string | undefined,
-    request: Request,
+    expenseId?: string,
+    request?: Request,
   ): Promise<ExpenseItem[]> {
-    const items = await this.expenseItemsService.findAll(expenseId);
+    const items = await this.expenseItemsService.findAll(
+      expenseId,
+    );
+
     return items.map((i) => this.toExpenseItem(i));
   }
 
-  async findOneExpenseItem(id: string): Promise<ExpenseItem> {
+  async findOneExpenseItem(
+    id: string,
+    request?: Request,
+  ): Promise<ExpenseItem> {
     const item = await this.expenseItemsService.findOne(id);
+
     return this.toExpenseItem(item);
   }
 
   async updateExpenseItem(
     id: string,
     updateExpenseItemDto: UpdateExpenseItemDto,
-    request: Request,
+    request?: Request,
   ): Promise<ExpenseItem> {
     const item = await this.expenseItemsService.update(
       id,
@@ -48,9 +60,10 @@ export class ExpenseItemsApiImpl {
 
   async deleteExpenseItem(
     id: string,
-    request: Request,
+    request?: Request,
   ): Promise<DeleteExpenseItem200Response> {
-await this.expenseItemsService.delete(id);
+    await this.expenseItemsService.delete(id);
+
     return {
       message: 'Expense item deleted successfully',
     };

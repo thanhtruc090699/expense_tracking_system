@@ -1,3 +1,5 @@
+import type { request } from 'express';
+
 import {
   Inject,
   Controller,
@@ -11,13 +13,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
+
 import type {
-  ExpenseItem,
   CreateExpenseItemDto,
-  DeleteExpenseItem200Response,
   UpdateExpenseItemDto,
 } from '../generated/models';
+
 import { ExpenseItemsApi } from '../generated/api/ExpenseItemsApi';
 import { EXPENSE_ITEMS_API_PROVIDER } from './expense-items.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
@@ -46,7 +47,10 @@ export class ExpenseItemsController {
     @Query('expenseId') expenseId: string | undefined,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['findAllExpenseItems']> {
-    return this.expenseItemsApi.findAllExpenseItems(expenseId, request);
+    return this.expenseItemsApi.findAllExpenseItems(
+      expenseId,
+      request,
+    );
   }
 
   @Get(':id')
@@ -54,7 +58,10 @@ export class ExpenseItemsController {
     @Param('id') id: string,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['findOneExpenseItem']> {
-    return this.expenseItemsApi.findOneExpenseItem(id, request);
+    return this.expenseItemsApi.findOneExpenseItem(
+      id,
+      request,
+    );
   }
 
   @Put(':id')
@@ -75,6 +82,9 @@ export class ExpenseItemsController {
     @Param('id') id: string,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['deleteExpenseItem']> {
-    return this.expenseItemsApi.deleteExpenseItem(id, request);
+    return this.expenseItemsApi.deleteExpenseItem(
+      id,
+      request,
+    );
   }
 }

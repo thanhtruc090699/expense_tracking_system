@@ -329,9 +329,6 @@ components:
         unitPrice:
           type: number
           format: double
-        totalPrice:
-          type: number
-          format: double
         categoryId:
           type: string
           format: uuid
@@ -340,7 +337,6 @@ components:
         - itemName
         - quantity
         - unitPrice
-        - totalPrice
         - categoryId
 
     UpdateExpenseItemDto:
@@ -351,8 +347,6 @@ components:
         quantity:
           type: integer
         unitPrice:
-          type: number
-        totalPrice:
           type: number
         categoryId:
           type: string
