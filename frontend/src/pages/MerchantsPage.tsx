@@ -9,6 +9,8 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { TrashIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
 
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
+
 interface Merchant {
   id: string;
   name: string;
@@ -44,7 +46,7 @@ export function MerchantsPage() {
     if (!token) return;
     
     try {
-      await fetch(`http://10.0.0.2:3000/merchants/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/merchants/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

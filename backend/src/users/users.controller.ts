@@ -10,58 +10,53 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import type {
-  User,
-  CreateUserDto,
-  DeleteUser200Response,
-} from '../generated/models';
-import { UsersApi } from '../generated/api/UsersApi';
-import { USERS_API_PROVIDER } from './users.constants';
-import { JwtGuard } from '../auth/jwt/jwt.guard';
+
+import type { CreateUserDto, UpdateUserDto} from '../generated/models'; // DTOs.
+import { UsersApi } from '../generated/api/UsersApi'; 	// Our implementation of generated funcs.
+import { USERS_API_PROVIDER } from './users.constants'; // Needed for dependency injection.
+import { JwtGuard } from '../auth/jwt/jwt.guard';	// Auth Guard.
 
 @Controller('users')
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard) // Apply auth check.
 export class UsersController {
-  constructor(
-    @Inject(USERS_API_PROVIDER) private readonly usersApi: UsersApi,
-  ) {}
 
-  @Post()
-  createUser(
-    @Body() createUserDto: CreateUserDto,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['createUser']> {
-    return this.usersApi.createUser(createUserDto, request);
-  }
+	constructor(
+		// Dependency injection.
+		// This allows controller to use our implementation
+		// of functions generated from the OpenApi spec.
+		@Inject(USERS_API_PROVIDER) private readonly usersApi: UsersApi,
+	) {}
 
-  @Get()
-  findAllUsers(@Req() request: Request): ReturnType<UsersApi['findAllUsers']> {
-    return this.usersApi.findAllUsers(request);
-  }
+	@Post()
+	createUser(@Body() createUserDto: CreateUserDto, // Validate req body against generated dto.
+		   @Req() request: Request) {
+			   // Call our implementation.
+			   return this.usersApi.createUser(createUserDto, request);
+	}
 
-  @Get(':id')
-  findOneUser(
-    @Param('id') id: string,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['findOneUser']> {
-    return this.usersApi.findOneUser(id, request);
-  }
+	@Get()
+	findAllUsers(@Req() request: Request) {
+		// Call our implementation.
+		return this.usersApi.findAllUsers(request);
+	}
 
-  @Put(':id')
-  updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDto: any,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['updateUser']> {
-    return this.usersApi.updateUser(id, updateUserDto, request);
-  }
+	@Get(':id')
+	findOneUser(@Param('id') id: string,
+		    @Req() request: Request) {
+			    return this.usersApi.findOneUser(id, request);
+	}
 
-  @Delete(':id')
-  deleteUser(
-    @Param('id') id: string,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['deleteUser']> {
-    return this.usersApi.deleteUser(id, request);
-  }
+	@Put(':id')
+	updateUser(
+		@Param('id') id: string,
+		@Body() updateUserDto: UpdateUserDto,
+		@Req() request: Request) {
+			return this.usersApi.updateUser(id, updateUserDto, request);
+	}
+
+	@Delete(':id')
+	deleteUser(@Param('id') id: string,
+		   @Req() request: Request) {
+			   return this.usersApi.deleteUser(id, request);
+	}
 }

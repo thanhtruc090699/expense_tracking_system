@@ -52,8 +52,6 @@ components:
       $ref: './users.yaml#/components/schemas/CreateUserDto'
     UpdateUserDto:
       $ref: './users.yaml#/components/schemas/UpdateUserDto'
-    DeleteUser200Response:
-      $ref: './users.yaml#/components/schemas/DeleteUser200Response'
     ChatRequest:
       $ref: './lisa.yaml#/components/schemas/ChatRequest'
     ChatResponse:

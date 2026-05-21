@@ -19,13 +19,14 @@ interface Category {
 export function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
   const fetchCategories = async () => {
     const token = getToken();
     if (!token) return;
     
     try {
-      const res = await fetch('http://10.0.0.2:3000/categories', {
+      const res = await fetch(`${ALLOWED_HOST}:3000/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(await res.json());
@@ -44,7 +45,7 @@ export function CategoriesPage() {
     if (!token) return;
     
     try {
-      await fetch(`http://10.0.0.2:3000/categories/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/categories/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -3,6 +3,7 @@ paths:
     get:
       operationId: findAllCategories
       summary: Get all categories
+      description: Returns all available categories that can be used to classify expenses and filter analytics.
       tags: [Categories]
       security:
         - keycloak: []
@@ -15,9 +16,22 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
     post:
       operationId: createCategory
       summary: Create a category
+      description: Creates a new category that can be assigned to expenses and used in budget or analytics views.
       tags: [Categories]
       security:
         - keycloak: []
@@ -34,10 +48,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request - Invalid category input or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '409':
+          description: Conflict - Category with the same name already exists
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /categories/{id}:
     get:
       operationId: findOneCategory
       summary: Get a category by ID
+      description: Returns a single category by its UUID if it exists and the user is allowed to access it.
       tags: [Categories]
       security:
         - keycloak: []
@@ -47,6 +86,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Category found
@@ -54,6 +94,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request - Invalid category ID format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: Category not found
           content:
@@ -63,6 +121,7 @@ paths:
     put:
       operationId: updateCategory
       summary: Update a category
+      description: Updates the name or icon of an existing category identified by its UUID.
       tags: [Categories]
       security:
         - keycloak: []
@@ -72,6 +131,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -85,9 +145,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request - invalid category ID format or invalid category input
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '409':
+          description: Conflict - Category with the same name already exists
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
     delete:
       operationId: deleteCategory
       summary: Delete a category
+      description: Deletes an existing category by UUID if it is not still referenced by expenses, expense items, or budgets.
       tags: [Categories]
       security:
         - keycloak: []
@@ -97,6 +188,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Category deleted
@@ -104,6 +196,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteCategory200Response'
+        '400':
+          description: Bad Request - invalid category ID format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '409':
+          description: Conflict - category is still used by expenses, expense items, or budgets
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
 
 components:
   schemas:
@@ -117,7 +239,6 @@ components:
           type: string
         icon:
           type: string
-          nullable: true
         createdAt:
           type: string
           format: date-time

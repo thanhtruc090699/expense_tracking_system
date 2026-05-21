@@ -10,6 +10,8 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { TrashIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
 
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
+
 interface Expense {
   id: string;
   userId: string;
@@ -34,7 +36,7 @@ export function ExpensesPage() {
     }
     
     try {
-      const res = await fetch('http://10.0.0.2:3000/expenses', {
+      const res = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +60,7 @@ export function ExpensesPage() {
     if (!token) return;
     
     try {
-      await fetch(`http://10.0.0.2:3000/expenses/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/expenses/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

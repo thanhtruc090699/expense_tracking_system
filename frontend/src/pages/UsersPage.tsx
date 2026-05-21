@@ -15,6 +15,8 @@ import { TrashIcon } from '@patternfly/react-icons';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { getToken } from '../auth';
 
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
+
 interface User {
   id: string;
   email: string;
@@ -44,7 +46,7 @@ export function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://10.0.0.2:3000/users', {
+      const res = await fetch(`${ALLOWED_HOST}:3000/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,7 +69,7 @@ export function UsersPage() {
     if (!token) return;
     setIsLoading(true);
     try {
-      await fetch('http://10.0.0.2:3000/users', {
+      await fetch(`${ALLOWED_HOST}:3000/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +94,7 @@ export function UsersPage() {
     if (!confirm('Are you sure you want to delete this user?')) return;
     if (!token) return;
     try {
-      await fetch(`http://10.0.0.2:3000/users/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/users/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
