@@ -57,6 +57,102 @@ paths:
             application/json:
               schema:
                 $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '413':
+          description: Payload too large - File exceeds maximum size
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '415':
+          description: Unsupported media type - Invalid file format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+  /ocr/process-invoice:
+    post:
+      operationId: processInvoice
+      summary: Scan and process an invoice, creating expense with items
+      tags: [OCR]
+      security:
+        - keycloak: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Invoice/receipt file (image or PDF)
+                lang:
+                  type: string
+                  default: eng
+                  description: Tesseract language(s), e.g. eng+deu
+                psm:
+                  type: integer
+                  default: 6
+                  description: Tesseract page segmentation mode
+                oem:
+                  type: integer
+                  default: 1
+                  description: Tesseract OCR engine mode
+                min_conf:
+                  type: integer
+                  default: 30
+                  description: Minimum OCR token confidence
+                pdf_mode:
+                  type: string
+                  default: auto
+                  enum: [auto, native, ocr]
+                  description: PDF handling mode
+      responses:
+        '201':
+          description: Invoice processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessInvoiceResponse'
+        '400':
+          description: Invalid request or processing failed
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '413':
+          description: Payload too large - File exceeds maximum size
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '415':
+          description: Unsupported media type - Invalid file format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -241,3 +337,37 @@ components:
           nullable: true
         total_items_detected:
           type: integer
+    ProcessInvoiceResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        data:
+          $ref: '#/components/schemas/ProcessedInvoice'
+    ProcessedInvoice:
+      type: object
+      required: [expenseId, merchantId, merchantName, totalAmount, itemsCount, createdAt]
+      properties:
+        expenseId:
+          type: string
+          format: uuid
+          description: Created expense ID
+        merchantId:
+          type: string
+          format: uuid
+          description: Merchant ID
+        merchantName:
+          type: string
+          description: Merchant name
+        totalAmount:
+          type: number
+          description: Total expense amount
+        itemsCount:
+          type: integer
+          description: Number of expense items created
+        createdAt:
+          type: string
+          format: date-time
+          description: Expense creation timestamp
