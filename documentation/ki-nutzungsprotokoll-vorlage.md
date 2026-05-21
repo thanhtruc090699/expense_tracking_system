@@ -30,8 +30,8 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 10.05.2026 | Truc Trinh | ChatGPT | Unterstützung bei der Erweiterung der OpenAPI-Spezifikation für die Budgets API (PATCH Endpoint und Error Responses) | YAML-Dateien manuell angepasst, OpenAPI-Code neu generiert, PATCH-Route implementiert sowie Backend-Build und Route-Mapping erfolgreich geprüft |
 | 11.05.2026 | Rathin | Claude Haiku 4.5 | Added new status codes for errors | new 400 series status codes for all endpoints were suggested and added by agent. New endpoint to search merchant by name was suggested according to described requirement and was finetuned by agent. |
 | 14.05.2026 | Truc Trinh | ChatGPT | Unterstützung bei der Überarbeitung der Lisa-API-Spezifikation, insbesondere Erweiterung des `/lisa/process` Endpoints um zusätzliche Error Responses und ein neues `task`-Feld im Request Body | Vorschläge geprüft und manuell in die OpenAPI-YAML-Datei übernommen. Error Responses ergänzt und `task`-Feld angepasst, um AI-Verarbeitungsarten wie Kategorisierung, Validierung und Vorschläge klarer zu definieren sowie Backend-Routing, Testing und Audit Logging zu unterstützen |
-|  |  |  |  |  |
-|  |  |  |  |  |
+| 21.05.2026 | Rathin | Claude Haiku 4.5 | New OCR endpoint | Updated api-spec with new endpoint for business logic to keep it modular and accessible. Added new changes to backend logic for controller and module to avoid generate errors |
+| 21.05.2026 | Rathin | Claude Haiku 4.5 | Fixed errors for /process-invoice | Created new type declarations for raw ocr response and added dependencies to other api endpoints like expenses, expense-items and merchants. Updated module files and created boiler plate with all the imports for process-ocr-invoice-service.ts page |
 |  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
