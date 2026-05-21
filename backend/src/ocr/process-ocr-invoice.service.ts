@@ -42,14 +42,6 @@ export class ProcessOcrInvoiceService {
   ) {}
 
   /**
-   * Process OCR invoice data and create expense with items
-   *
-   * Note: Categories are NOT assigned during OCR processing.
-   * Categories will be assigned later via AI VLM (Vision Language Model).
-   *
-   * Missing or incomplete data (total_amount, items) is allowed.
-   * AI VLM will correct these fields later in an asynchronous workflow.
-   *
    * @param ocrData - OCR response data from external OCR service
    * @param userId - User ID from JWT token
    * @returns ProcessedInvoiceDto with created expense and merchant info
@@ -89,7 +81,7 @@ export class ProcessOcrInvoiceService {
             quantity: item.quantity || 1,
             unitPrice: item.amount_before_tax || item.final_amount || 0,
             totalPrice: item.final_amount || 0,
-            categoryId: '',
+            categoryId: null, // Categories will be assigned later via AI VLM
           });
           itemsCreated++;
         } catch (error) {

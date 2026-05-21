@@ -14,7 +14,7 @@ export class ExpenseItemsService {
     quantity: number;
     unitPrice: number;
     totalPrice: number;
-    categoryId: string;
+    categoryId: string | null;
   }) {
     try {
       return await prisma.expenseItem.create({
