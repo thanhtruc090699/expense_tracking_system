@@ -182,3 +182,100 @@
     border-right-color: var(--border);
   }
 }
+
+body.dark-mode .theme-page {
+  background: #121212 !important;
+}
+
+body.dark-mode .theme-header {
+  background: #1e1e1e !important;
+}
+
+body.dark-mode .theme-header h2,
+body.dark-mode .theme-item {
+  color: white !important;
+}
+
+body.dark-mode .theme-item,
+body.dark-mode .theme-group {
+  background: #263326 !important;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.dark-mode .theme-page,
+body.dark-mode .currency-page,
+body.dark-mode .settings-page,
+body.dark-mode .profile-page,
+body.dark-mode .edit-profile-page,
+body.dark-mode .reset-password-page,
+body.dark-mode .language-page {
+  background-color: #121212;
+  color: white;
+}
+
+body.dark-mode .theme-header,
+body.dark-mode .currency-header,
+body.dark-mode .settings-header,
+body.dark-mode .profile-header,
+body.dark-mode .edit-profile-header,
+body.dark-mode .reset-password-header,
+body.dark-mode .language-header {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+body.dark-mode .theme-header h2,
+body.dark-mode .currency-header h2,
+body.dark-mode .settings-header h2,
+body.dark-mode .profile-header h2,
+body.dark-mode .edit-profile-header h2,
+body.dark-mode .reset-password-header h2,
+body.dark-mode .language-header h2 {
+  color: white;
+}
+
+body.dark-mode .theme-item,
+body.dark-mode .currency-item,
+body.dark-mode .settings-item,
+body.dark-mode .language-item {
+  background-color: #1f2a1f;
+  color: white;
+  border-bottom: 1px solid #2f3a2f;
+}
+
+body.dark-mode .theme-item.selected,
+body.dark-mode .currency-item.selected,
+body.dark-mode .language-item.selected {
+  background-color: #2f5d2f;
+}
+
+body.dark-mode input {
+  background-color: #1f2a1f;
+  color: white;
+}
+
+body.dark-mode input::placeholder {
+  color: #b5b5b5;
+}
+
+body.dark-mode .reset-save-btn,
+body.dark-mode .save-btn {
+  background-color: #2f5d2f;
+  color: white;
+}
+
+body.dark-mode .back-btn {
+  color: white;
+}
+
+body.dark-mode {
+  background: #121212;
+}
+
+body.dark-mode * {
+  color: white !important;
+}
