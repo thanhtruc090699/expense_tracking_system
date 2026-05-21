@@ -66,7 +66,6 @@ export class OcrController {
     @Body() requestDto: ProcessInvoiceRequestDto,
     @Request() request: any,
   ) {
-
     const scanResult = await this.ocrApi.scanInvoice(
       file.buffer as any,
       requestDto.lang || 'eng',
@@ -95,4 +94,3 @@ export class OcrController {
     };
   }
 }
-

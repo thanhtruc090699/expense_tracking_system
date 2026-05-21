@@ -43,13 +43,13 @@ export class ProcessOcrInvoiceService {
 
   /**
    * Process OCR invoice data and create expense with items
-   * 
+   *
    * Note: Categories are NOT assigned during OCR processing.
    * Categories will be assigned later via AI VLM (Vision Language Model).
-   * 
+   *
    * Missing or incomplete data (total_amount, items) is allowed.
    * AI VLM will correct these fields later in an asynchronous workflow.
-   * 
+   *
    * @param ocrData - OCR response data from external OCR service
    * @param userId - User ID from JWT token
    * @returns ProcessedInvoiceDto with created expense and merchant info
@@ -70,7 +70,7 @@ export class ProcessOcrInvoiceService {
 
     const totalAmount = invoice.totals?.total_amount ?? null;
     const itemsCount = Array.isArray(invoice.items) ? invoice.items.length : 0;
-    
+
     const expense = await this.expensesService.create({
       userId,
       merchantId: merchant.id,
@@ -121,8 +121,9 @@ export class ProcessOcrInvoiceService {
     }
 
     if (!ocrData.data?.invoice) {
-      throw new BadRequestException('Invalid OCR response: missing invoice data');
+      throw new BadRequestException(
+        'Invalid OCR response: missing invoice data',
+      );
     }
   }
 }
-
