@@ -181,7 +181,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteUser200Response'
+                $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized
           content:
@@ -259,9 +259,4 @@ components:
         currency:
           type: string
         userAvatar:
-          type: string
-    DeleteUser200Response:
-      type: object
-      properties:
-        message:
           type: string
