@@ -1132,14 +1132,6 @@ ul.nav-tabs {
     }
   }
 };
-    defs["DeleteUser200Response"] = {
-  "type" : "object",
-  "properties" : {
-    "message" : {
-      "type" : "string"
-    }
-  }
-};
     defs["Error"] = {
   "required" : [ "message", "statusCode" ],
   "type" : "object",
@@ -22029,6 +22021,234 @@ Set to &quot;1&quot; to include spatial.tokens in response
                                 <input id='responses-OCR-scanInvoice-400-schema-data' type='hidden' value=''></input>
                               </div>
                             </div>
+                            <h3 id="examples-OCR-scanInvoice-title-401"></h3>
+                            <p id="examples-OCR-scanInvoice-description-401" class="marked"></p>
+                            <script>
+                              var responseOCR401_description = `Unauthorized - Invalid or missing JWT token`;
+                              var responseOCR401_description_break = responseOCR401_description.indexOf('\n');
+                              if (responseOCR401_description_break == -1) {
+                                $("#examples-OCR-scanInvoice-title-401").text("Status: 401 - " + responseOCR401_description);
+                              } else {
+                                $("#examples-OCR-scanInvoice-title-401").text("Status: 401 - " + responseOCR401_description.substring(0, responseOCR401_description_break));
+                                $("#examples-OCR-scanInvoice-description-401").html(responseOCR401_description.substring(responseOCR401_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-OCR-scanInvoice-401" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-OCR-scanInvoice-401-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-OCR-scanInvoice-401-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-OCR-scanInvoice-401-schema">
+                                <div id="responses-OCR-scanInvoice-schema-401" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Unauthorized - Invalid or missing JWT token",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-OCR-scanInvoice-401-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-OCR-scanInvoice-schema-401');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-OCR-scanInvoice-401-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                            <h3 id="examples-OCR-scanInvoice-title-413"></h3>
+                            <p id="examples-OCR-scanInvoice-description-413" class="marked"></p>
+                            <script>
+                              var responseOCR413_description = `Payload too large - File exceeds maximum size`;
+                              var responseOCR413_description_break = responseOCR413_description.indexOf('\n');
+                              if (responseOCR413_description_break == -1) {
+                                $("#examples-OCR-scanInvoice-title-413").text("Status: 413 - " + responseOCR413_description);
+                              } else {
+                                $("#examples-OCR-scanInvoice-title-413").text("Status: 413 - " + responseOCR413_description.substring(0, responseOCR413_description_break));
+                                $("#examples-OCR-scanInvoice-description-413").html(responseOCR413_description.substring(responseOCR413_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-OCR-scanInvoice-413" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-OCR-scanInvoice-413-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-OCR-scanInvoice-413-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-OCR-scanInvoice-413-schema">
+                                <div id="responses-OCR-scanInvoice-schema-413" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Payload too large - File exceeds maximum size",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-OCR-scanInvoice-413-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-OCR-scanInvoice-schema-413');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-OCR-scanInvoice-413-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                            <h3 id="examples-OCR-scanInvoice-title-415"></h3>
+                            <p id="examples-OCR-scanInvoice-description-415" class="marked"></p>
+                            <script>
+                              var responseOCR415_description = `Unsupported media type - Invalid file format`;
+                              var responseOCR415_description_break = responseOCR415_description.indexOf('\n');
+                              if (responseOCR415_description_break == -1) {
+                                $("#examples-OCR-scanInvoice-title-415").text("Status: 415 - " + responseOCR415_description);
+                              } else {
+                                $("#examples-OCR-scanInvoice-title-415").text("Status: 415 - " + responseOCR415_description.substring(0, responseOCR415_description_break));
+                                $("#examples-OCR-scanInvoice-description-415").html(responseOCR415_description.substring(responseOCR415_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-OCR-scanInvoice-415" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-OCR-scanInvoice-415-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-OCR-scanInvoice-415-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-OCR-scanInvoice-415-schema">
+                                <div id="responses-OCR-scanInvoice-schema-415" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "Unsupported media type - Invalid file format",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-OCR-scanInvoice-415-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-OCR-scanInvoice-schema-415');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-OCR-scanInvoice-415-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
                             <h3 id="examples-OCR-scanInvoice-title-500"></h3>
                             <p id="examples-OCR-scanInvoice-description-500" class="marked"></p>
                             <script>
@@ -22879,7 +23099,7 @@ public class UsersApiExample {
         String id = id_example; // String | 
 
         try {
-            DeleteUser200Response result = apiInstance.deleteUser(id);
+            User result = apiInstance.deleteUser(id);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling UsersApi#deleteUser");
@@ -22916,7 +23136,7 @@ public class UsersApiExample {
         String id = id_example; // String | 
 
         try {
-            DeleteUser200Response result = apiInstance.deleteUser(id);
+            User result = apiInstance.deleteUser(id);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling UsersApi#deleteUser");
@@ -22939,7 +23159,7 @@ String *id = id_example; //  (default to null)
 
 // Delete a user
 [apiInstance deleteUserWith:id
-              completionHandler: ^(DeleteUser200Response output, NSError* error) {
+              completionHandler: ^(User output, NSError* error) {
     if (output) {
         NSLog(@"%@", output);
     }
@@ -22994,7 +23214,7 @@ namespace Example
 
             try {
                 // Delete a user
-                DeleteUser200Response result = apiInstance.deleteUser(id);
+                User result = apiInstance.deleteUser(id);
                 Debug.WriteLine(result);
             } catch (Exception e) {
                 Debug.Print("Exception when calling UsersApi.deleteUser: " + e.Message );
@@ -23152,7 +23372,7 @@ pub fn main() {
   "content" : {
     "application/json" : {
       "schema" : {
-        "$ref" : "#/components/schemas/DeleteUser200Response"
+        "$ref" : "#/components/schemas/User"
       }
     }
   }
