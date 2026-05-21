@@ -14,10 +14,13 @@ import {
 import type { CreateUserDto, UpdateUserDto} from '../generated/models'; // DTOs.
 import { UsersApi } from '../generated/api/UsersApi'; 	// Our implementation of generated funcs.
 import { USERS_API_PROVIDER } from './users.constants'; // Needed for dependency injection.
+
 import { JwtGuard } from '../auth/jwt/jwt.guard';	// Auth Guard.
+import { RolesGuard } from '../auth/roles/roles.guard'; // Role Guard.
+import { Roles } from '../auth/roles/roles.decorator';
 
 @Controller('users')
-@UseGuards(JwtGuard) // Apply auth check.
+@UseGuards(JwtGuard, RolesGuard) // Apply auth check, roles check.
 export class UsersController {
 
 	constructor(
@@ -35,18 +38,21 @@ export class UsersController {
 	}
 
 	@Get()
+	@Roles('user', 'admin')
 	findAllUsers(@Req() request: Request) {
 		// Call our implementation.
 		return this.usersApi.findAllUsers(request);
 	}
 
 	@Get(':id')
+	@Roles('user', 'admin')
 	findOneUser(@Param('id') id: string,
 		    @Req() request: Request) {
 			    return this.usersApi.findOneUser(id, request);
 	}
 
 	@Put(':id')
+	@Roles('user', 'admin')
 	updateUser(
 		@Param('id') id: string,
 		@Body() updateUserDto: UpdateUserDto,
@@ -55,8 +61,10 @@ export class UsersController {
 	}
 
 	@Delete(':id')
+	@Roles('admin')
 	deleteUser(@Param('id') id: string,
 		   @Req() request: Request) {
 			   return this.usersApi.deleteUser(id, request);
 	}
 }
+
