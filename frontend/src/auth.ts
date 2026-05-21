@@ -1,4 +1,4 @@
-const KEYCLOAK_URL = 'http://10.0.0.2:8080';
+const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL ?? '';
 const REALM = 'bill-buddy';
 const CLIENT_ID = 'bill-buddy-api';
 

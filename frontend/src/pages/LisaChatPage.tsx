@@ -14,7 +14,7 @@ interface LisaResponse {
   }>
 }
 
-const API_URL = 'http://10.0.0.2:3000'
+const API_URL = 'http://localhost:3000'
 
 export function LisaChatPage() {
   const [messages, setMessages] = useState<Message[]>([
