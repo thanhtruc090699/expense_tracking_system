@@ -36,7 +36,7 @@ export class JwtGuard implements CanActivate {
 					email: mockUser.email,
 					username: mockUser.username,
 					keycloakId: mockUser.keycloakId,
-					roles: [] as string[],
+					roles: ['user', 'admin'] as string[],
 				}
 			} else {
 				// No user, create one
@@ -45,7 +45,7 @@ export class JwtGuard implements CanActivate {
 					email: 'mock@example.com',
 					username: 'mock',
 					keycloakId: 'mock-keycloak-id',
-					roles: [] as string[],
+					roles: ['user', 'admin'] as string[],
 				}
 			}
 
