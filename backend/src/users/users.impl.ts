@@ -3,12 +3,7 @@ import {
   BadRequestException,
   ConflictException,
 } from '@nestjs/common';
-import type {
-  User,
-  CreateUserDto,
-  UpdateUserDto,
-  DeleteUser200Response,
-} from '../generated/models';
+import type { CreateUserDto, UpdateUserDto, User } from '../generated/models';
 import { UsersApi } from '../generated/api/UsersApi';
 import { UsersService } from './users.service';
 
@@ -64,9 +59,9 @@ export class UsersApiImpl extends UsersApi {
     return this.toUser(user);
   }
 
-  async deleteUser(id: string): Promise<DeleteUser200Response> {
-    await this.usersService.delete(id);
-    return { message: 'User deleted successfully' };
+  async deleteUser(id: string): Promise<User> {
+    const user = await this.usersService.delete(id);
+    return this.toUser(user);
   }
 
   private toUser(user: any): User {

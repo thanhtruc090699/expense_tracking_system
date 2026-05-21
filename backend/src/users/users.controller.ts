@@ -10,12 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import type {
-  User,
-  CreateUserDto,
-  DeleteUser200Response,
-} from '../generated/models';
+import type { CreateUserDto, UpdateUserDto, User } from '../generated/models';
 import { UsersApi } from '../generated/api/UsersApi';
 import { USERS_API_PROVIDER } from './users.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
@@ -28,40 +23,31 @@ export class UsersController {
   ) {}
 
   @Post()
-  createUser(
-    @Body() createUserDto: CreateUserDto,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['createUser']> {
+  createUser(@Body() createUserDto: CreateUserDto, @Req() request: Request) {
     return this.usersApi.createUser(createUserDto, request);
   }
 
   @Get()
-  findAllUsers(@Req() request: Request): ReturnType<UsersApi['findAllUsers']> {
+  findAllUsers(@Req() request: Request) {
     return this.usersApi.findAllUsers(request);
   }
 
   @Get(':id')
-  findOneUser(
-    @Param('id') id: string,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['findOneUser']> {
+  findOneUser(@Param('id') id: string, @Req() request: Request) {
     return this.usersApi.findOneUser(id, request);
   }
 
   @Put(':id')
   updateUser(
     @Param('id') id: string,
-    @Body() updateUserDto: any,
+    @Body() updateUserDto: UpdateUserDto,
     @Req() request: Request,
-  ): ReturnType<UsersApi['updateUser']> {
+  ) {
     return this.usersApi.updateUser(id, updateUserDto, request);
   }
 
   @Delete(':id')
-  deleteUser(
-    @Param('id') id: string,
-    @Req() request: Request,
-  ): ReturnType<UsersApi['deleteUser']> {
+  deleteUser(@Param('id') id: string, @Req() request: Request) {
     return this.usersApi.deleteUser(id, request);
   }
 }
