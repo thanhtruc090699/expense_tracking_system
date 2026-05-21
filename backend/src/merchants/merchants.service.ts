@@ -8,9 +8,35 @@ import { prisma } from '../prisma';
 
 @Injectable()
 export class MerchantsService {
+  /**
+   * @param data - Merchant data { name, business? }
+   * @returns Found or created merchant
+   */
   async create(data: { name: string; business?: string }) {
+    const sanitizedName = (data.name || '').trim() || 'Unknown Merchant';
+
+    const existing = await prisma.merchant.findFirst({
+      where: {
+        name: {
+          equals: sanitizedName,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    // Return existing merchant if found
+    if (existing) {
+      return existing;
+    }
+
+    // Create new merchant
     try {
-      return await prisma.merchant.create({ data });
+      return await prisma.merchant.create({
+        data: {
+          name: sanitizedName,
+          business: data.business,
+        },
+      });
     } catch (error: any) {
       if (error.code === 'P2002') {
         throw new ConflictException('Merchant with this name already exists');
