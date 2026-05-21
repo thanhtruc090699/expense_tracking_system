@@ -18,8 +18,6 @@ export class JwtGuard implements CanActivate {
 			|| 'http://localhost:8080/realms/bill-buddy'}/protocol/openid-connect/certs`;
 	}
 	
-	// TODO: ROLE GUARD FOR ENDPOINTS
-
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		// Extract HTTP request from the NestJS exec context.
 		const request = context.switchToHttp().getRequest();
@@ -104,7 +102,7 @@ export class JwtGuard implements CanActivate {
 				email: dbUser.email,
 				username: dbUser.username,
 				keycloakId,
-				roles: payload.resource_access?.['bill-buddy']?.roles || [],
+				roles: payload.resource_access?.['bill-buddy-api'] || [],
 			};
 
 			return true; // Let the user in.
