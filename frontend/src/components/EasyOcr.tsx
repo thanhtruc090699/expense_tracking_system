@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { getToken } from '../auth'
 
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
+
 interface ScanResponse {
   ok: boolean;
   data: {
@@ -116,7 +118,7 @@ export function EasyOcr() {
       formData.append('min_conf', minConf)
       formData.append('include_tokens', includeTokens ? '1' : '0')
 
-      const response = await fetch('http://10.0.0.2:3000/ocr/scan', {
+      const response = await fetch(`${ALLOWED_HOST}:3000/ocr/scan`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

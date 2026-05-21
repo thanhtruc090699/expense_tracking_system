@@ -14,7 +14,7 @@ interface LisaResponse {
   }>
 }
 
-const API_URL = 'http://10.0.0.2:3000'
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
 export function LisaChatPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -39,7 +39,7 @@ export function LisaChatPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_URL}/lisa/chat`, {
+      const response = await fetch(`${ALLOWED_HOST}:3000/lisa/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
