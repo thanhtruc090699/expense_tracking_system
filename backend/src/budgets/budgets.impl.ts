@@ -3,10 +3,12 @@ import type {
   Budget,
   CreateBudgetDto,
   UpdateBudgetDto,
+  PartiallyUpdateBudgetDto,
   DeleteBudget200Response,
 } from '../generated/models';
 import { BudgetsApi } from '../generated/api/BudgetsApi';
 import { BudgetsService } from './budgets.service';
+import { BudgetMapper} from './budgets.mapper';
 
 @Injectable()
 export class BudgetsApiImpl extends BudgetsApi {
@@ -18,71 +20,46 @@ export class BudgetsApiImpl extends BudgetsApi {
     createBudgetDto: CreateBudgetDto,
     request: Request,
   ): Promise<Budget> {
-    const user = request['user'] as { id: string };
-    const data = {
-      ...createBudgetDto,
-      userId: user.id,
-      endDate: createBudgetDto.endDate
-        ? new Date(createBudgetDto.endDate)
-        : undefined,
-    };
-    const budget = await this.budgetsService.create(data);
-    return this.toBudget(budget);
+    const budget = await this.budgetsService.createBudget(createBudgetDto, request);
+    return BudgetMapper.toBudget(budget);
   }
 
   async findAllBudgets(
     userId: string | undefined,
     request: Request,
   ): Promise<Budget[]> {
-    const user = request['user'] as { id: string };
-    const budgets = await this.budgetsService.findAll(user.id);
-    return budgets.map((b) => this.toBudget(b));
+    const budgets = await this.budgetsService.findAllBudgets(userId, request);
+    return budgets.map((b) => BudgetMapper.toBudget(b));
   }
 
-  async findOneBudget(id: string): Promise<Budget> {
-    const budget = await this.budgetsService.findOne(id);
-    return this.toBudget(budget);
+  async findOneBudget(id: string, request?: Request): Promise<Budget> {
+    const budget = await this.budgetsService.findOneBudget(id, request);
+    return BudgetMapper.toBudget(budget);
   }
 
   async updateBudget(
     id: string,
     updateBudgetDto: UpdateBudgetDto,
+    request?: Request
   ): Promise<Budget> {
-    const data = {
-      ...updateBudgetDto,
-      endDate: updateBudgetDto.endDate
-        ? new Date(updateBudgetDto.endDate)
-        : undefined,
-    };
-    const budget = await this.budgetsService.update(id, data);
-    return this.toBudget(budget);
+    const budget = await this.budgetsService.updateBudget(id, updateBudgetDto, request);
+    return BudgetMapper.toBudget(budget);
   }
 
   async partiallyUpdateBudget(
     id: string,
-    updateBudgetDto: UpdateBudgetDto,
+    partiallyUpdateBudgetDto: PartiallyUpdateBudgetDto,
+    request?: Request
   ): Promise<Budget> {
-    const data = {
-      ...updateBudgetDto,
-      endDate: updateBudgetDto.endDate
-        ? new Date(updateBudgetDto.endDate)
-        : undefined,
-    };
-    const budget = await this.budgetsService.update(id, data);
-    return this.toBudget(budget);
+ 
+    const budget = await this.budgetsService.partiallyUpdateBudget(id, partiallyUpdateBudgetDto, request);
+    return BudgetMapper.toBudget(budget);
   }
-  async deleteBudget(id: string): Promise<DeleteBudget200Response> {
-    await this.budgetsService.delete(id);
+
+  async deleteBudget(id: string, request?: Request): Promise<DeleteBudget200Response> {
+    await this.budgetsService.deleteBudget(id, request);
     return { message: 'Budget deleted successfully' };
   }
 
-  private toBudget(budget: any): Budget {
-    return {
-      ...budget,
-      amount: Number(budget.amount),
-      notifyThreshold: Number(budget.notifyThreshold),
-      endDate: budget.endDate?.toISOString() || null,
-      createdAt: budget.createdAt.toISOString(),
-    };
-  }
+
 }
