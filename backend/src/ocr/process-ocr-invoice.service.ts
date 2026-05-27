@@ -2,36 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { MerchantsService } from '../merchants/merchants.service';
 import { ExpensesService } from '../expenses/expenses.service';
 import { ExpenseItemsService } from '../expense-items/expense-items.service';
-import { ProcessedInvoiceDto } from './dto/processed-invoice.dto';
-
-export interface OcrInvoiceData {
-  ok: boolean;
-  data: {
-    meta: Record<string, any>;
-    spatial: Record<string, any>;
-    invoice: {
-      vendor?: string;
-      items: Array<{
-        item_name: string;
-        quantity?: number | null;
-        amount_before_tax?: number | null;
-        tax_percent?: number | null;
-        final_amount: number;
-        row_id?: number;
-        row_bbox?: Record<string, any>;
-      }>;
-      tax_lines?: Array<Record<string, any>>;
-      totals: {
-        total_amount: number;
-        total_items_declared?: number | null;
-        line_items_sum?: number;
-        sum_difference?: number;
-        line_sum_matches_total?: boolean;
-        total_items_detected?: number;
-      };
-    };
-  };
-}
+import type { ProcessedInvoice, ScanResponse } from '../generated/models';
 
 @Injectable()
 export class ProcessOcrInvoiceService {
@@ -44,13 +15,13 @@ export class ProcessOcrInvoiceService {
   /**
    * @param ocrData - OCR response data from external OCR service
    * @param userId - User ID from JWT token
-   * @returns ProcessedInvoiceDto with created expense and merchant info
+   * @returns ProcessedInvoice with created expense and merchant info
    * @throws BadRequestException if OCR response structure is invalid
    */
   async processInvoice(
-    ocrData: OcrInvoiceData,
+    ocrData: ScanResponse,
     userId: string,
-  ): Promise<ProcessedInvoiceDto> {
+  ): Promise<ProcessedInvoice> {
     // Validate OCR response structure
     this.validateOcrData(ocrData);
 
@@ -60,7 +31,7 @@ export class ProcessOcrInvoiceService {
       name: invoice.vendor || '',
     });
 
-    const totalAmount = invoice.totals?.total_amount ?? null;
+    const totalAmount = invoice.totals?.total_amount || 0;
     const itemsCount = Array.isArray(invoice.items) ? invoice.items.length : 0;
 
     const expense = await this.expensesService.create({
@@ -81,11 +52,10 @@ export class ProcessOcrInvoiceService {
             quantity: item.quantity || 1,
             unitPrice: item.amount_before_tax || item.final_amount || 0,
             totalPrice: item.final_amount || 0,
-            categoryId: null, // Categories will be assigned later via AI VLM
+            categoryId: null,
           });
           itemsCreated++;
         } catch (error) {
-          // Log but continue processing other items
           console.error(
             `[ProcessOcrInvoiceService] Failed to create expense item: ${item.item_name}`,
             error,
@@ -94,20 +64,20 @@ export class ProcessOcrInvoiceService {
       }
     }
 
-    return new ProcessedInvoiceDto(
-      expense.id,
-      merchant.id,
-      merchant.name,
-      totalAmount,
-      itemsCreated,
-      expense.createdAt || new Date(),
-    );
+    return {
+      expenseId: expense.id,
+      merchantId: merchant.id,
+      merchantName: merchant.name,
+      totalAmount: totalAmount,
+      itemsCount: itemsCreated,
+      createdAt: (expense.createdAt || new Date()).toISOString(),
+    };
   }
 
   /**
    * @throws BadRequestException if core response structure is invalid
    */
-  private validateOcrData(ocrData: OcrInvoiceData): void {
+  private validateOcrData(ocrData: ScanResponse): void {
     if (!ocrData || !ocrData.ok) {
       throw new BadRequestException('Invalid OCR response: ok flag not set');
     }

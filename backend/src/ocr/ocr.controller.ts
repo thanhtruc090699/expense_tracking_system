@@ -10,13 +10,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { ScanResponse } from '../generated/models';
+import type { ScanResponse, ProcessInvoiceRequestDto, ProcessInvoiceResponse, ProcessedInvoice } from '../generated/models';
 import { OCRApi } from '../generated/api/OCRApi';
 import { OCR_API_PROVIDER } from './ocr.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { ProcessOcrInvoiceService } from './process-ocr-invoice.service';
-import { ProcessInvoiceRequestDto } from './dto/process-invoice-request.dto';
-import { ProcessedInvoiceDto } from './dto/processed-invoice.dto';
 
 @Controller('ocr')
 @UseGuards(JwtGuard)
@@ -65,7 +63,7 @@ export class OcrController {
     file: { buffer: Buffer; originalname: string; mimetype: string },
     @Body() requestDto: ProcessInvoiceRequestDto,
     @Request() request: any,
-  ) {
+  ): Promise<ProcessInvoiceResponse> {
     const scanResult = await this.ocrApi.scanInvoice(
       file.buffer as any,
       requestDto.lang || 'eng',
@@ -82,7 +80,7 @@ export class OcrController {
       throw new Error('User ID not found in JWT token');
     }
 
-    const processedInvoice: ProcessedInvoiceDto =
+    const processedInvoice: ProcessedInvoice =
       await this.processOcrInvoiceService.processInvoice(
         scanResult as any,
         userId,

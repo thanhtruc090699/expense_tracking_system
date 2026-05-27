@@ -32,6 +32,7 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 14.05.2026 | Truc Trinh | ChatGPT | Unterstützung bei der Überarbeitung der Lisa-API-Spezifikation, insbesondere Erweiterung des `/lisa/process` Endpoints um zusätzliche Error Responses und ein neues `task`-Feld im Request Body | Vorschläge geprüft und manuell in die OpenAPI-YAML-Datei übernommen. Error Responses ergänzt und `task`-Feld angepasst, um AI-Verarbeitungsarten wie Kategorisierung, Validierung und Vorschläge klarer zu definieren sowie Backend-Routing, Testing und Audit Logging zu unterstützen |
 | 21.05.2026 | Rathin | Claude Haiku 4.5 | New OCR endpoint | Updated api-spec with new endpoint for business logic to keep it modular and accessible. Added new changes to backend logic for controller and module to avoid generate errors |
 | 21.05.2026 | Rathin | Claude Haiku 4.5 | Fixed errors for /process-invoice | Created new type declarations for raw ocr response and added dependencies to other api endpoints like expenses, expense-items and merchants. Updated module files and created boiler plate with all the imports for process-ocr-invoice-service.ts page |
+| 27.05.2026 | Ivan | lisa-pro-03-2026 | OCR DTOs from spec | Added ProcessInvoiceRequestDto, ProcessedInvoice, and ProcessInvoiceResponse schemas to ocr.yaml, activated them in openapi.yaml, regenerated code to auto-generate DTOs instead of manual implementation, removed manual DTO files, updated controller and service to use generated types |
 |  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
@@ -49,3 +50,4 @@ Wir übernehmen die Verantwortung für die fachliche Richtigkeit, die Auswahl de
 
 - Datum:
 - Gruppenname:
+

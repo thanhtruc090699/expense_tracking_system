@@ -120,6 +120,12 @@ components:
       $ref: './ocr.yaml#/components/schemas/TaxLine'
     Totals:
       $ref: './ocr.yaml#/components/schemas/Totals'
+    ProcessInvoiceRequestDto:
+      $ref: './ocr.yaml#/components/schemas/ProcessInvoiceRequestDto'
+    ProcessInvoiceResponse:
+      $ref: './ocr.yaml#/components/schemas/ProcessInvoiceResponse'
+    ProcessedInvoice:
+      $ref: './ocr.yaml#/components/schemas/ProcessedInvoice'
     Error:
       $ref: './common.yaml#/components/schemas/Error'
 security:

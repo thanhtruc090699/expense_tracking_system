@@ -93,35 +93,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              required:
-                - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Invoice/receipt file (image or PDF)
-                lang:
-                  type: string
-                  default: eng
-                  description: Tesseract language(s), e.g. eng+deu
-                psm:
-                  type: integer
-                  default: 6
-                  description: Tesseract page segmentation mode
-                oem:
-                  type: integer
-                  default: 1
-                  description: Tesseract OCR engine mode
-                min_conf:
-                  type: integer
-                  default: 30
-                  description: Minimum OCR token confidence
-                pdf_mode:
-                  type: string
-                  default: auto
-                  enum: [auto, native, ocr]
-                  description: PDF handling mode
+              $ref: '#/components/schemas/ProcessInvoiceRequestDto'
       responses:
         '201':
           description: Invoice processed successfully
@@ -337,6 +309,36 @@ components:
           nullable: true
         total_items_detected:
           type: integer
+    ProcessInvoiceRequestDto:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Invoice/receipt file (image or PDF)
+        lang:
+          type: string
+          default: eng
+          description: Tesseract language(s), e.g. eng+deu
+        psm:
+          type: integer
+          default: 6
+          description: Tesseract page segmentation mode
+        oem:
+          type: integer
+          default: 1
+          description: Tesseract OCR engine mode
+        min_conf:
+          type: integer
+          default: 30
+          description: Minimum OCR token confidence
+        pdf_mode:
+          type: string
+          default: auto
+          enum: [auto, native, ocr]
+          description: PDF handling mode
     ProcessInvoiceResponse:
       type: object
       required: [ok, data]
@@ -348,7 +350,7 @@ components:
           $ref: '#/components/schemas/ProcessedInvoice'
     ProcessedInvoice:
       type: object
-      required: [expenseId, merchantId, merchantName, totalAmount, itemsCount, createdAt]
+      required: [expenseId, merchantId, merchantName, itemsCount, createdAt]
       properties:
         expenseId:
           type: string
@@ -363,6 +365,7 @@ components:
           description: Merchant name
         totalAmount:
           type: number
+          nullable: true
           description: Total expense amount
         itemsCount:
           type: integer
