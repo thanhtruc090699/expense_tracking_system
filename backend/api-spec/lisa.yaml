@@ -129,7 +129,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ProcessRequest'
       responses:
-        '200':
+        '201':
           description: Successful processing response
           content:
             application/json:
@@ -292,16 +292,7 @@ components:
         model:
           type: string
           default: lisa-pro-03-2026
-          description: Model to use for processing
-        task:
-           type: string
-           example: categorize_invoice
-           description: Task type (e.g., "categorize_invoice", "validate_invoice")
-           enum:
-              - categorize_invoice
-              - validate_invoice
-              - suggest_budget
-              - suggest_savings_tips
+          description: Model to use for processing 
         data:
           type: object
           description: Data to process
@@ -310,7 +301,6 @@ components:
           description: Custom prompt for processing
       required:
         - data
-        - task
 
     ProcessResponse:
       type: object
