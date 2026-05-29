@@ -253,7 +253,7 @@ Return exactly:
       }
 
       return {
-        ...parseLisaContent(content),
+        ...parseLisaContent(content) as ProcessResponse,
       };
     } catch (error: any) {
       console.error('[LisaService.lisaProcess] error:', {
