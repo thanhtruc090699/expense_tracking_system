@@ -38,7 +38,7 @@ export class ExpenseItemsService {
     quantity: number;
     unitPrice: number;
     totalPrice?: number;
-    categoryId: string;
+    categoryId: string | null;
   }) {
     if (data.quantity <= 0) {
       throw new BadRequestException('Quantity must be greater than 0');
@@ -49,7 +49,9 @@ export class ExpenseItemsService {
     }
 
     await this.validateExpenseExists(data.expenseId);
-    await this.validateCategoryExists(data.categoryId);
+    if (data.categoryId) {
+      await this.validateCategoryExists(data.categoryId);
+    }
 
     const totalPrice = data.quantity * data.unitPrice;
 
