@@ -25,7 +25,6 @@ export class ExpenseItemsApiImpl {
       !createExpenseItemDto.itemName ||
       !createExpenseItemDto.quantity ||
       !createExpenseItemDto.unitPrice ||
-      !createExpenseItemDto.totalPrice ||
       !createExpenseItemDto.categoryId
     ) {
       throw new BadRequestException('Missing required fields');
