@@ -15,6 +15,6 @@ import { EXPENSE_ITEMS_API_PROVIDER } from './expense-items.constants';
       useClass: ExpenseItemsApiImpl,
     },
   ],
-  exports: [EXPENSE_ITEMS_API_PROVIDER],
+  exports: [EXPENSE_ITEMS_API_PROVIDER, ExpenseItemsService],
 })
 export class ExpenseItemsModule {}

@@ -15,6 +15,6 @@ import { MERCHANTS_API_PROVIDER } from './merchants.constants';
       useClass: MerchantsApiImpl,
     },
   ],
-  exports: [MERCHANTS_API_PROVIDER],
+  exports: [MERCHANTS_API_PROVIDER, MerchantsService],
 })
 export class MerchantsModule {}

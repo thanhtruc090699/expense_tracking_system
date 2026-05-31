@@ -3,6 +3,8 @@ import { Card, CardTitle, CardBody, Title, Icon } from '@patternfly/react-core';
 import { FileInvoiceIcon, CheckCircleIcon, DollarSignIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
 
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
+
 interface Expense {
   id: string;
   totalAmount: number;
@@ -19,7 +21,8 @@ export function DashboardPage() {
       if (!token) { setLoading(false); return; }
       
       try {
-        const res = await fetch('http://10.0.0.2:3000/expenses', {
+        const res = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
+          method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
         const expenses: Expense[] = await res.json();

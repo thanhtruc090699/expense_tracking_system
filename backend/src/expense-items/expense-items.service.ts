@@ -1,61 +1,86 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { prisma } from '../prisma';
-import { BadRequestException,} from '@nestjs/common';
 
 @Injectable()
 export class ExpenseItemsService {
+  async validateExpenseExists(expenseId: string) {
+    const expense = await prisma.expense.findUnique({
+      where: { id: expenseId },
+    });
+
+    if (!expense) {
+      throw new BadRequestException('Expense not found');
+    }
+
+    return expense;
+  }
+
+  async validateCategoryExists(categoryId: string) {
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      throw new BadRequestException('Category not found');
+    }
+
+    return category;
+  }
+
   async create(data: {
     expenseId: string;
     itemName: string;
     quantity: number;
     unitPrice: number;
+    totalPrice?: number;
     categoryId: string;
   }) {
     if (data.quantity <= 0) {
-  throw new BadRequestException('Quantity must be greater than 0');
-}
+      throw new BadRequestException('Quantity must be greater than 0');
+    }
 
-if (data.unitPrice <= 0) {
-  throw new BadRequestException('Unit price must be greater than 0');
-} 
-    const expenseExists = await prisma.expense.findUnique({
-  where: { id: data.expenseId },
-});
+    if (data.unitPrice <= 0) {
+      throw new BadRequestException('Unit price must be greater than 0');
+    }
 
-if (!expenseExists) {
-  throw new NotFoundException('Expense not found');
-}
+    await this.validateExpenseExists(data.expenseId);
+    await this.validateCategoryExists(data.categoryId);
 
-const categoryExists = await prisma.category.findUnique({
-  where: { id: data.categoryId },
-});
+    const totalPrice = data.quantity * data.unitPrice;
 
-if (!categoryExists) {
-  throw new NotFoundException('Category not found');
-}
-   const totalPrice = data.quantity * data.unitPrice;
+    try {
+      return await prisma.expenseItem.create({
+        data: {
+          ...data,
+          totalPrice,
+        },
+        include: {
+          category: true,
+        },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid expense or category ID');
+      }
 
-return prisma.expenseItem.create({
-  data: {
-    ...data,
-    totalPrice,
-  },
-  include: {
-    category: true,
-  },
-});
+      if (error.code === 'P2002') {
+        throw new ConflictException('Expense item already exists');
+      }
+
+      throw error;
+    }
   }
 
   async findAll(expenseId?: string) {
     if (expenseId) {
-  const expenseExists = await prisma.expense.findUnique({
-    where: { id: expenseId },
-  });
+      await this.validateExpenseExists(expenseId);
+    }
 
-  if (!expenseExists) {
-    throw new NotFoundException('Expense not found');
-  }
-}
     return prisma.expenseItem.findMany({
       where: expenseId ? { expenseId } : undefined,
       include: { category: true },
@@ -68,54 +93,77 @@ return prisma.expenseItem.create({
       where: { id },
       include: { category: true },
     });
-    if (!expenseItem) throw new NotFoundException('Expense item not found');
+
+    if (!expenseItem) {
+      throw new NotFoundException('Expense item not found');
+    }
+
     return expenseItem;
   }
 
-async update(
-  id: string,
-  data: {
-    itemName?: string;
-    quantity?: number;
-    unitPrice?: number;
-    totalPrice?: number;
-    categoryId?: string;
-  },
-) {
-  const existingItem = await this.findOne(id);
-  if (data.quantity !== undefined && data.quantity <= 0) {
-  throw new BadRequestException('Quantity must be greater than 0');
-}
-
-if (data.unitPrice !== undefined && data.unitPrice <= 0) {
-  throw new BadRequestException('Unit price must be greater than 0');
-}
-  if (data.categoryId) {
-  const categoryExists = await prisma.category.findUnique({
-    where: { id: data.categoryId },
-  });
-
-  if (!categoryExists) {
-    throw new NotFoundException('Category not found');
-  }
-}
-
- const totalPrice =
-  Number(data.quantity ?? existingItem.quantity) *
-  Number(data.unitPrice ?? existingItem.unitPrice);
-
-  return prisma.expenseItem.update({
-    where: { id },
+  async update(
+    id: string,
     data: {
-      ...data,
-      totalPrice,
+      itemName?: string;
+      quantity?: number;
+      unitPrice?: number;
+      totalPrice?: number;
+      categoryId?: string;
     },
-    include: { category: true },
-  });
-}
+  ) {
+    const existingItem = await this.findOne(id);
+
+    if (data.quantity !== undefined && data.quantity <= 0) {
+      throw new BadRequestException('Quantity must be greater than 0');
+    }
+
+    if (data.unitPrice !== undefined && data.unitPrice <= 0) {
+      throw new BadRequestException('Unit price must be greater than 0');
+    }
+
+    if (data.categoryId) {
+      await this.validateCategoryExists(data.categoryId);
+    }
+
+    const totalPrice =
+      Number(data.quantity ?? existingItem.quantity) *
+      Number(data.unitPrice ?? existingItem.unitPrice);
+
+    try {
+      return await prisma.expenseItem.update({
+        where: { id },
+        data: {
+          ...data,
+          totalPrice,
+        },
+        include: { category: true },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid expense or category ID');
+      }
+
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Expense item not found');
+      }
+
+      throw new BadRequestException('Invalid expense item data');
+    }
+  }
 
   async delete(id: string) {
-    const existingItem = await this.findOne(id);
-    return prisma.expenseItem.delete({ where: { id } });
+    await this.findOne(id);
+
+    try {
+      return await prisma.expenseItem.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Expense item not found');
+      }
+
+      throw error;
+    }
   }
 }

@@ -2,22 +2,30 @@ paths:
   /merchants:
     get:
       operationId: findAllMerchants
-      summary: Get all merchants
+      summary: Get all merchants (for filtering expenses)
+      description: Retrieve list of merchants that is used in the frontend to show a dropdown/filter list for users to view expenses from a specific merchant.
       tags: [Merchants]
       security:
         - keycloak: []
       responses:
         '200':
-          description: Array of merchants
+          description: Array of merchants the user has added expenses.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Merchant'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
     post:
       operationId: createMerchant
-      summary: Create a merchant
+      summary: Create or get merchant
+      description: Create a new merchant or return existing one if already exists (upsert behavior). Used in OCR extraction when processing bills and by users when manually adding expenses without uploading a bill.
       tags: [Merchants]
       security:
         - keycloak: []
@@ -34,10 +42,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Merchant'
+        '200':
+          description: Merchant already exists (returned existing)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        '400':
+          description: Bad Request - merchant name is required or invalid
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+  /merchants/search:
+    get:
+      operationId: searchMerchants
+      summary: Search merchants by name
+      description: Search for merchants by name to prevent duplicates and enable merchant selection. Used when users manually add/update expenses to find existing merchants before creating new ones.
+      tags: [Merchants]
+      security:
+        - keycloak: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Partial merchant name to search for (e.g., 'star' finds 'Starbucks')
+      responses:
+        '200':
+          description: Array of matching merchants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Merchant'
+        '400':
+          description: Bad Request - name parameter is required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /merchants/{id}:
     get:
       operationId: findOneMerchant
-      summary: Get a merchant by ID
+      summary: Get a merchant by ID (internal backend use)
+      description: Retrieve a specific merchant by ID. Used when fetching expense details or for validation. No direct use in frontend.
       tags: [Merchants]
       security:
         - keycloak: []
@@ -54,15 +117,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Merchant'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: Merchant not found
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     put:
       operationId: updateMerchant
-      summary: Update a merchant
+      summary: Correct merchant name
+      description: Allow user to correct/fix merchant names when OCR extraction made errors. Users can search for existing merchants before updating to avoid creating duplicates.
       tags: [Merchants]
       security:
         - keycloak: []
@@ -85,64 +155,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Merchant'
-    delete:
-      operationId: deleteMerchant
-      summary: Delete a merchant
-      tags: [Merchants]
-      security:
-        - keycloak: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Merchant deleted
+        '400':
+          description: Bad Request - merchant name is required or invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteMerchant200Response'
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '404':
+          description: Merchant not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '409':
+          description: Conflict - another merchant already has this name
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
 
 components:
   schemas:
     Merchant:
       type: object
+      description: Merchant extracted from bills/receipts
       properties:
         id:
           type: string
           format: uuid
         name:
           type: string
-        business:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          format: date-time
+          description: Merchant name extracted from receipt (e.g., 'Amazon', 'Kaufland')
       required:
         - id
         - name
-        - createdAt
     CreateMerchantDto:
       type: object
+      description: DTO for creating a merchant. Used by OCR extraction to add new merchants.
       properties:
         name:
           type: string
-        business:
-          type: string
+          description: Merchant name to create
       required:
         - name
     UpdateMerchantDto:
       type: object
+      description: DTO for updating merchant name. Used to fix OCR extraction errors or merge duplicates.
       properties:
         name:
           type: string
-        business:
-          type: string
-    DeleteMerchant200Response:
-      type: object
-      properties:
-        message:
-          type: string
+          description: Corrected merchant name

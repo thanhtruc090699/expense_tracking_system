@@ -26,6 +26,7 @@ export function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? ''
 
   const fetchBills = async () => {
     const token = getToken();
@@ -35,7 +36,7 @@ export function BillsPage() {
     }
     
     try {
-      const res = await fetch('http://10.0.0.2:3000/bills', {
+      const res = await fetch(`${ALLOWED_HOST}:3000/bills`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,7 +60,7 @@ export function BillsPage() {
     if (!token) return;
     
     try {
-      await fetch(`http://10.0.0.2:3000/bills/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/bills/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

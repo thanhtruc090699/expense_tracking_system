@@ -31,7 +31,91 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 400
+                message: "Invalid request data"
+                error: "Bad Request"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 401
+                message: "Unauthorized access"
+                error: "Unauthorized"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 403
+                message: "Forbidden access"
+                error: "Forbidden"
+        '408':
+          description: Request timeout  
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 408
+                message: "Request timed out"
+                error: "Request Timeout"
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 422
+                message: "Unprocessable entity"
+                error: "Unprocessable Entity"
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 429
+                message: "Too many requests"
+                error: "Too Many Requests"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 500
+                message: "An unexpected error occurred"
+                error: "Internal Server Error"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 503
+                message: "Service is currently unavailable"
+                error: "Service Unavailable"
+        '504':
+          description: Gateway timeout
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 504
+                message: "Gateway timed out"
+                error: "Gateway Timeout"
   /lisa/process:
     post:
       operationId: lisaProcess
@@ -45,7 +129,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ProcessRequest'
       responses:
-        '200':
+        '201':
           description: Successful processing response
           content:
             application/json:
@@ -56,7 +140,91 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 400
+                message: "Invalid request data"
+                error: "Bad Request"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 401
+                message: "Unauthorized access"
+                error: "Unauthorized"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 403
+                message: "Forbidden access"
+                error: "Forbidden"
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 408
+                message: "Request timed out"
+                error: "Request Timeout"
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 422
+                message: "Unprocessable entity"
+                error: "Unprocessable Entity"
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 429
+                message: "Too many requests"
+                error: "Too Many Requests"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 500
+                message: "An unexpected error occurred"
+                error: "Internal Server Error"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 503
+                message: "Service is currently unavailable"
+                error: "Service Unavailable"
+        '504':
+          description: Gateway timeout
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 504
+                message: "Gateway timed out"
+                error: "Gateway Timeout"
 components:
   schemas:
     Message:
@@ -124,7 +292,7 @@ components:
         model:
           type: string
           default: lisa-pro-03-2026
-          description: Model to use for processing
+          description: Model to use for processing 
         data:
           type: object
           description: Data to process
@@ -142,16 +310,3 @@ components:
           description: Processed result from Lisa AI
       required:
         - result
-
-    Error:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-        message:
-          type: string
-        error:
-          type: string
-      required:
-        - statusCode
-        - message

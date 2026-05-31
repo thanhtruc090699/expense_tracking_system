@@ -25,6 +25,8 @@ paths:
     $ref: './expense-items.yaml#/paths/~1expense-items~1{id}'
   /merchants:
     $ref: './merchants.yaml#/paths/~1merchants'
+  /merchants/search:
+    $ref: './merchants.yaml#/paths/~1merchants~1search'
   /merchants/{id}:
     $ref: './merchants.yaml#/paths/~1merchants~1{id}'
   /categories:
@@ -50,8 +52,6 @@ components:
       $ref: './users.yaml#/components/schemas/CreateUserDto'
     UpdateUserDto:
       $ref: './users.yaml#/components/schemas/UpdateUserDto'
-    DeleteUser200Response:
-      $ref: './users.yaml#/components/schemas/DeleteUser200Response'
     ChatRequest:
       $ref: './lisa.yaml#/components/schemas/ChatRequest'
     ChatResponse:
@@ -82,8 +82,6 @@ components:
       $ref: './merchants.yaml#/components/schemas/CreateMerchantDto'
     UpdateMerchantDto:
       $ref: './merchants.yaml#/components/schemas/UpdateMerchantDto'
-    DeleteMerchant200Response:
-      $ref: './merchants.yaml#/components/schemas/DeleteMerchant200Response'
     Category:
       $ref: './categories.yaml#/components/schemas/Category'
     CreateCategoryDto:
@@ -122,8 +120,14 @@ components:
       $ref: './ocr.yaml#/components/schemas/TaxLine'
     Totals:
       $ref: './ocr.yaml#/components/schemas/Totals'
+    ProcessInvoiceRequestDto:
+      $ref: './ocr.yaml#/components/schemas/ProcessInvoiceRequestDto'
+    ProcessInvoiceResponse:
+      $ref: './ocr.yaml#/components/schemas/ProcessInvoiceResponse'
+    ProcessedInvoice:
+      $ref: './ocr.yaml#/components/schemas/ProcessedInvoice'
     Error:
-      $ref: './lisa.yaml#/components/schemas/Error'
+      $ref: './common.yaml#/components/schemas/Error'
 security:
   - keycloak: []
 tags:

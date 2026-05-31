@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") 
 }
 
 model User {
@@ -23,10 +23,10 @@ model User {
 }
 
 model Merchant {
-  id        String    @id @default(uuid())
-  name      String
+  id        String   @id @default(uuid())
+  name      String   @unique @default("Unknown Merchant")
   business  String?
-  createdAt DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   expenses  Expense[]
 
@@ -35,7 +35,7 @@ model Merchant {
 
 model Category {
   id        String          @id @default(uuid())
-  name      String
+  name      String          @unique @default("Other")
   icon      String?
   createdAt DateTime        @default(now()) @map("created_at")
 
@@ -84,11 +84,11 @@ model ExpenseItem {
   quantity    Int
   unitPrice   Decimal  @db.Decimal(10, 2) @map("unit_price")
   totalPrice  Decimal  @db.Decimal(10, 2) @map("total_price")
-  categoryId  String   @map("category_id")
+  categoryId  String?  @map("category_id")
   createdAt   DateTime @default(now()) @map("created_at")
 
   expense  Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("expense_items")
 }

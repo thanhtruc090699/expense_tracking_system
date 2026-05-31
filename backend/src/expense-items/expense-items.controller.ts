@@ -24,7 +24,7 @@ import { EXPENSE_ITEMS_API_PROVIDER } from './expense-items.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 
 @Controller('expense-items')
-@UseGuards(JwtGuard)
+//@UseGuards(JwtGuard)
 export class ExpenseItemsController {
   constructor(
     @Inject(EXPENSE_ITEMS_API_PROVIDER)

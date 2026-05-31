@@ -23,13 +23,14 @@ interface Budget {
 export function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
+  const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
   const fetchBudgets = async () => {
     const token = getToken();
     if (!token) return;
     
     try {
-      const res = await fetch('http://10.0.0.2:3000/budgets', {
+      const res = await fetch(`${ALLOWED_HOST}/budgets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBudgets(await res.json());
@@ -48,7 +49,7 @@ export function BudgetsPage() {
     if (!token) return;
     
     try {
-      await fetch(`http://10.0.0.2:3000/budgets/${id}`, {
+      await fetch(`${ALLOWED_HOST}:3000/budgets/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
