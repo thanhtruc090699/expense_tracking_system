@@ -227,6 +227,8 @@ paths:
                 error: "Gateway Timeout"
 components:
   schemas:
+    Error:
+      $ref: './common.yaml#/components/schemas/Error'
     Message:
       type: object
       properties:
