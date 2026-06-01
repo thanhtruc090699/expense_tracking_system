@@ -46,8 +46,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          description: Bad request - Invalid input
+        '422':
+          description: Unprocessable Entity - Invalid input
           content:
             application/json:
               schema:
@@ -83,6 +83,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: User found
@@ -120,6 +121,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -133,8 +135,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          description: Bad request - Invalid input
+        '422':
+          description: Unprocessable Entity - Invalid input
           content:
             application/json:
               schema:

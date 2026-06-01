@@ -48,8 +48,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Merchant'
-        '400':
-          description: Bad Request - merchant name is required or invalid
+        '422':
+          description: Unprocessable Entity - merchant name is required
           content:
             application/json:
               schema:
@@ -110,6 +110,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Merchant found
@@ -155,8 +156,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Merchant'
-        '400':
-          description: Bad Request - merchant name is required or invalid
+        '422':
+          description: Unprocessable Entity - merchant name is required or invalid
           content:
             application/json:
               schema:
