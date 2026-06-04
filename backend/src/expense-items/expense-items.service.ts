@@ -38,8 +38,7 @@ export class ExpenseItemsService {
     quantity: number;
     unitPrice: number;
     totalPrice?: number;
-    categoryId: string | null;
-  }) {
+    categoryId?: string | null;  }) {
     if (data.quantity <= 0) {
       throw new BadRequestException('Quantity must be greater than 0');
     }
@@ -49,6 +48,7 @@ export class ExpenseItemsService {
     }
 
     await this.validateExpenseExists(data.expenseId);
+
     if (data.categoryId) {
       await this.validateCategoryExists(data.categoryId);
     }
@@ -57,10 +57,14 @@ export class ExpenseItemsService {
 
     try {
       return await prisma.expenseItem.create({
-        data: {
-          ...data,
+      data: {
+        expenseId: data.expenseId,
+          itemName: data.itemName,
+          quantity: data.quantity,
+          unitPrice: data.unitPrice,
           totalPrice,
-        },
+          ...(data.categoryId ? { categoryId: data.categoryId } : {}),
+        } as any,
         include: {
           category: true,
         },
@@ -124,8 +128,8 @@ export class ExpenseItemsService {
     }
 
     if (data.categoryId) {
-      await this.validateCategoryExists(data.categoryId);
-    }
+    await this.validateCategoryExists(data.categoryId);
+}
 
     const totalPrice =
       Number(data.quantity ?? existingItem.quantity) *
