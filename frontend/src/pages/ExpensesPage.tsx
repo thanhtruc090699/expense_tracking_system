@@ -27,6 +27,8 @@ interface Expense {
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddExpense, setShowAddExpense] = useState(false);
+  const [activeTab, setActiveTab] = useState<'scan' | 'manual'>('scan');
 
   const fetchExpenses = async () => {
     const token = getToken();
@@ -34,7 +36,7 @@ export function ExpensesPage() {
       setLoading(false);
       return;
     }
-    
+
     try {
       const res = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
         headers: {
@@ -56,9 +58,10 @@ export function ExpensesPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
+
     const token = getToken();
     if (!token) return;
-    
+
     try {
       await fetch(`${ALLOWED_HOST}:3000/expenses/${id}`, {
         method: 'DELETE',
@@ -66,6 +69,7 @@ export function ExpensesPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       fetchExpenses();
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -73,11 +77,13 @@ export function ExpensesPage() {
   };
 
   const token = getToken();
-  
+
   if (!token) {
     return (
       <>
-        <Title headingLevel="h1" size="xl">Expenses</Title>
+        <Title headingLevel="h1" size="xl">
+          Expenses
+        </Title>
         <p>Authentication required</p>
       </>
     );
@@ -87,7 +93,9 @@ export function ExpensesPage() {
 
   return (
     <>
-      <Title headingLevel="h1" size="xl">Expenses</Title>
+      <Title headingLevel="h1" size="xl">
+        Expenses
+      </Title>
       <p>Track your expenses</p>
 
       <Card>
@@ -103,6 +111,7 @@ export function ExpensesPage() {
                 <Th>Actions</Th>
               </Tr>
             </Thead>
+
             <Tbody>
               {expenses.map((expense) => (
                 <Tr key={expense.id}>
@@ -128,6 +137,7 @@ export function ExpensesPage() {
                   </Td>
                 </Tr>
               ))}
+
               {expenses.length === 0 && (
                 <Tr>
                   <Td colSpan={6} style={{ textAlign: 'center' }}>
@@ -139,6 +149,86 @@ export function ExpensesPage() {
           </Table>
         </CardBody>
       </Card>
+
+      <Button
+        variant="primary"
+        onClick={() => setShowAddExpense(true)}
+        style={{
+          position: 'fixed',
+         bottom: '120px',
+        right: '32px',
+          width: '64px',
+          height: '64px',
+          borderRadius: '50%',
+          fontSize: '28px',
+          zIndex: 1000,
+        }}
+      >
+        +
+      </Button>
+
+      {showAddExpense && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              width: '500px',
+              borderRadius: '20px',
+              padding: '24px',
+            }}
+          >
+            <Title headingLevel="h2">Add Expense</Title>
+
+            <div style={{ display: 'flex', gap: '12px', margin: '20px 0' }}>
+              <Button
+                variant={activeTab === 'scan' ? 'primary' : 'secondary'}
+                onClick={() => setActiveTab('scan')}
+              >
+                Receipt Scan
+              </Button>
+
+              <Button
+                variant={activeTab === 'manual' ? 'primary' : 'secondary'}
+                onClick={() => setActiveTab('manual')}
+              >
+                Manual Entry
+              </Button>
+            </div>
+
+            {activeTab === 'scan' && (
+              <div>
+                <p>Upload your receipt here.</p>
+                <Button variant="secondary">Choose File</Button>
+              </div>
+            )}
+
+            {activeTab === 'manual' && (
+              <div>
+                <p>Manual expense form comes here.</p>
+              </div>
+            )}
+
+            <div style={{ marginTop: '24px' }}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowAddExpense(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,7 +1,6 @@
 import "../../styles/ProfileAndSettingsStyles/ProfileStyle.css";
 
 import profileImg from "../../assets/profilbild.jpg";
-import NavBar from "../../components/NavBar";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -144,8 +143,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-
-      <NavBar />
     </div>
   );
 }

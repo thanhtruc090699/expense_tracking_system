@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import NavBar from "./NavBar";
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Page,
@@ -133,9 +134,13 @@ export function Layout({ children }: LayoutProps) {
     </PageSidebar>
   );
 
-  return (
+ return (
+  <>
     <Page masthead={masthead} sidebar={sidebar}>
       <PageSection>{children}</PageSection>
     </Page>
-  );
+
+    <NavBar />
+  </>
+);
 }
