@@ -40,6 +40,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseItem'
+        '422':
+          description: Unprocessable Entity - Invalid input or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /expense-items/{id}:
     get:
       operationId: findOneExpenseItem
@@ -53,6 +59,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Expense item found
@@ -60,6 +67,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseItem'
+        '400':
+          description: Bad Request - invalid ID format or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 400
+                message: Invalid expense item ID
+                error: Bad Request
         '404':
           description: Expense item not found
           content:
@@ -78,6 +95,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -91,6 +109,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseItem'
+        '400':
+          description: Bad Request - invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '422':
+          description: Unprocessable Entity - invalid payload or validation failed
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 422
+                message: Invalid expense item data
+                error: Unprocessable Entity
     delete:
       operationId: deleteExpenseItem
       summary: Delete an expense item
@@ -103,6 +137,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Expense item deleted
@@ -110,6 +145,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteExpenseItem200Response'
+        '400':
+          description: Bad Request - invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+              example:
+                statusCode: 400
+                message: Invalid expense item ID
+                error: Bad Request
 
 components:
   schemas:
