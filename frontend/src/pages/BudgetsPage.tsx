@@ -62,7 +62,14 @@ const demoBudgets: Budget[] = [
 export function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [showCreateBudgetScreen, setShowCreateBudgetScreen] = useState(false);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [budgetLimit, setBudgetLimit] = useState("");
+  const [warningThreshold, setWarningThreshold] = useState(80);
+  const [scheduledPayment, setScheduledPayment] = useState("");
 
   const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -101,6 +108,10 @@ export function BudgetsPage() {
     fetchBudgets();
   }, []);
 
+  const parseMoneyValue = (value: string) => {
+    return Number(value.replace(",", "."));
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure?")) return;
 
@@ -125,10 +136,131 @@ export function BudgetsPage() {
     }
   };
 
+  const handleAddBudget = () => {
+    const limitValue = parseMoneyValue(budgetLimit);
+    const scheduledValue = parseMoneyValue(scheduledPayment || "0");
+
+    if (!selectedCategory || !budgetLimit || Number.isNaN(limitValue)) {
+      alert("Please choose a category and enter a valid limit.");
+      return;
+    }
+
+    const newBudget: Budget = {
+      id: crypto.randomUUID(),
+      userId: "demo",
+      categoryId: selectedCategory.toLowerCase(),
+      amount: limitValue,
+      notifyThreshold: warningThreshold,
+      endDate: null,
+      createdAt: new Date().toISOString(),
+      category: { name: selectedCategory },
+      usedAmount: Number.isNaN(scheduledValue) ? 0 : scheduledValue,
+    };
+
+    setBudgets((prev) => [newBudget, ...prev]);
+
+    setSelectedCategory("");
+    setBudgetLimit("");
+    setWarningThreshold(80);
+    setScheduledPayment("");
+
+    setShowBudgetForm(false);
+    setShowCreateBudgetScreen(false);
+  };
+
   if (loading) {
     return (
       <main className="budget-page">
         <p className="budget-loading">Loading...</p>
+      </main>
+    );
+  }
+
+  if (showBudgetForm) {
+    return (
+      <main className="budget-page">
+        <section className="budget-form-sheet">
+          <h1>Set Monthly Budget</h1>
+
+          <p className="budget-form-subtitle">
+            Set spending limits per category to stay on track
+          </p>
+
+          <label className="budget-form-label">Category</label>
+          <select
+            className="budget-form-input"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value=""></option>
+            <option value="Groceries">Groceries</option>
+            <option value="Restaurant">Restaurant</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Health">Health</option>
+            <option value="Entertainment">Entertainment</option>
+          </select>
+
+          <label className="budget-form-label">Limit (€)</label>
+          <input
+            className="budget-form-input"
+            type="text"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={budgetLimit}
+            onChange={(e) => setBudgetLimit(e.target.value)}
+          />
+
+          <div className="budget-threshold-row">
+            <span>Warning Threshold</span>
+            <strong>{warningThreshold}%</strong>
+          </div>
+
+          <input
+            className="budget-range"
+            type="range"
+            min="0"
+            max="100"
+            value={warningThreshold}
+            onChange={(e) => setWarningThreshold(Number(e.target.value))}
+          />
+
+          <p className="budget-help-text">
+            Get warned when you reach this % of your limit
+          </p>
+
+          <label className="budget-form-label">Scheduled Payment (€)</label>
+          <input
+            className="budget-form-input"
+            type="text"
+            inputMode="decimal"
+            placeholder="0"
+            value={scheduledPayment}
+            onChange={(e) => setScheduledPayment(e.target.value)}
+          />
+
+          <p className="budget-help-text">
+            Planned/expected spending for this category
+          </p>
+
+          <div className="budget-form-actions">
+            <button
+              type="button"
+              className="budget-cancel-button"
+              onClick={() => setShowBudgetForm(false)}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="budget-form-add-button"
+              onClick={handleAddBudget}
+            >
+              Add
+            </button>
+          </div>
+        </section>
       </main>
     );
   }
@@ -171,7 +303,11 @@ export function BudgetsPage() {
             </p>
           </div>
 
-          <button type="button" className="budget-create-button">
+          <button
+            type="button"
+            className="budget-create-button"
+            onClick={() => setShowBudgetForm(true)}
+          >
             Create a budget
           </button>
         </section>
