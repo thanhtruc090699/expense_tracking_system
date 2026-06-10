@@ -66,12 +66,16 @@ export function BudgetsPage() {
   const [showCreateBudgetScreen, setShowCreateBudgetScreen] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
 
+  const [editBudgetId, setEditBudgetId] = useState<string | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [budgetLimit, setBudgetLimit] = useState("");
   const [warningThreshold, setWarningThreshold] = useState(80);
   const [scheduledPayment, setScheduledPayment] = useState("");
 
   const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
+
+  const isEditMode = editBudgetId !== null;
 
   const fetchBudgets = async () => {
     const token = getToken();
@@ -112,6 +116,14 @@ export function BudgetsPage() {
     return Number(value.replace(",", "."));
   };
 
+  const resetForm = () => {
+    setSelectedCategory("");
+    setBudgetLimit("");
+    setWarningThreshold(80);
+    setScheduledPayment("");
+    setEditBudgetId(null);
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure?")) return;
 
@@ -136,7 +148,17 @@ export function BudgetsPage() {
     }
   };
 
-  const handleAddBudget = () => {
+  const handleStartEdit = (budget: Budget) => {
+    setEditBudgetId(budget.id);
+    setSelectedCategory(budget.category?.name || "");
+    setBudgetLimit(String(budget.amount));
+    setWarningThreshold(budget.notifyThreshold);
+    setScheduledPayment(String(budget.usedAmount ?? 0));
+    setShowBudgetForm(true);
+    setShowCreateBudgetScreen(false);
+  };
+
+  const handleSubmitBudget = () => {
     const limitValue = parseMoneyValue(budgetLimit);
     const scheduledValue = parseMoneyValue(scheduledPayment || "0");
 
@@ -145,27 +167,49 @@ export function BudgetsPage() {
       return;
     }
 
-    const newBudget: Budget = {
-      id: crypto.randomUUID(),
-      userId: "demo",
-      categoryId: selectedCategory.toLowerCase(),
-      amount: limitValue,
-      notifyThreshold: warningThreshold,
-      endDate: null,
-      createdAt: new Date().toISOString(),
-      category: { name: selectedCategory },
-      usedAmount: Number.isNaN(scheduledValue) ? 0 : scheduledValue,
-    };
+    if (isEditMode && editBudgetId) {
+      setBudgets((prev) =>
+        prev.map((budget) =>
+          budget.id === editBudgetId
+            ? {
+                ...budget,
+                categoryId: selectedCategory.toLowerCase(),
+                amount: limitValue,
+                notifyThreshold: warningThreshold,
+                category: { name: selectedCategory },
+                usedAmount: Number.isNaN(scheduledValue) ? 0 : scheduledValue,
+              }
+            : budget
+        )
+      );
+    } else {
+      const newBudget: Budget = {
+        id: crypto.randomUUID(),
+        userId: "demo",
+        categoryId: selectedCategory.toLowerCase(),
+        amount: limitValue,
+        notifyThreshold: warningThreshold,
+        endDate: null,
+        createdAt: new Date().toISOString(),
+        category: { name: selectedCategory },
+        usedAmount: Number.isNaN(scheduledValue) ? 0 : scheduledValue,
+      };
 
-    setBudgets((prev) => [newBudget, ...prev]);
+      setBudgets((prev) => [newBudget, ...prev]);
+    }
 
-    setSelectedCategory("");
-    setBudgetLimit("");
-    setWarningThreshold(80);
-    setScheduledPayment("");
-
+    resetForm();
     setShowBudgetForm(false);
     setShowCreateBudgetScreen(false);
+  };
+
+  const handleCancelForm = () => {
+    resetForm();
+    setShowBudgetForm(false);
+
+    if (!isEditMode) {
+      setShowCreateBudgetScreen(true);
+    }
   };
 
   if (loading) {
@@ -180,7 +224,7 @@ export function BudgetsPage() {
     return (
       <main className="budget-page">
         <section className="budget-form-sheet">
-          <h1>Set Monthly Budget</h1>
+          <h1>{isEditMode ? "Edit Monthly Budget" : "Set Monthly Budget"}</h1>
 
           <p className="budget-form-subtitle">
             Set spending limits per category to stay on track
@@ -247,7 +291,7 @@ export function BudgetsPage() {
             <button
               type="button"
               className="budget-cancel-button"
-              onClick={() => setShowBudgetForm(false)}
+              onClick={handleCancelForm}
             >
               Cancel
             </button>
@@ -255,9 +299,9 @@ export function BudgetsPage() {
             <button
               type="button"
               className="budget-form-add-button"
-              onClick={handleAddBudget}
+              onClick={handleSubmitBudget}
             >
-              Add
+              {isEditMode ? "Save" : "Add"}
             </button>
           </div>
         </section>
@@ -379,7 +423,11 @@ export function BudgetsPage() {
                   </div>
 
                   <div className="budget-icons">
-                    <button type="button" className="budget-icon-btn">
+                    <button
+                      type="button"
+                      className="budget-icon-btn"
+                      onClick={() => handleStartEdit(budget)}
+                    >
                       <Pencil size={23} />
                     </button>
 
