@@ -59,6 +59,21 @@ const demoBudgets: Budget[] = [
   },
 ];
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,9 +88,20 @@ export function BudgetsPage() {
   const [warningThreshold, setWarningThreshold] = useState(80);
   const [scheduledPayment, setScheduledPayment] = useState("");
 
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(3);
+
   const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
   const isEditMode = editBudgetId !== null;
+  const selectedMonth = months[selectedMonthIndex];
+
+  const goToPreviousMonth = () => {
+    setSelectedMonthIndex((prev) => (prev === 0 ? 11 : prev - 1));
+  };
+
+  const goToNextMonth = () => {
+    setSelectedMonthIndex((prev) => (prev === 11 ? 0 : prev + 1));
+  };
 
   const fetchBudgets = async () => {
     const token = getToken();
@@ -204,10 +230,12 @@ export function BudgetsPage() {
   };
 
   const handleCancelForm = () => {
+    const wasEditMode = isEditMode;
+
     resetForm();
     setShowBudgetForm(false);
 
-    if (!isEditMode) {
+    if (!wasEditMode) {
       setShowCreateBudgetScreen(true);
     }
   };
@@ -330,9 +358,13 @@ export function BudgetsPage() {
               <ArrowLeft size={42} />
             </button>
 
-            <h1>April</h1>
+            <h1>{selectedMonth}</h1>
 
-            <button type="button" className="budget-month-btn">
+            <button
+              type="button"
+              className="budget-month-btn"
+              onClick={goToNextMonth}
+            >
               <ChevronRight size={42} />
             </button>
           </div>
@@ -371,13 +403,21 @@ export function BudgetsPage() {
         </div>
 
         <div className="budget-month-row">
-          <button type="button" className="budget-month-btn">
+          <button
+            type="button"
+            className="budget-month-btn"
+            onClick={goToPreviousMonth}
+          >
             <ChevronLeft size={42} />
           </button>
 
-          <h1>April</h1>
+          <h1>{selectedMonth}</h1>
 
-          <button type="button" className="budget-month-btn">
+          <button
+            type="button"
+            className="budget-month-btn"
+            onClick={goToNextMonth}
+          >
             <ChevronRight size={42} />
           </button>
         </div>
