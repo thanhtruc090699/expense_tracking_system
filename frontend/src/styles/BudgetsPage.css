@@ -69,7 +69,7 @@
   align-items: center;
   padding: 0 18px;
 
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -86,9 +86,9 @@
 .budget-month-row h1 {
   margin: 0;
   color: white;
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
 }
 
 .budget-month-btn {
@@ -103,11 +103,7 @@
 .budget-white-sheet {
   background: #fcfcfc;
   border-radius: 28px 28px 0 0;
-
-  /* wichtig: unten genug Platz für Navbar */
-  padding: 40px 31px 125px;
-
-  /* wichtig: füllt die Höhe bis zur Navbar */
+  padding: 38px 31px 125px;
   min-height: calc(min(100dvh, 812px) - 250px);
 }
 
@@ -116,15 +112,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 34px;
+  margin-bottom: 30px;
 }
 
 .budget-head-row h2 {
   margin: 0;
   color: #0a0a0a;
-  font-size: 22px;
-  font-weight: 850;
-  letter-spacing: -0.3px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 .budget-add-button {
@@ -132,8 +128,8 @@
   background: #1e5128;
   color: white;
   border-radius: 10px;
-  padding: 12px 18px;
-  font-size: 17px;
+  padding: 11px 17px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -144,14 +140,14 @@
 .budget-card-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .budget-card {
   background: white;
   border: 1px solid #e4e4e4;
   border-radius: 18px;
-  padding: 24px 24px 22px;
+  padding: 20px 20px 18px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.035);
 }
 
@@ -163,24 +159,24 @@
 }
 
 .budget-card h3 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: #0a0a0a;
-  font-size: 22px;
-  font-weight: 850;
-  letter-spacing: -0.3px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 .budget-money {
   margin: 0;
   color: #687386;
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
 .budget-icons {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
   padding-top: 2px;
 }
 
@@ -198,11 +194,11 @@
 
 .budget-bar {
   width: 100%;
-  height: 9px;
+  height: 8px;
   background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
-  margin-top: 24px;
+  margin-top: 22px;
 }
 
 .budget-bar-fill {
@@ -223,8 +219,8 @@
 }
 
 .budget-used {
-  margin: 14px 0 0;
-  font-size: 15px;
+  margin: 12px 0 0;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -242,8 +238,8 @@
 }
 
 .budget-warning {
-  margin-top: 20px;
-  min-height: 54px;
+  margin-top: 18px;
+  min-height: 46px;
   border-radius: 999px;
   background: #ff3b30;
   color: white;
@@ -251,19 +247,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 
-  padding: 8px 16px;
-  font-size: 15px;
-  font-weight: 850;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.25;
   text-align: center;
 }
 
 .budget-warning span {
-  width: 30px;
-  height: 30px;
-  min-width: 30px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
   border-radius: 50%;
   background: white;
   color: #ff3b30;
@@ -271,6 +267,47 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* EMPTY SCREEN */
+.budget-empty-sheet {
+  min-height: calc(min(100dvh, 812px) - 250px);
+  background: #fcfcfc;
+  border-radius: 28px 28px 0 0;
+  padding: 40px 32px 125px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.budget-empty-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.budget-empty-content p {
+  margin: 0;
+  color: #9696a6;
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.budget-create-button {
+  width: 100%;
+  height: 64px;
+  border: none;
+  border-radius: 18px;
+  background: #1e5128;
+  color: white;
+
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 /* kleine Handys */
@@ -281,48 +318,12 @@
     box-shadow: none;
   }
 
-  .budget-green-area {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
-
-  .budget-ai-icon {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-  }
-
-  .budget-ai-input {
-    height: 46px;
-    font-size: 15px;
-  }
-
   .budget-white-sheet {
-    padding-left: 31px;
-    padding-right: 31px;
-    padding-bottom: 125px;
     min-height: calc(100dvh - 250px);
   }
 
-  .budget-head-row h2 {
-    font-size: 20px;
-  }
-
-  .budget-add-button {
-    padding: 12px 17px;
-    font-size: 16px;
-  }
-
-  .budget-card {
-    padding: 22px 22px 20px;
-  }
-
-  .budget-card h3 {
-    font-size: 20px;
-  }
-
-  .budget-money {
-    font-size: 15px;
+  .budget-empty-sheet {
+    min-height: calc(100dvh - 250px);
   }
 }
 
@@ -334,6 +335,12 @@
 
   .budget-head-row h2 {
     max-width: 130px;
+    font-size: 17px;
+  }
+
+  .budget-add-button {
+    font-size: 14px;
+    padding: 10px 14px;
   }
 
   .budget-icons {
@@ -341,6 +348,14 @@
   }
 
   .budget-warning {
-    font-size: 14px;
+    font-size: 11px;
+  }
+
+  .budget-empty-content p {
+    font-size: 18px;
+  }
+
+  .budget-create-button {
+    font-size: 20px;
   }
 }

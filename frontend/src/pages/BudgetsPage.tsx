@@ -6,6 +6,7 @@ import {
   Pencil,
   Trash2,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { getToken } from "../auth";
 import "../styles/BudgetsPage.css";
@@ -61,6 +62,7 @@ const demoBudgets: Budget[] = [
 export function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateBudgetScreen, setShowCreateBudgetScreen] = useState(false);
 
   const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -131,6 +133,52 @@ export function BudgetsPage() {
     );
   }
 
+  if (showCreateBudgetScreen) {
+    return (
+      <main className="budget-page">
+        <section className="budget-green-area">
+          <div className="budget-ai-row">
+            <div className="budget-ai-icon">
+              <Bot size={26} />
+            </div>
+
+            <div className="budget-ai-input">Ask AI Assistant...</div>
+          </div>
+
+          <div className="budget-month-row">
+            <button
+              type="button"
+              className="budget-month-btn"
+              onClick={() => setShowCreateBudgetScreen(false)}
+            >
+              <ArrowLeft size={42} />
+            </button>
+
+            <h1>April</h1>
+
+            <button type="button" className="budget-month-btn">
+              <ChevronRight size={42} />
+            </button>
+          </div>
+        </section>
+
+        <section className="budget-empty-sheet">
+          <div className="budget-empty-content">
+            <p>
+              You don&apos;t have a budget.
+              <br />
+              Let&apos;s make one so you in control.
+            </p>
+          </div>
+
+          <button type="button" className="budget-create-button">
+            Create a budget
+          </button>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="budget-page">
       <section className="budget-green-area">
@@ -159,7 +207,11 @@ export function BudgetsPage() {
         <div className="budget-head-row">
           <h2>Budget Categories</h2>
 
-          <button type="button" className="budget-add-button">
+          <button
+            type="button"
+            className="budget-add-button"
+            onClick={() => setShowCreateBudgetScreen(true)}
+          >
             + Add
           </button>
         </div>
@@ -184,6 +236,7 @@ export function BudgetsPage() {
                 <div className="budget-card-top">
                   <div>
                     <h3>{budget.category?.name || "Total"}</h3>
+
                     <p className="budget-money">
                       €{used.toFixed(2)} of €{limit.toFixed(2)}
                     </p>
