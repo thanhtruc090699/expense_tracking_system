@@ -279,3 +279,11 @@ body.dark-mode {
 body.dark-mode * {
   color: white !important;
 }
+body {
+  margin: 0;
+  background: #ededed;
+}
+
+#root {
+  min-height: 100dvh;
+}

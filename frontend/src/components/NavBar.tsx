@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import "../styles/NavBar.css";
 
 import {
@@ -40,29 +41,53 @@ export default function NavBar() {
         </svg>
 
         <div className="bottom-nav">
-          <div className="nav-item active">
-            <House size={26} fill="#2d5b2d" strokeWidth={2} />
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <House size={26} strokeWidth={2} />
             <span>Home</span>
-          </div>
+          </NavLink>
 
-          <div className="nav-item">
+          <NavLink
+            to="/expenses"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <ArrowLeftRight size={24} />
             <span>Transaction</span>
-          </div>
+          </NavLink>
 
-          <button className="add-btn" onClick={() => setShowAddExpense(true)}>
+          <button
+            className="add-btn"
+            type="button"
+            onClick={() => setShowAddExpense(true)}
+          >
             <Plus size={32} strokeWidth={2.5} />
           </button>
 
-          <div className="nav-item">
+          <NavLink
+            to="/budgets"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <PieChart size={24} />
             <span>Budget</span>
-          </div>
+          </NavLink>
 
-          <div className="nav-item">
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <BarChart3 size={24} />
             <span>Analytics</span>
-          </div>
+          </NavLink>
         </div>
       </div>
 
@@ -74,6 +99,7 @@ export default function NavBar() {
             <div className="expense-tabs">
               <button
                 className={activeTab === "scan" ? "tab active-tab" : "tab"}
+                type="button"
                 onClick={() => setActiveTab("scan")}
               >
                 Receipt Scan
@@ -81,6 +107,7 @@ export default function NavBar() {
 
               <button
                 className={activeTab === "manual" ? "tab active-tab" : "tab"}
+                type="button"
                 onClick={() => setActiveTab("manual")}
               >
                 Manual Entry
@@ -93,13 +120,20 @@ export default function NavBar() {
                   <div className="upload-icon">
                     <Upload size={30} />
                   </div>
+
                   <h3>Drag and drop files here</h3>
                   <p>or</p>
-                  <button className="browse-btn">Browse Files</button>
+
+                  <button className="browse-btn" type="button">
+                    Browse Files
+                  </button>
+
                   <small>Upload up to 5 files (max 10MB each)</small>
                 </div>
 
-                <button className="save-btn">Scan File</button>
+                <button className="save-btn" type="button">
+                  Scan File
+                </button>
               </>
             )}
 
@@ -114,6 +148,7 @@ export default function NavBar() {
                     onChange={(e) => setCategory(e.target.value)}
                   >
                     <option value="">Category</option>
+
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
                         {cat}
@@ -147,6 +182,7 @@ export default function NavBar() {
 
                     <button
                       className={repeat ? "switch on" : "switch"}
+                      type="button"
                       onClick={() => setRepeat(!repeat)}
                     >
                       <span />
@@ -154,12 +190,15 @@ export default function NavBar() {
                   </div>
                 </div>
 
-                <button className="save-btn">Save</button>
+                <button className="save-btn" type="button">
+                  Save
+                </button>
               </>
             )}
 
             <button
               className="close-sheet-btn"
+              type="button"
               onClick={() => setShowAddExpense(false)}
             >
               Close

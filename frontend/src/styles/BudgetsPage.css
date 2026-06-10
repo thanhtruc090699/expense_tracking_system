@@ -1,0 +1,346 @@
+.budget-page {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: min(100vw, 375px);
+  height: min(100dvh, 812px);
+
+  background: #1e5128;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+}
+
+.budget-page::-webkit-scrollbar {
+  display: none;
+}
+
+.budget-loading {
+  color: white;
+  padding: 24px;
+}
+
+/* HEADER */
+.budget-green-area {
+  height: 250px;
+  background: #1e5128;
+  padding: 34px 32px 0;
+  color: white;
+}
+
+.budget-ai-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.budget-ai-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: #d9f2a3;
+  color: #1e5128;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.budget-ai-input {
+  flex: 1;
+  height: 46px;
+  border-radius: 999px;
+  background: #f6f6f6;
+  border: 1.5px solid #d8d8d8;
+  color: #777;
+
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+
+  font-size: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.budget-month-row {
+  margin-top: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.budget-month-row h1 {
+  margin: 0;
+  color: white;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.budget-month-btn {
+  border: none;
+  background: transparent;
+  color: white;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* WHITE SHEET */
+.budget-white-sheet {
+  background: #fcfcfc;
+  border-radius: 28px 28px 0 0;
+
+  /* wichtig: unten genug Platz für Navbar */
+  padding: 40px 31px 125px;
+
+  /* wichtig: füllt die Höhe bis zur Navbar */
+  min-height: calc(min(100dvh, 812px) - 250px);
+}
+
+.budget-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 34px;
+}
+
+.budget-head-row h2 {
+  margin: 0;
+  color: #0a0a0a;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.3px;
+}
+
+.budget-add-button {
+  border: none;
+  background: #1e5128;
+  color: white;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 8px 16px rgba(30, 81, 40, 0.18);
+}
+
+/* CARDS */
+.budget-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.budget-card {
+  background: white;
+  border: 1px solid #e4e4e4;
+  border-radius: 18px;
+  padding: 24px 24px 22px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.035);
+}
+
+.budget-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.budget-card h3 {
+  margin: 0 0 12px;
+  color: #0a0a0a;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.3px;
+}
+
+.budget-money {
+  margin: 0;
+  color: #687386;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.budget-icons {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 2px;
+}
+
+.budget-icon-btn {
+  border: none;
+  background: transparent;
+  color: #4a5565;
+  padding: 0;
+  cursor: pointer;
+}
+
+.budget-icon-btn.delete {
+  color: #e7000b;
+}
+
+.budget-bar {
+  width: 100%;
+  height: 9px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.budget-bar-fill.safe {
+  background: #1e5128;
+}
+
+.budget-bar-fill.warning {
+  background: #ff6900;
+}
+
+.budget-bar-fill.danger {
+  background: #ff2d3d;
+}
+
+.budget-used {
+  margin: 14px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.budget-used.safe {
+  color: #4a5565;
+}
+
+.budget-used.warning {
+  color: #ff4d00;
+}
+
+.budget-used.danger {
+  color: #e7000b;
+}
+
+.budget-warning {
+  margin-top: 20px;
+  min-height: 54px;
+  border-radius: 999px;
+  background: #ff3b30;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.budget-warning span {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 50%;
+  background: white;
+  color: #ff3b30;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* kleine Handys */
+@media (max-width: 390px) {
+  .budget-page {
+    width: 100vw;
+    height: 100dvh;
+    box-shadow: none;
+  }
+
+  .budget-green-area {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .budget-ai-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .budget-ai-input {
+    height: 46px;
+    font-size: 15px;
+  }
+
+  .budget-white-sheet {
+    padding-left: 31px;
+    padding-right: 31px;
+    padding-bottom: 125px;
+    min-height: calc(100dvh - 250px);
+  }
+
+  .budget-head-row h2 {
+    font-size: 20px;
+  }
+
+  .budget-add-button {
+    padding: 12px 17px;
+    font-size: 16px;
+  }
+
+  .budget-card {
+    padding: 22px 22px 20px;
+  }
+
+  .budget-card h3 {
+    font-size: 20px;
+  }
+
+  .budget-money {
+    font-size: 15px;
+  }
+}
+
+/* sehr kleine Screens */
+@media (max-width: 340px) {
+  .budget-head-row {
+    align-items: flex-start;
+  }
+
+  .budget-head-row h2 {
+    max-width: 130px;
+  }
+
+  .budget-icons {
+    gap: 12px;
+  }
+
+  .budget-warning {
+    font-size: 14px;
+  }
+}
