@@ -117,7 +117,7 @@ export function DashboardPage() {
             className="profile-image-btn"
             onClick={() => navigate("/profile")}
           >
-            <ProfileAvatar name={displayName} size={42} />
+            <ProfileAvatar name={displayName} size={52} />
           </button>
         </div>
 

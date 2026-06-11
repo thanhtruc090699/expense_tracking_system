@@ -29,6 +29,7 @@ function App() {
     const token = getTokenFromCode();
     if (token) {
       setLoggedIn(true);
+      window.location.href = '/dashboard';
     }
 
     const theme = localStorage.getItem("theme");
