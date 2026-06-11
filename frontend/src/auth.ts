@@ -80,6 +80,26 @@ export function getFullName(): string | null {
   }
 }
 
+export function getRoles(): string[] {
+  const token = sessionStorage.getItem('kc_token');
+  if (!token) return [];
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.resource_access?.['bill-buddy-api'] || [];
+  } catch {
+    return [];
+  }
+}
+
+export function hasRole(role: string): boolean {
+  return getRoles().includes(role);
+}
+
+export function isAdmin(): boolean {
+  return hasRole('admin');
+}
+
 export function logout() {
   sessionStorage.removeItem('kc_token');
   sessionStorage.removeItem('kc_id_token');

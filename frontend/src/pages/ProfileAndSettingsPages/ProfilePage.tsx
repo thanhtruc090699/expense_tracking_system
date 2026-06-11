@@ -2,7 +2,7 @@ import "../../styles/ProfileAndSettingsStyles/ProfileStyle.css";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getToken, getFullName, logout as authLogout } from "../../auth";
+import { getToken, getFullName, logout as authLogout, isAdmin } from "../../auth";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 import {
@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   X,
+  Shield,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -18,10 +19,12 @@ export default function ProfilePage() {
 
   const [showLogout, setShowLogout] = useState(false);
   const [fullName, setFullName] = useState(getFullName() || "User");
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
     const name = getFullName();
     if (name) setFullName(name);
+    setAdmin(isAdmin());
   }, []);
 
   const handleLogout = () => {
@@ -92,6 +95,25 @@ export default function ProfilePage() {
 
           <span>Settings</span>
         </div>
+
+        {admin && (
+          <>
+            <div className="divider"></div>
+
+            <div
+              className="menu-item"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/admin")}
+            >
+              <div className="menu-icon green-light">
+                <Shield size={22} />
+              </div>
+
+              <span>Admin Panel</span>
+            </div>
+          </>
+        )}
 
         <div className="divider"></div>
 
