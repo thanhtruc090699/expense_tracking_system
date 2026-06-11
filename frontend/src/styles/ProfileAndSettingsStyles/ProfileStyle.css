@@ -50,8 +50,9 @@
 }
 
 .profile-image-avatar {
-  margin-bottom: 24px;
-  display: inline-block;
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: center;
 }
 
 .profile-image {

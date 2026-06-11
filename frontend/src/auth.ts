@@ -42,6 +42,10 @@ export function getToken(): string | null {
   return sessionStorage.getItem('kc_token');
 }
 
+export function isAuthenticated(): boolean {
+  return !!getToken();
+}
+
 export function getUsername(): string | null {
   const token = sessionStorage.getItem('kc_id_token');
   if (!token) return null;

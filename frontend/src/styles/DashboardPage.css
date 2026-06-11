@@ -18,41 +18,64 @@
   margin-bottom: 34px;
 }
 
-.dashboard-header-top {
+.dashboard-brand-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-brand {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
 }
 
-.dashboard-header h1 {
-  margin: 0;
-  color: #000;
-  font-size: 26px;
-  font-weight: 850;
-  line-height: 1.15;
+.dashboard-logo {
+  height: 48px;
+  width: auto;
+  display: block;
+}
+
+.dashboard-brand-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 24px;
+  font-weight: 800;
   letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.brand-title {
+  color: #0a0a0a;
+}
+
+.brand-title-highlight {
+  color: #2d5b2d;
 }
 
 .profile-image-btn {
   border: none;
   background: transparent;
   padding: 0;
+  margin: 0;
   cursor: pointer;
+  display: inline-block;
+  line-height: 0;
 }
 
-.profile-image {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
+.dashboard-welcome {
+  margin-bottom: 20px;
 }
 
-.profile-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.dashboard-welcome h1 {
+  margin: 0;
+  color: #000;
+  font-size: 26px;
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-ai-area {

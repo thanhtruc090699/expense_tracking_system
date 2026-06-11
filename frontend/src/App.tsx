@@ -1,6 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Layout } from "./components/Layout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ExpensesPage } from "./pages/ExpensesPage";
@@ -10,6 +10,7 @@ import { BudgetsPage } from "./pages/BudgetsPage";
 import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
+import { LoginPage } from "./pages/LoginPage";
 
 import SettingsPage from "./pages/ProfileAndSettingsPages/SettingsPage";
 import CurrencyPage from "./pages/ProfileAndSettingsPages/CurrencyPage";
@@ -19,16 +20,34 @@ import LanguagePage from "./pages/ProfileAndSettingsPages/LanguagePage";
 import ResetPasswordPage from "./pages/ProfileAndSettingsPages/ResetPasswordPage";
 import ThemePage from "./pages/ProfileAndSettingsPages/ThemePage";
 
-function App() {
-  useEffect(() => {
-  const theme = localStorage.getItem("theme");
+import { isAuthenticated, redirectToLogin, getTokenFromCode } from "./auth";
 
-  if (theme === "dark") {
-    document.body.classList.add("dark-mode");
-  } else {
-    document.body.classList.remove("dark-mode");
+function App() {
+  const [loggedIn, setLoggedIn] = useState(isAuthenticated());
+
+  useEffect(() => {
+    const token = getTokenFromCode();
+    if (token) {
+      setLoggedIn(true);
+    }
+
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, []);
+
+  const handleLogin = () => {
+    redirectToLogin();
+  };
+
+  if (!loggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
   }
-}, []);
+
   return (
     <BrowserRouter>
       <Routes>

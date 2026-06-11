@@ -4,6 +4,7 @@ import "../styles/DashboardPage.css";
 import { getToken, getFullName } from "../auth";
 import { AskAIInput } from "../components/AskAIInput";
 import { ProfileAvatar } from "../components/ProfileAvatar";
+import billbuddyLogo from "../assets/billbuddy.svg";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -104,17 +105,24 @@ export function DashboardPage() {
   return (
     <main className="dashboard-page">
       <section className="dashboard-header">
-        <div className="dashboard-header-top">
-          <h1>Welcome Back, {displayName.split(' ')[0]}!</h1>
-
+        <div className="dashboard-brand">
+          <div className="dashboard-brand-left">
+            <img src={billbuddyLogo} alt="BillBuddy" className="dashboard-logo" />
+            <div className="dashboard-brand-text">
+              <span className="brand-title">Bill</span>
+              <span className="brand-title-highlight">Buddy</span>
+            </div>
+          </div>
           <button 
             className="profile-image-btn"
             onClick={() => navigate("/profile")}
           >
-            <div className="profile-image">
-              <ProfileAvatar name={displayName} size={72} />
-            </div>
+            <ProfileAvatar name={displayName} size={42} />
           </button>
+        </div>
+
+        <div className="dashboard-welcome">
+          <h1>Welcome Back, {displayName.split(' ')[0]}!</h1>
         </div>
 
         <div className="dashboard-ai-area">

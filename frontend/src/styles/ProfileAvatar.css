@@ -1,7 +1,13 @@
 .profile-avatar {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
 }
 
 .profile-avatar svg {
   border-radius: 50%;
+  display: block;
+}
+
+.profile-avatar.square svg {
+  border-radius: 0;
 }

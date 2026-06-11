@@ -2,7 +2,7 @@ import "../../styles/ProfileAndSettingsStyles/ProfileStyle.css";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getToken, getFullName } from "../../auth";
+import { getToken, getFullName, logout as authLogout } from "../../auth";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 import {
@@ -25,8 +25,8 @@ export default function ProfilePage() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+    authLogout();
+    window.location.reload();
   };
 
   return (
