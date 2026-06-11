@@ -1,3 +1,4 @@
+import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Layout } from "./components/Layout";
