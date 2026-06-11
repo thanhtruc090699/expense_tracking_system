@@ -21,6 +21,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Expense'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
     post:
       operationId: createExpense
       summary: Create an expense
@@ -40,6 +46,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expense'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '422':
+          description: Unprocessable Entity - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /expenses/summary:
     get:
       operationId: fetchSummary
@@ -102,6 +120,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expense'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
         '404':
           description: Expense not found
           content:
@@ -134,6 +158,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expense'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '422':
+          description: Unprocessable Entity - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
     delete:
       operationId: deleteExpense
       summary: Delete an expense
@@ -154,6 +196,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteExpense200Response'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
 
 components:
   schemas:
