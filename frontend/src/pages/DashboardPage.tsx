@@ -161,15 +161,22 @@ export function DashboardPage() {
   const transactionCountChange = calculateChange(transactionCount, lastMonthTransactionCount);
   const averageTransactionChange = calculateChange(averageTransaction, lastMonthAverageTransaction);
 
-  const chartData = categoryBreakdown.map((cat, idx) => {
-    const isOthers = cat.categoryName.toLowerCase() === "others";
-    return {
-      name: cat.categoryName,
-      value: cat.amount,
-      percentage: cat.percentage,
-      color: isOthers ? OTHERS_COLOR : CATEGORY_COLORS[idx % (CATEGORY_COLORS.length - 1)],
-    };
-  });
+  const chartData = categoryBreakdown
+    .map((cat, idx) => {
+      const isOthers = cat.categoryName.toLowerCase() === "others";
+      return {
+        name: cat.categoryName,
+        value: cat.amount,
+        percentage: cat.percentage,
+        color: isOthers ? OTHERS_COLOR : CATEGORY_COLORS[idx % (CATEGORY_COLORS.length - 1)],
+        isOthers,
+      };
+    })
+    .sort((a, b) => {
+      if (a.isOthers && !b.isOthers) return 1;
+      if (!a.isOthers && b.isOthers) return -1;
+      return b.percentage - a.percentage;
+    });
 
   const currentMonth = new Date().toLocaleString("default", {
     month: "long",
@@ -266,11 +273,11 @@ export function DashboardPage() {
 
         {/* Spending by Category Chart */}
         <section 
-          className="rounded-[10px] bg-white dark:bg-[#1e1e1e] p-5 mb-7 cursor-pointer shadow-lg relative"
+          className="rounded-[10px] bg-white dark:bg-[#1e1e1e] p-3 mb-7 cursor-pointer shadow-lg relative"
           onClick={() => setChartView(prev => prev === "pie" ? "detail" : "pie")}
         >
           <div className="flex items-center justify-between mb-3.5">
-            <h3 className="text-sm font-semibold text-[#101828] dark:text-white font-inter">
+            <h3 className="text-xs font-semibold text-[#101828] dark:text-white font-inter">
               Spending by Category
             </h3>
             <span className="text-[10.5px] font-medium text-[#030213] dark:text-gray-300 bg-[#ECEEF2] dark:bg-gray-700 rounded-[6.75px] px-2 py-0.5 font-inter">
@@ -278,31 +285,31 @@ export function DashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
             {/* Custom SVG Donut Chart */}
-            <div className="shrink-0 relative" style={{ width: chartView === "pie" ? 160 : 120, height: chartView === "pie" ? 160 : 120 }}>
-              <svg viewBox="0 0 100 100" className="transform -rotate-90">
+            <div className="shrink-0 relative" style={{ width: chartView === "pie" ? 180 : 140, height: chartView === "pie" ? 180 : 140 }}>
+              <svg viewBox="5 5 90 90" className="transform -rotate-90">
                 {chartData.reduce((acc, item, idx) => {
                   const startAngle = acc.currentAngle;
                   const angle = (item.percentage / 100) * 360;
                   const endAngle = startAngle + angle;
                   
-                  const x1 = 50 + 40 * Math.cos(Math.PI * startAngle / 180);
-                  const y1 = 50 + 40 * Math.sin(Math.PI * startAngle / 180);
-                  const x2 = 50 + 40 * Math.cos(Math.PI * endAngle / 180);
-                  const y2 = 50 + 40 * Math.sin(Math.PI * endAngle / 180);
+                  const x1 = 50 + 42 * Math.cos(Math.PI * startAngle / 180);
+                  const y1 = 50 + 42 * Math.sin(Math.PI * startAngle / 180);
+                  const x2 = 50 + 42 * Math.cos(Math.PI * endAngle / 180);
+                  const y2 = 50 + 42 * Math.sin(Math.PI * endAngle / 180);
                   
                   const largeArcFlag = angle > 180 ? 1 : 0;
                   
-                  const innerX1 = 50 + (chartView === "pie" ? 28 : 22) * Math.cos(Math.PI * startAngle / 180);
-                  const innerY1 = 50 + (chartView === "pie" ? 28 : 22) * Math.sin(Math.PI * startAngle / 180);
-                  const innerX2 = 50 + (chartView === "pie" ? 28 : 22) * Math.cos(Math.PI * endAngle / 180);
-                  const innerY2 = 50 + (chartView === "pie" ? 28 : 22) * Math.sin(Math.PI * endAngle / 180);
+                  const innerX1 = 50 + (chartView === "pie" ? 32 : 26) * Math.cos(Math.PI * startAngle / 180);
+                  const innerY1 = 50 + (chartView === "pie" ? 32 : 26) * Math.sin(Math.PI * startAngle / 180);
+                  const innerX2 = 50 + (chartView === "pie" ? 32 : 26) * Math.cos(Math.PI * endAngle / 180);
+                  const innerY2 = 50 + (chartView === "pie" ? 32 : 26) * Math.sin(Math.PI * endAngle / 180);
                   
                   acc.paths.push(
                     <path
                       key={idx}
-                      d={`M ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} L ${innerX2} ${innerY2} A ${(chartView === "pie" ? 28 : 22)} ${(chartView === "pie" ? 28 : 22)} 0 ${largeArcFlag} 0 ${innerX1} ${innerY1} Z`}
+                      d={`M ${x1} ${y1} A 42 42 0 ${largeArcFlag} 1 ${x2} ${y2} L ${innerX2} ${innerY2} A ${(chartView === "pie" ? 32 : 26)} ${(chartView === "pie" ? 32 : 26)} 0 ${largeArcFlag} 0 ${innerX1} ${innerY1} Z`}
                       fill={item.color}
                       stroke="white"
                       strokeWidth="0.5"
@@ -315,8 +322,8 @@ export function DashboardPage() {
               </svg>
               {chartView === "pie" && chartData.length > 0 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="text-center transform rotate-90">
-                    <p className="text-xs font-bold text-black dark:text-white font-arimo">
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-black dark:text-white font-arimo">
                       €{totalAmount.toFixed(2)}
                     </p>
                   </div>
@@ -324,9 +331,9 @@ export function DashboardPage() {
               )}
             </div>
 
-            <div className="flex flex-col gap-2.5 justify-center flex-1 min-w-0">
+            <div className="flex flex-col gap-2.5 justify-center flex-1 min-w-0 max-h-[200px] overflow-y-auto">
               {chartData.length > 0 ? (
-                chartData.slice(0, 6).map((item, idx) => (
+                chartData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <div
                       className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -363,11 +370,6 @@ export function DashboardPage() {
               ) : (
                 <p className="text-sm text-[#667085] dark:text-gray-400 font-inter">
                   No expenses this month
-                </p>
-              )}
-              {chartData.length > 6 && (
-                <p className="text-[9px] text-[#6A7282] dark:text-gray-400 font-inter">
-                  +{chartData.length - 6} more categories
                 </p>
               )}
             </div>
