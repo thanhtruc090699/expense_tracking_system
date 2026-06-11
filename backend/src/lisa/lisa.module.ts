@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { ExpensesModule } from '../expenses/expenses.module';
+import { BudgetsModule } from '../budgets/budgets.module';
 import { LisaController } from './lisa.controller';
 import { LisaService } from './lisa.service';
 import { LisaApiImpl } from './lisa.impl';
 import { LISA_API_PROVIDER } from './lisa.constants';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, ExpensesModule, BudgetsModule],
   controllers: [LisaController],
   providers: [
     LisaService,

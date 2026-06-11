@@ -15,6 +15,6 @@ import { BUDGETS_API_PROVIDER } from './budgets.constants';
       useClass: BudgetsApiImpl,
     },
   ],
-  exports: [BUDGETS_API_PROVIDER],
+  exports: [BUDGETS_API_PROVIDER, BudgetsService],
 })
 export class BudgetsModule {}

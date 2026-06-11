@@ -14,6 +14,8 @@ import type {
 } from '../generated/models';
 import { parseLisaContent } from './utils/parse-lisa-content.util';
 import { handleLisaError } from './utils/lisa-error.util';
+import { ExpensesService } from '../expenses/expenses.service';
+import { BudgetsService } from '../budgets/budgets.service';
 
 interface Message {
   role: string;
@@ -24,6 +26,73 @@ interface Message {
 export class LisaService {
   private readonly lisaApiUrl =
     'https://chat-1.ki-awz.iisys.de/api/chat/completions';
+
+  constructor(
+    private readonly expensesService: ExpensesService,
+    private readonly budgetsService: BudgetsService,
+  ) {}
+
+  private async getUserContext(userId: string): Promise<string> {
+    try {
+      const now = new Date();
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const expenseSummary = await this.expensesService.getSummary(userId, currentMonth);
+      const recentExpenses = await this.expensesService.findAll(userId);
+      
+      let budgets: any[] = [];
+      try {
+        budgets = await this.budgetsService.findAllBudgets(userId);
+      } catch (budgetError) {
+        console.error('[LisaService.getUserContext] budgets error:', budgetError);
+      }
+
+      const contextParts: string[] = [];
+
+      // Monthly summary
+      contextParts.push(`MONTHLY SUMMARY (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}:`);
+      contextParts.push(`- Total spent: €${expenseSummary.totalAmount.toFixed(2)}`);
+      contextParts.push(`- Number of transactions: ${expenseSummary.transactionCount}`);
+      contextParts.push(`- Average transaction: €${expenseSummary.averageTransactionAmount.toFixed(2)}`);
+      
+      if (expenseSummary.topTransactions.length > 0) {
+        contextParts.push('- Top transactions:');
+        expenseSummary.topTransactions.slice(0, 5).forEach((t) => {
+          const merchantName = t.merchant?.name || 'Unknown';
+          contextParts.push(`  • €${t.totalAmount.toFixed(2)} at ${merchantName} on ${new Date(t.expenseDate).toLocaleDateString()}`);
+        });
+      }
+      contextParts.push('');
+
+      // Recent expenses
+      if (recentExpenses.length > 0) {
+        contextParts.push('RECENT EXPENSES (last 10):');
+        recentExpenses.slice(0, 10).forEach((e) => {
+          const merchantName = e.merchant?.name || 'Unknown';
+          const date = new Date(e.expenseDate).toLocaleDateString();
+          contextParts.push(`- €${e.totalAmount.toFixed(2)} at ${merchantName} on ${date}${e.note ? ` (${e.note})` : ''}`);
+        });
+        contextParts.push('');
+      }
+
+      // Budgets
+      if (budgets.length > 0) {
+        contextParts.push('BUDGETS:');
+        budgets.forEach((b) => {
+          const categoryName = b.category?.name || 'General';
+          const remaining = b.amount - expenseSummary.totalAmount;
+          const percentUsed = ((expenseSummary.totalAmount / b.amount) * 100).toFixed(0);
+          contextParts.push(`- ${categoryName}: €${b.amount.toFixed(2)} budget, €${remaining.toFixed(2)} remaining (${percentUsed}% used)`);
+        });
+        contextParts.push('');
+      }
+
+      return contextParts.join('\n');
+    } catch (error) {
+      console.error('[LisaService.getUserContext] error:', error);
+      return 'Unable to load user financial data.';
+    }
+  }
 
   async lisaChat(
     chatRequest: ChatRequest,
@@ -46,14 +115,67 @@ export class LisaService {
       throw new BadRequestException('Messages array cannot be empty');
     }
 
+    const user = request?.['user'] as { id: string } | undefined;
     const model = chatRequest.model || 'lisa-pro-03-2026';
-    const messages = chatRequest.messages.map((message) => ({
-      role: message.role,
-      content:
-        typeof message.content === 'string'
-          ? message.content
-          : JSON.stringify(message.content, null, 2),
-    }));
+    
+    let messages: Array<{ role: string; content: string }> = [];
+    
+    if (user?.id) {
+      const userContext = await this.getUserContext(user.id);
+      
+      const systemPrompt = `You are Lisa, a helpful financial assistant for Bill Buddy, an expense tracking application.
+
+You have access to the user's financial data including:
+- Monthly expense summary
+- Recent transactions
+- Budget information
+
+Use this context to provide personalized financial insights and answer questions about their spending patterns.
+
+USER CONTEXT:
+${userContext}
+
+---
+
+When answering:
+- Be concise and helpful
+- Reference specific transactions or amounts when relevant
+- Provide actionable financial advice
+- If asked about spending patterns, use the provided data
+- If you don't have enough information, ask clarifying questions`;
+
+      messages.push({ role: 'system', content: systemPrompt });
+      
+      messages = messages.concat(
+        chatRequest.messages.map((message) => ({
+          role: message.role,
+          content:
+            typeof message.content === 'string'
+              ? message.content
+              : JSON.stringify(message.content, null, 2),
+        }))
+      );
+    } else {
+      const defaultSystemPrompt = `You are Lisa, a helpful financial assistant for Bill Buddy, an expense tracking application.
+
+You help users with:
+- Understanding their expenses
+- Budget planning
+- Financial tips and advice
+- Answering questions about the app`;
+
+      messages.push({ role: 'system', content: defaultSystemPrompt });
+      
+      messages = messages.concat(
+        chatRequest.messages.map((message) => ({
+          role: message.role,
+          content:
+            typeof message.content === 'string'
+              ? message.content
+              : JSON.stringify(message.content, null, 2),
+        }))
+      );
+    }
 
     const payload = {
       model,
