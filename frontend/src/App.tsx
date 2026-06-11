@@ -8,7 +8,6 @@ import { MerchantsPage } from "./pages/MerchantsPage";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { BudgetsPage } from "./pages/BudgetsPage";
 import { EasyOcrPage } from "./pages/EasyOcrPage";
-import { UsersPage } from "./pages/UsersPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
 
@@ -43,7 +42,6 @@ function App() {
         <Route path="/lisa" element={<Layout><LisaChatPage /></Layout>} />
         <Route path="/docs" element={<Layout><DocsPage /></Layout>} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/users" element={<Layout><UsersPage /></Layout>} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/currency" element={<CurrencyPage />} />
