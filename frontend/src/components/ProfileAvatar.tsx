@@ -6,6 +6,7 @@ interface ProfileAvatarProps {
   size?: number;
   variant?: "marble" | "beam" | "pixel" | "sunset" | "ring" | "bauhaus";
   colors?: string[];
+  square?: boolean;
 }
 
 export function ProfileAvatar({ 

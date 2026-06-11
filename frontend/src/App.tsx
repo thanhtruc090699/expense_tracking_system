@@ -1,4 +1,4 @@
-import "./App.css";
+import "./index.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Layout } from "./components/Layout";
@@ -11,6 +11,7 @@ import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
 import { LoginPage } from "./pages/LoginPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 
 import SettingsPage from "./pages/ProfileAndSettingsPages/SettingsPage";
@@ -62,6 +63,7 @@ function App() {
         <Route path="/ocr" element={<Layout><EasyOcrPage /></Layout>} />
         <Route path="/lisa" element={<Layout><LisaChatPage /></Layout>} />
         <Route path="/docs" element={<Layout><DocsPage /></Layout>} />
+        <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />

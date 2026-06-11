@@ -2,7 +2,7 @@ import "../../styles/ProfileAndSettingsStyles/ProfileStyle.css";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getToken, getFullName, logout as authLogout, isAdmin } from "../../auth";
+import { getFullName, logout as authLogout, isAdmin } from "../../auth";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 import {
@@ -15,7 +15,6 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const token = getToken();
 
   const [showLogout, setShowLogout] = useState(false);
   const [fullName, setFullName] = useState(getFullName() || "User");
