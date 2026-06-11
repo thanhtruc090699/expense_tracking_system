@@ -48,6 +48,11 @@ const CATEGORY_COLORS = [
 ];
 const OTHERS_COLOR = "#99A1AF";
 
+const calculateChange = (current: number, previous: number): number | null => {
+  if (previous === 0 || !previous) return null;
+  return ((current - previous) / previous) * 100;
+};
+
 const getIconForMerchant = (name: string) => {
   const lower = name?.toLowerCase() || "";
   if (lower.includes("amazon")) return "📦";
@@ -61,6 +66,7 @@ const getIconForMerchant = (name: string) => {
 export function DashboardPage() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState<ExpenseSummary | null>(null);
+  const [lastMonthSummary, setLastMonthSummary] = useState<ExpenseSummary | null>(null);
   const [spendingSummary, setSpendingSummary] = useState<SpendingSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const displayName = getFullName() || "User";
@@ -76,11 +82,15 @@ export function DashboardPage() {
 
       try {
         const now = new Date();
-        const monthParam = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        
+        const currentMonthParam = currentMonthDate.toISOString();
+        const lastMonthParam = lastMonthDate.toISOString();
 
-        const [summaryRes, spendingRes] = await Promise.all([
+        const [summaryRes, spendingRes, lastMonthRes] = await Promise.all([
           fetch(
-            `${ALLOWED_HOST}:3000/expenses/summary?month=${encodeURIComponent(monthParam)}`,
+            `${ALLOWED_HOST}:3000/expenses/summary?month=${encodeURIComponent(currentMonthParam)}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -88,7 +98,15 @@ export function DashboardPage() {
             }
           ),
           fetch(
-            `${ALLOWED_HOST}:3000/expenses/spendingSummary?month=${encodeURIComponent(monthParam)}`,
+            `${ALLOWED_HOST}:3000/expenses/spendingSummary?month=${encodeURIComponent(currentMonthParam)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
+          fetch(
+            `${ALLOWED_HOST}:3000/expenses/summary?month=${encodeURIComponent(lastMonthParam)}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -105,6 +123,11 @@ export function DashboardPage() {
         if (spendingRes.ok) {
           const data = await spendingRes.json();
           setSpendingSummary(data);
+        }
+
+        if (lastMonthRes.ok) {
+          const data = await lastMonthRes.json();
+          setLastMonthSummary(data);
         }
       } catch (err) {
         console.error("Failed to fetch dashboard summary:", err);
@@ -129,6 +152,14 @@ export function DashboardPage() {
   const averageTransaction = summary?.averageTransactionAmount ?? 0;
   const topTransactions = summary?.topTransactions ?? [];
   const categoryBreakdown = spendingSummary?.categoryBreakdown ?? [];
+  
+  const lastMonthTotal = lastMonthSummary?.totalAmount ?? 0;
+  const lastMonthTransactionCount = lastMonthSummary?.transactionCount ?? 0;
+  const lastMonthAverageTransaction = lastMonthSummary?.averageTransactionAmount ?? 0;
+  
+  const totalAmountChange = calculateChange(totalAmount, lastMonthTotal);
+  const transactionCountChange = calculateChange(transactionCount, lastMonthTransactionCount);
+  const averageTransactionChange = calculateChange(averageTransaction, lastMonthAverageTransaction);
 
   const chartData = categoryBreakdown.map((cat, idx) => {
     const isOthers = cat.categoryName.toLowerCase() === "others";
@@ -185,44 +216,50 @@ export function DashboardPage() {
         <section className="mt-2 mb-7">
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5">
             {/* Total Spending */}
-            <div className="shrink-0 w-36 rounded-2xl bg-white dark:bg-[#1e1e1e] p-4 border-[1.5px] border-[#dedede] dark:border-gray-700">
+            <div className="shrink-0 w-46 rounded-2xl bg-white dark:bg-[#1e1e1e] p-4 border-[1.5px] border-[#dedede] dark:border-gray-700">
               <p className="text-xs font-medium text-[#101828] dark:text-gray-300 font-inter">
-                Total Spend This Month
+                Total Spendings
               </p>
               <p className="text-lg font-bold mt-1 text-black dark:text-white font-arimo">
                 €{totalAmount.toFixed(2)}
               </p>
-              {transactionCount > 0 && (
-                <span className="text-xs font-medium mt-1 inline-block px-1.5 py-0.5 rounded-full text-red-500">
-                  {transactionCount} transactions
+              {totalAmountChange !== null && (
+                <span className={`text-xs font-medium mt-1 inline-block px-1 py-0.5 rounded-full ${
+                  totalAmountChange >= 0 ? 'text-red-500' : 'text-green-500'
+                }`}>
+                  {totalAmountChange >= 0 ? '+' : ''}{totalAmountChange.toFixed(1)}% vs last month
                 </span>
               )}
             </div>
 
             {/* Transactions */}
-            <div className="shrink-0 w-36 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-400 p-4 text-white shadow-md">
+            <div className="shrink-0 w-46 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-400 p-4 text-white shadow-md">
               <p className="text-xs font-medium opacity-85 font-inter">
                 Transactions
               </p>
               <p className="text-lg font-bold mt-1 font-arimo">
                 {transactionCount}
               </p>
-              <span className="text-xs font-medium mt-1 inline-block px-1.5 py-0.5 rounded-full bg-white/20">
-                This month
-              </span>
+              {transactionCountChange !== null && (
+                <span className="text-xs font-medium mt-1 inline-block px-1 py-0.5 rounded-full bg-white/20">
+                  {transactionCountChange >= 0 ? '+' : ''}{transactionCountChange.toFixed(1)}% vs last month
+                </span>
+              )}
             </div>
 
             {/* Average Cost */}
-            <div className="shrink-0 w-36 rounded-2xl bg-gradient-to-br from-brand-yellow to-amber-400 p-4 text-white shadow-md">
+            <div className="shrink-0 w-46 rounded-2xl bg-gradient-to-br from-brand-yellow to-amber-400 p-4 text-white shadow-md">
               <p className="text-xs font-medium opacity-85 font-inter">
-                Avg Cost
+                Avg Transaction
               </p>
               <p className="text-lg font-bold mt-1 font-arimo">
                 €{averageTransaction.toFixed(2)}
               </p>
-              <span className="text-xs font-medium mt-1 inline-block px-1.5 py-0.5 rounded-full bg-white/20">
-                Per transaction
-              </span>
+              {averageTransactionChange !== null && (
+                <span className="text-xs font-medium mt-1 inline-block px-1 py-0.5 rounded-full bg-white/20">
+                  {averageTransactionChange >= 0 ? '+' : ''}{averageTransactionChange.toFixed(1)}% vs last month
+                </span>
+              )}
             </div>
           </div>
         </section>
