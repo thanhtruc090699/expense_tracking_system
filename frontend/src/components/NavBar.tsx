@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/NavBar.css";
+import { getToken } from "../auth";
 
 import {
   House,
@@ -10,6 +11,8 @@ import {
   Plus,
   Upload,
 } from "lucide-react";
+
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
 const categories = [
   "Food",
@@ -25,13 +28,87 @@ export default function NavBar() {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [activeTab, setActiveTab] = useState<"scan" | "manual">("scan");
   const [repeat, setRepeat] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    setScanError(null);
+  };
+
+  const handleScanFile = async () => {
+    if (!selectedFile) {
+      setScanError('Please select a file first');
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      setScanError('Not authenticated. Please log in.');
+      return;
+    }
+
+    setScanning(true);
+    setScanError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('lang', 'eng');
+      formData.append('psm', '6');
+      formData.append('oem', '1');
+      formData.append('min_conf', '30');
+      formData.append('pdf_mode', 'auto');
+
+      const response = await fetch(`${ALLOWED_HOST}:3000/ocr/process-invoice`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || `Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.ok && result.data) {
+        setShowAddExpense(false);
+        navigate('/expenses');
+      } else {
+        setScanError('Failed to process invoice');
+      }
+    } catch (err) {
+      setScanError(err instanceof Error ? err.message : 'Failed to scan invoice');
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
       <div className="bottom-nav-wrapper">
         <svg className="nav-bg" viewBox="0 0 460 80" preserveAspectRatio="none">
           <path
@@ -124,15 +201,48 @@ export default function NavBar() {
                   <h3>Drag and drop files here</h3>
                   <p>or</p>
 
-                  <button className="browse-btn" type="button">
+                  <button 
+                    className="browse-btn" 
+                    type="button"
+                    onClick={handleBrowseClick}
+                    disabled={scanning}
+                  >
                     Browse Files
                   </button>
+
+                  {selectedFile && (
+                    <small style={{ color: '#2d5b2d', marginTop: '8px' }}>
+                      Selected: {selectedFile.name}
+                    </small>
+                  )}
 
                   <small>Upload up to 5 files (max 10MB each)</small>
                 </div>
 
-                <button className="save-btn" type="button">
-                  Scan File
+                {scanError && (
+                  <div style={{ 
+                    margin: '12px 0', 
+                    padding: '10px', 
+                    background: '#ffe6e6', 
+                    color: '#cc0000', 
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}>
+                    {scanError}
+                  </div>
+                )}
+
+                <button 
+                  className="save-btn" 
+                  type="button"
+                  onClick={handleScanFile}
+                  disabled={scanning || !selectedFile}
+                  style={{
+                    opacity: scanning || !selectedFile ? 0.6 : 1,
+                    cursor: scanning || !selectedFile ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {scanning ? 'Processing...' : 'Scan File'}
                 </button>
               </>
             )}
