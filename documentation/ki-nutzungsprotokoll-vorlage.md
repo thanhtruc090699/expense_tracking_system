@@ -38,7 +38,7 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 29.05.2026 | Truc Trinh | ChatGPT | Unterstützung bei der Implementierung der LISA-Logik für den Endpoint `/lisa/process` zur Validierung von OCR-Scan-Ergebnissen und zur Kategorie-Vorschlagslogik | LISA-Validierung wurde als finale Verarbeitungsschicht nach dem OCR-Scan konzipiert. Die Logik wurde in den `LisaService` verschoben, der generated implementation layer bleibt schlank. Zusätzlich wurden Utilities zum Parsen der LISA-JSON-Antwort und zum Handling von LISA-API-Fehlern ergänzt. |
 | 01.06.2026 | Rathin | Co-Pilot | Criticism for contradictory status codes and improvement | Looked for inconsistencies in the yaml files for status codes and proper reasoning. Made changes in all files to add id format to uuid and removed 400 status where not needed and replaced some with 422. |
 | 11.06.2026 | Ivan | lisa-pro-03-2026 | Expense Summary Endpoint | Updated OpenAPI spec with new `/expenses/summary` endpoint and added corresponding backend implementation (controller, service, impl). |
-|  |  |  |  |  |
+| 11.06.2026 | Rathin | Lisa Pro | api-spec: expense.yaml error codes | generated missing error status codes for all methods 401, 401, 404, 422 |
 |  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
