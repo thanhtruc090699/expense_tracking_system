@@ -53,6 +53,14 @@ export class ExpensesController {
     return this.expensesApi.fetchSummary(month, request);
   }
 
+  @Get('spendingSummary')
+  fetchSpendingSummary(
+    @Query('month') month: string,
+    @Req() request: Request,
+  ): ReturnType<ExpensesApi['fetchSpendingSummary']> {
+    return this.expensesApi.fetchSpendingSummary(month, request);
+  }
+
   @Get(':id')
   findOneExpense(
     @Param('id') id: string,

@@ -152,4 +152,100 @@ export class ExpensesService {
       topTransactions,
     };
   }
+
+  async getSpendingSummary(userId: string, month: Date) {
+    const startOfMonth = new Date(
+      month.getFullYear(),
+      month.getMonth(),
+      1,
+    );
+    const endOfMonth = new Date(
+      month.getFullYear(),
+      month.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const categories = await prisma.category.findMany();
+    const categoryMap = new Map(
+      categories.map((c) => [c.id, { id: c.id, name: c.name }]),
+    );
+
+    const expenses = await prisma.expense.findMany({
+      where: {
+        userId,
+        expenseDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      include: {
+        expenseItems: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    const categoryTotals = new Map<string, number>();
+    let totalAmount = 0;
+
+    for (const expense of expenses) {
+      for (const item of expense.expenseItems) {
+        const itemTotal = Number(item.totalPrice);
+        totalAmount += itemTotal;
+
+        if (item.categoryId) {
+          const current = categoryTotals.get(item.categoryId) || 0;
+          categoryTotals.set(item.categoryId, current + itemTotal);
+        } else {
+          const current = categoryTotals.get('others') || 0;
+          categoryTotals.set('others', current + itemTotal);
+        }
+      }
+    }
+
+    const categoryBreakdown: Array<{
+      categoryId: string;
+      categoryName: string;
+      amount: number;
+      percentage: number;
+    }> = [];
+    const othersTotal = categoryTotals.get('others') || 0;
+
+    for (const [categoryId, amount] of categoryTotals.entries()) {
+      if (categoryId === 'others') {
+        categoryBreakdown.push({
+          categoryId: 'others',
+          categoryName: 'Others',
+          amount: Number(amount.toFixed(2)),
+          percentage:
+            totalAmount > 0 ? Number(((amount / totalAmount) * 100).toFixed(2)) : 0,
+        });
+      } else {
+        const category = categoryMap.get(categoryId);
+        if (category) {
+          categoryBreakdown.push({
+            categoryId: category.id,
+            categoryName: category.name,
+            amount: Number(amount.toFixed(2)),
+            percentage:
+              totalAmount > 0 ? Number(((amount / totalAmount) * 100).toFixed(2)) : 0,
+          });
+        }
+      }
+    }
+
+    categoryBreakdown.sort((a, b) => b.amount - a.amount);
+
+    return {
+      month: startOfMonth.toISOString(),
+      totalAmount: Number(totalAmount.toFixed(2)),
+      categoryBreakdown,
+    };
+  }
 }
