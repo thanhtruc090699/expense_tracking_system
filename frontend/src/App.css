@@ -291,8 +291,14 @@ body {
 
 .layout-container {
   min-height: 100dvh;
+}
+
+.main-wrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
 }
 
 .mobile-header {
@@ -301,15 +307,25 @@ body {
   z-index: 100;
   background: white;
   border-bottom: 1px solid #e8e8e8;
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-toggle-btn {
+  display: none;
+}
+
 .header-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #2d5b2d;
 }
@@ -334,27 +350,34 @@ body {
   flex: 1;
   padding: 16px;
   padding-bottom: 100px;
-  max-width: 480px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-body.dark-mode .mobile-header {
-  background: #1e1e1e;
-  border-bottom-color: #333;
+@media (min-width: 768px) {
+  .menu-toggle-btn {
+    display: none;
+  }
+
+  .mobile-content {
+    padding: 24px 32px;
+    padding-bottom: 32px;
+  }
 }
 
-body.dark-mode .header-title {
-  color: #4ade80;
+@media (min-width: 1024px) {
+  .mobile-content {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+body.dark-mode .menu-toggle-btn {
+  color: white;
 }
 
 body.dark-mode .header-btn {
   background: #333;
   color: white;
   border-color: #444;
-}
-
-body.dark-mode .mobile-content {
-  background: #121212;
 }

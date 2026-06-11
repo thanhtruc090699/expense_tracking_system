@@ -1,15 +1,11 @@
 .bottom-nav-wrapper {
   position: fixed;
-  bottom: 20px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-
-  width: 90%;
-  max-width: 460px;
+  width: min(100vw, 430px);
   height: 80px;
-
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.28));
-  z-index: 100;
+  z-index: 999;
 }
 
 .nav-bg {
@@ -24,32 +20,25 @@
   position: relative;
   width: 100%;
   height: 100%;
-
   display: grid;
   grid-template-columns: 1fr 1fr 80px 1fr 1fr;
   align-items: center;
-
   padding: 0 16px;
 }
-
-/* NAV ITEMS */
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   gap: 4px;
-
   color: #c9c9c9;
   font-size: 0.8rem;
   font-weight: 600;
-
   cursor: pointer;
   transition: 0.25s ease;
-
   z-index: 2;
+  text-decoration: none;
 }
 
 .nav-item svg {
@@ -66,30 +55,19 @@
   fill: #2d5b2d;
 }
 
-/* CENTER BUTTON */
-
 .add-btn {
   width: 70px;
   height: 70px;
-
   border-radius: 50%;
   border: none;
-
   background: #2d5b2d;
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
-
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.35),
-    0 6px 16px rgba(45, 91, 45, 0.45);
-
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(45, 91, 45, 0.45);
   margin-top: -42px;
-
   transition: 0.25s ease;
   z-index: 4;
 }
@@ -99,17 +77,13 @@
   background: #244b24;
 }
 
-/* ADD EXPENSE OVERLAY */
-
 .expense-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   z-index: 9999;
 }
 
@@ -117,36 +91,25 @@
   position: relative;
   width: 430px;
   min-height: auto;
-  height: auto;
-
   background: #fff;
   border-radius: 28px;
   padding: 16px 18px 24px;
 }
 
-
-
-
-
 .save-btn {
   display: block;
   margin: 30px auto 0;
-  padding: 100px 20px;
-  margin-top: 100px;
-
   width: 180px;
   height: 60px;
-
   background: #2d5b2d;
   color: white;
   border: none;
   border-radius: 18px;
-
   font-size: 20px;
   font-weight: 700;
-
   cursor: pointer;
 }
+
 .sheet-handle {
   width: 38px;
   height: 4px;
@@ -184,12 +147,10 @@
   border: 2px dashed #d6d9e3;
   border-radius: 12px;
   height: 220px;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   color: #2c3340;
   gap: 10px;
 }
@@ -199,11 +160,9 @@
   height: 58px;
   border-radius: 50%;
   background: #eef0f5;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   color: #667085;
 }
 
@@ -214,14 +173,9 @@
   border-radius: 6px;
   padding: 8px 14px;
   font-weight: 400;
-  
 }
 
 .manual-card {
-  padding: 8px 8px 8px 8px;
-
-  margin-bottom: 2px;
-  min-height: 40px;
   background: white;
   border-radius: 24px;
   padding: 14px;
@@ -231,15 +185,11 @@
 .expense-input {
   width: 100%;
   height: 54px;
-
   border: 1px solid #edf0f7;
   border-radius: 18px;
-
   padding: 0 20px;
   font-size: 18px;
-
   margin-bottom: 8px;
-
   color: #20242b;
   background: white;
 }
@@ -253,10 +203,10 @@
   gap: 14px;
   color: #9498a8;
 }
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: brightness(0);
 }
-
 
 .expense-input.small {
   flex: 1;
@@ -266,8 +216,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  padding:  0;
+  padding: 0;
   margin-top: 8px;
 }
 
@@ -283,13 +232,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .switch {
   width: 56px;
   height: 30px;
-
   border: none;
   border-radius: 999px;
-
   background: #cfcfcf;
   padding: 3px;
-
   cursor: pointer;
 }
 
@@ -297,10 +243,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: block;
   width: 24px;
   height: 24px;
-
   background: white;
   border-radius: 50%;
-
   transition: 0.25s ease;
 }
 
@@ -312,42 +256,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transform: translateX(26px);
 }
 
-.save-btn {
-  display: block;
-  margin: 30px auto 0;
-
-  width: 180px;
-  height: 60px;
-
-  background: #2d5b2d;
-  color: white;
-
-  border: none;
-  border-radius: 18px;
-
-  font-size: 18px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-
-
-
-
 .close-sheet-btn {
   margin: 16px auto 0;
   display: block;
-
   background: transparent;
   border: none;
-
   color: #777;
   cursor: pointer;
 }
-
-
-/* DARK MODE */
 
 body.dark-mode .nav-bg path {
   fill: #1e1e1e;
@@ -374,8 +290,6 @@ body.dark-mode .expense-input {
   color: white;
 }
 
-
-
 body.dark-mode .expense-input {
   border-color: #333;
 }
@@ -384,71 +298,4 @@ body.dark-mode .expense-tabs {
   background: #2a2a2a;
 }
 
-.nav-item {
-  text-decoration: none;
-}
 
-.nav-item,
-.nav-item:visited {
-  color: inherit;
-}
-
-.nav-item.active {
-  color: #2d5b2d;
-}
-.bottom-nav-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-
-  width: min(100vw, 430px);
-  z-index: 999;
-}
-
-.bottom-nav {
-  width: 100%;
-}
-
-.nav-item {
-  text-decoration: none;
-  min-width: 0;
-}
-
-.nav-item,
-.nav-item:visited {
-  color: inherit;
-}
-
-.nav-item.active {
-  color: #1e5128;
-} .bottom-nav-wrapper {
-  position: fixed;
-  left: 50%;
-
-  /* Navbar sitzt direkt unten im Handy-Screen */
-  bottom: calc((100dvh - min(100dvh, 812px)) / 2);
-
-  transform: translateX(-50%);
-  width: min(100vw, 375px);
-  z-index: 999;
-}
-
-.bottom-nav {
-  width: 100%;
-}
-
-.nav-item {
-  text-decoration: none;
-  min-width: 0;
-}
-
-.nav-item,
-.nav-item:visited {
-  color: inherit;
-}
-
-.nav-item.active {
-  color: #1e5128;
-}
