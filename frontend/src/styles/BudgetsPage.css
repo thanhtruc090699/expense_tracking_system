@@ -1,24 +1,12 @@
 .budget-page {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: min(100vw, 375px);
-  height: min(100dvh, 812px);
-
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   background: #1e5128;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
-  z-index: 1;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
 }
 
 .budget-page::-webkit-scrollbar {
@@ -103,8 +91,7 @@
 .budget-white-sheet {
   background: #fcfcfc;
   border-radius: 28px 28px 0 0;
-  padding: 38px 31px 125px;
-  min-height: calc(min(100dvh, 812px) - 250px);
+  padding: 38px 31px 40px;
 }
 
 .budget-head-row {
@@ -271,18 +258,15 @@
 
 /* EMPTY SCREEN */
 .budget-empty-sheet {
-  min-height: calc(min(100dvh, 812px) - 250px);
   background: #fcfcfc;
   border-radius: 28px 28px 0 0;
-  padding: 40px 32px 135px;
-
+  padding: 40px 32px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 32px;
 }
 
 .budget-empty-content {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -312,11 +296,9 @@
 
 /* FORM SCREEN */
 .budget-form-sheet {
-  min-height: 100%;
   background: #fcfcfc;
   border-radius: 24px;
-  padding: 40px 32px 165px;
-  box-sizing: border-box;
+  padding: 40px 32px 40px;
 }
 
 .budget-form-sheet h1 {
@@ -389,14 +371,14 @@
 
 .budget-form-actions {
   display: flex;
+  flex-direction: column;
   gap: 16px;
   margin-top: 32px;
-  padding-bottom: 24px;
 }
 
 .budget-cancel-button,
 .budget-form-add-button {
-  flex: 1;
+  width: 100%;
   height: 56px;
   border-radius: 12px;
   font-size: 18px;
@@ -419,25 +401,23 @@
   background: #17421f;
 }
 
+
 /* kleine Handys */
 @media (max-width: 390px) {
   .budget-page {
-    width: 100vw;
-    height: 100dvh;
-    box-shadow: none;
+    width: 100%;
+    max-width: none;
   }
 
-  .budget-white-sheet {
-    min-height: calc(100dvh - 250px);
-  }
-
+  .budget-white-sheet,
   .budget-empty-sheet {
-    min-height: calc(100dvh - 250px);
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .budget-form-sheet {
-    min-height: 100%;
-    padding-bottom: 170px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 
