@@ -11,6 +11,7 @@ import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
 import { LoginPage } from "./pages/LoginPage";
+import AdminPage from "./pages/AdminPage";
 
 import SettingsPage from "./pages/ProfileAndSettingsPages/SettingsPage";
 import CurrencyPage from "./pages/ProfileAndSettingsPages/CurrencyPage";
@@ -61,6 +62,7 @@ function App() {
         <Route path="/ocr" element={<Layout><EasyOcrPage /></Layout>} />
         <Route path="/lisa" element={<Layout><LisaChatPage /></Layout>} />
         <Route path="/docs" element={<Layout><DocsPage /></Layout>} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
