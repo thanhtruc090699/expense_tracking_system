@@ -1,8 +1,9 @@
 import "../../styles/ProfileAndSettingsStyles/ProfileStyle.css";
 
-import profileImg from "../../assets/profilbild.jpg";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getToken, getFullName } from "../../auth";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 import {
   User,
@@ -13,8 +14,15 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const token = getToken();
 
   const [showLogout, setShowLogout] = useState(false);
+  const [fullName, setFullName] = useState(getFullName() || "User");
+
+  useEffect(() => {
+    const name = getFullName();
+    if (name) setFullName(name);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -39,27 +47,17 @@ export default function ProfilePage() {
 
       {/* USER INFO */}
       <div className="profile-info">
-        <h1>Hallo, User.</h1>
+        <h1>Hello, {fullName}.</h1>
 
-        <img
-          src={profileImg}
-          alt="Profile"
-          className="profile-image"
-        />
+        <ProfileAvatar name={fullName} size={115} />
 
         <div className="profile-buttons">
           <button
-            className="green-btn"
-            aria-label="Change profile picture"
-          >
-            Change picture
-          </button>
-
-          <button
             className="gray-btn"
             aria-label="Change your name"
+            onClick={() => navigate("/profile/edit")}
           >
-            Change name
+            Edit Profile
           </button>
         </div>
       </div>

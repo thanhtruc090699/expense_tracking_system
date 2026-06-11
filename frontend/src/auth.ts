@@ -23,10 +23,14 @@ export function getTokenFromCode(): string | null {
   
   const params = new URLSearchParams(hash.slice(1));
   const token = params.get('access_token');
+  const idToken = params.get('id_token');
   
   if (token) {
     window.history.replaceState({}, '', window.location.pathname);
     sessionStorage.setItem('kc_token', token);
+    if (idToken) {
+      sessionStorage.setItem('kc_id_token', idToken);
+    }
     sessionStorage.removeItem('kc_nonce');
     return token;
   }
@@ -38,7 +42,42 @@ export function getToken(): string | null {
   return sessionStorage.getItem('kc_token');
 }
 
+export function getUsername(): string | null {
+  const token = sessionStorage.getItem('kc_id_token');
+  if (!token) return null;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.preferred_username || payload.name || null;
+  } catch {
+    return null;
+  }
+}
+
+export function getFullName(): string | null {
+  const token = sessionStorage.getItem('kc_id_token');
+  if (!token) return null;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const firstName = payload.given_name || '';
+    const lastName = payload.family_name || '';
+    const name = payload.name || '';
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    }
+    if (name) {
+      return name;
+    }
+    return payload.preferred_username || null;
+  } catch {
+    return null;
+  }
+}
+
 export function logout() {
   sessionStorage.removeItem('kc_token');
+  sessionStorage.removeItem('kc_id_token');
   window.location.href = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(window.location.origin)}`;
 }

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/DashboardPage.css";
-import { getToken } from "../auth";
+import { getToken, getFullName } from "../auth";
 import { AskAIInput } from "../components/AskAIInput";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -32,8 +34,10 @@ const getIconForMerchant = (name: string) => {
 };
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<ExpenseSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [displayName, setDisplayName] = useState(getFullName() || "User");
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -101,14 +105,16 @@ export function DashboardPage() {
     <main className="dashboard-page">
       <section className="dashboard-header">
         <div className="dashboard-header-top">
-          <h1>Welcome Back!</h1>
+          <h1>Welcome Back, {displayName.split(' ')[0]}!</h1>
 
-          <div className="profile-image">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop"
-              alt="Profile"
-            />
-          </div>
+          <button 
+            className="profile-image-btn"
+            onClick={() => navigate("/profile")}
+          >
+            <div className="profile-image">
+              <ProfileAvatar name={displayName} size={72} />
+            </div>
+          </button>
         </div>
 
         <div className="dashboard-ai-area">

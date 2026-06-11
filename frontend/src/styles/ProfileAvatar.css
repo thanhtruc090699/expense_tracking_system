@@ -1,0 +1,7 @@
+.profile-avatar {
+  display: inline-block;
+}
+
+.profile-avatar svg {
+  border-radius: 50%;
+}

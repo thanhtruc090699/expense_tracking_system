@@ -49,6 +49,11 @@
   font-weight: 700;
 }
 
+.profile-image-avatar {
+  margin-bottom: 24px;
+  display: inline-block;
+}
+
 .profile-image {
   width: 115px;
   height: 115px;

@@ -34,6 +34,13 @@
   letter-spacing: -0.5px;
 }
 
+.profile-image-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
 .profile-image {
   width: 72px;
   height: 72px;
