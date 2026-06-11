@@ -1,6 +1,3 @@
-import "./App.css";
-
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Layout } from "./components/Layout";
@@ -10,7 +7,6 @@ import { MerchantsPage } from "./pages/MerchantsPage";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { BudgetsPage } from "./pages/BudgetsPage";
 import { EasyOcrPage } from "./pages/EasyOcrPage";
-import { LoginPage } from "./pages/LoginPage";
 import { UsersPage } from "./pages/UsersPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
@@ -36,7 +32,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Layout><Navigate to="/dashboard" replace /></Layout>} />
         <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
         <Route path="/expenses" element={<Layout><ExpensesPage /></Layout>} />
@@ -54,7 +49,6 @@ function App() {
         <Route path="/language" element={<LanguagePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/theme" element={<ThemePage />} />
-
       </Routes>
     </BrowserRouter>
   );
