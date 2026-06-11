@@ -285,7 +285,7 @@ export function DashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-8">
             {/* Custom SVG Donut Chart */}
             <div className="shrink-0 relative" style={{ width: chartView === "pie" ? 180 : 140, height: chartView === "pie" ? 180 : 140 }}>
               <svg viewBox="5 5 90 90" className="transform -rotate-90">

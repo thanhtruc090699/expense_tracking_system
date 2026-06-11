@@ -210,7 +210,7 @@ export default function NavBar() {
           />
         </svg>
 
-        <div className="relative z-10 h-full flex items-end pb-3 px-3">
+        <div className="relative z-10 h-full flex items-end pb-3 px-6">
           <div className="flex w-full items-end justify-between">
             <NavLink
               to="/dashboard"
