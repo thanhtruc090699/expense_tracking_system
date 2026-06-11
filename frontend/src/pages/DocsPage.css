@@ -1,0 +1,27 @@
+.docs-page {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.docs-title {
+  margin: 0 0 16px;
+  font-size: 24px;
+  color: #1a1a1a;
+}
+
+.docs-iframe {
+  width: 100%;
+  height: calc(100dvh - 150px);
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: white;
+}
+
+body.dark-mode .docs-title {
+  color: white;
+}
+
+body.dark-mode .docs-iframe {
+  background: #1e1e1e;
+  border-color: #333;
+}

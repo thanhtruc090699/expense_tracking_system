@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
-import {
-  Title,
-  Button,
-  Card,
-  CardTitle,
-  CardBody,
-  Badge,
-} from '@patternfly/react-core';
-import { TrashIcon, EyeIcon } from '@patternfly/react-icons';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { getToken } from '../auth';
+import './BillsPage.css';
+
+const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
 interface Bill {
   id: string;
@@ -26,7 +19,6 @@ export function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? ''
 
   const fetchBills = async () => {
     const token = getToken();
@@ -76,92 +68,80 @@ export function BillsPage() {
   
   if (!token) {
     return (
-      <>
-        <Title headingLevel="h1" size="xl">Bills</Title>
+      <div className="bills-page">
+        <h1>Bills</h1>
         <p>Authentication required to view bills</p>
-      </>
+      </div>
     );
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <div className="bills-loading">Loading...</div>;
   }
 
   return (
-    <>
-      <Title headingLevel="h1" size="xl">Bills</Title>
-      <p>Manage and track your bills</p>
+    <div className="bills-page">
+      <div className="bills-header">
+        <h1>Bills</h1>
+        <p>Manage and track your bills</p>
+      </div>
 
-      <Card>
-        <CardTitle>Bill List</CardTitle>
-        <CardBody>
-          <Table variant="compact" isStriped aria-label="Bills table">
-            <Thead>
-              <Tr>
-                <Th>File URL</Th>
-                <Th>File Type</Th>
-                <Th>Status</Th>
-                <Th>Created</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {bills.map((bill) => (
-                <>
-                  <Tr key={bill.id}>
-                    <Td>{bill.fileUrl}</Td>
-                    <Td>{bill.fileType}</Td>
-                    <Td>
-                      {bill.isDuplicate ? (
-                        <Badge isRead>Duplicate</Badge>
-                      ) : (
-                        <Badge isRead={false}>New</Badge>
-                      )}
-                    </Td>
-                    <Td>{new Date(bill.createdAt).toLocaleDateString()}</Td>
-                    <Td>
-                      <Button
-                        variant="secondary"
-                        icon={<EyeIcon />}
-                        onClick={() => setExpandedBillId(expandedBillId === bill.id ? null : bill.id)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="danger"
-                        icon={<TrashIcon />}
-                        onClick={() => handleDeleteBill(bill.id)}
-                        style={{ marginLeft: '8px' }}
-                      >
-                        Delete
-                      </Button>
-                    </Td>
-                  </Tr>
-                  {expandedBillId === bill.id && (
-                    <Tr key={`${bill.id}-expand`}>
-                      <Td colSpan={5}>
-                        <div style={{ padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-                          <strong>Bill Details:</strong>
-                          <pre style={{ marginTop: '8px', whiteSpace: 'pre-wrap' }}>
-                            {JSON.stringify(bill, null, 2)}
-                          </pre>
-                        </div>
-                      </Td>
-                    </Tr>
-                  )}
-                </>
-              ))}
-              {bills.length === 0 && (
-                <Tr>
-                  <Td colSpan={5} style={{ textAlign: 'center' }}>
-                    No bills found
-                  </Td>
-                </Tr>
+      <div className="bills-list">
+        {bills.length > 0 ? (
+          bills.map((bill) => (
+            <div key={bill.id}>
+              <div className="bill-card" onClick={() => setExpandedBillId(expandedBillId === bill.id ? null : bill.id)}>
+                <div className="bill-main">
+                  <div className="bill-info">
+                    <span className="bill-url">{bill.fileUrl}</span>
+                    <span className="bill-type">{bill.fileType}</span>
+                    <span className="bill-date">
+                      Added: {new Date(bill.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="bill-badges">
+                    <span className={`bill-badge ${bill.isDuplicate ? 'duplicate' : 'new'}`}>
+                      {bill.isDuplicate ? 'Duplicate' : 'New'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="bill-actions">
+                  <button
+                    className="bill-action-btn view"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedBillId(expandedBillId === bill.id ? null : bill.id);
+                    }}
+                  >
+                    {expandedBillId === bill.id ? 'Hide' : 'View'}
+                  </button>
+                  <button
+                    className="bill-action-btn delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteBill(bill.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              
+              {expandedBillId === bill.id && (
+                <div className="bill-details">
+                  <h4>Bill Details:</h4>
+                  <pre>{JSON.stringify(bill, null, 2)}</pre>
+                </div>
               )}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
-    </>
+            </div>
+          ))
+        ) : (
+          <div className="bills-empty">
+            <p>No bills found</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

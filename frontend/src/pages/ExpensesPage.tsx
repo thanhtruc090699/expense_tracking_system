@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Title,
-  Button,
-  Card,
-  CardBody,
-  Badge,
-} from '@patternfly/react-core';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { TrashIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
+import './ExpensesPage.css';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -27,8 +19,6 @@ interface Expense {
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddExpense, setShowAddExpense] = useState(false);
-  const [activeTab, setActiveTab] = useState<'scan' | 'manual'>('scan');
 
   const fetchExpenses = async () => {
     const token = getToken();
@@ -80,155 +70,58 @@ export function ExpensesPage() {
 
   if (!token) {
     return (
-      <>
-        <Title headingLevel="h1" size="xl">
-          Expenses
-        </Title>
+      <div className="expenses-page">
+        <h1>Expenses</h1>
         <p>Authentication required</p>
-      </>
+      </div>
     );
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="expenses-loading">Loading...</div>;
 
   return (
-    <>
-      <Title headingLevel="h1" size="xl">
-        Expenses
-      </Title>
-      <p>Track your expenses</p>
+    <div className="expenses-page">
+      <div className="expenses-header">
+        <h1>Expenses</h1>
+        <p>Track your expenses</p>
+      </div>
 
-      <Card>
-        <CardBody>
-          <Table variant="compact" isStriped aria-label="Expenses table">
-            <Thead>
-              <Tr>
-                <Th>Date</Th>
-                <Th>Merchant</Th>
-                <Th>Amount</Th>
-                <Th>Recurring</Th>
-                <Th>Note</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-
-            <Tbody>
-              {expenses.map((expense) => (
-                <Tr key={expense.id}>
-                  <Td>{new Date(expense.expenseDate).toLocaleDateString()}</Td>
-                  <Td>{expense.merchant?.name || 'N/A'}</Td>
-                  <Td>${Number(expense.totalAmount).toFixed(2)}</Td>
-                  <Td>
-                    {expense.isRecurring ? (
-                      <Badge color="blue">Yes</Badge>
-                    ) : (
-                      <Badge isRead>No</Badge>
-                    )}
-                  </Td>
-                  <Td>{expense.note || '-'}</Td>
-                  <Td>
-                    <Button
-                      variant="danger"
-                      icon={<TrashIcon />}
-                      onClick={() => handleDelete(expense.id)}
-                    >
-                      Delete
-                    </Button>
-                  </Td>
-                </Tr>
-              ))}
-
-              {expenses.length === 0 && (
-                <Tr>
-                  <Td colSpan={6} style={{ textAlign: 'center' }}>
-                    No expenses found
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
-
-      <Button
-        variant="primary"
-        onClick={() => setShowAddExpense(true)}
-        style={{
-          position: 'fixed',
-         bottom: '120px',
-        right: '32px',
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          fontSize: '28px',
-          zIndex: 1000,
-        }}
-      >
-        +
-      </Button>
-
-      {showAddExpense && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 2000,
-          }}
-        >
-          <div
-            style={{
-              background: 'white',
-              width: '500px',
-              borderRadius: '20px',
-              padding: '24px',
-            }}
-          >
-            <Title headingLevel="h2">Add Expense</Title>
-
-            <div style={{ display: 'flex', gap: '12px', margin: '20px 0' }}>
-              <Button
-                variant={activeTab === 'scan' ? 'primary' : 'secondary'}
-                onClick={() => setActiveTab('scan')}
-              >
-                Receipt Scan
-              </Button>
-
-              <Button
-                variant={activeTab === 'manual' ? 'primary' : 'secondary'}
-                onClick={() => setActiveTab('manual')}
-              >
-                Manual Entry
-              </Button>
-            </div>
-
-            {activeTab === 'scan' && (
-              <div>
-                <p>Upload your receipt here.</p>
-                <Button variant="secondary">Choose File</Button>
+      <div className="expense-list">
+        {expenses.length > 0 ? (
+          expenses.map((expense) => (
+            <div className="expense-card" key={expense.id}>
+              <div className="expense-main">
+                <div className="expense-info">
+                  <span className="expense-merchant">{expense.merchant?.name || 'No merchant'}</span>
+                  <span className="expense-date">
+                    {new Date(expense.expenseDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <span className="expense-amount">€{Number(expense.totalAmount).toFixed(2)}</span>
               </div>
-            )}
 
-            {activeTab === 'manual' && (
-              <div>
-                <p>Manual expense form comes here.</p>
+              <div className="expense-meta">
+                {expense.isRecurring && (
+                  <span className="expense-badge recurring">Recurring</span>
+                )}
+                {expense.note && (
+                  <span className="expense-note">{expense.note}</span>
+                )}
+                <button
+                  className="expense-delete-btn"
+                  onClick={() => handleDelete(expense.id)}
+                >
+                  Delete
+                </button>
               </div>
-            )}
-
-            <div style={{ marginTop: '24px' }}>
-              <Button
-                variant="secondary"
-                onClick={() => setShowAddExpense(false)}
-              >
-                Close
-              </Button>
             </div>
+          ))
+        ) : (
+          <div className="expenses-empty">
+            <p>No expenses found</p>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }

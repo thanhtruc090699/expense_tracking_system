@@ -1,16 +1,6 @@
 import { useState } from 'react';
-import {
-  Card,
-  CardBody,
-  Form,
-  FormGroup,
-  TextInput,
-  Button,
-  Checkbox,
-  Title,
-  Bullseye,
-} from '@patternfly/react-core';
 import logo from '../assets/billbuddy.svg';
+import './LoginPage.css';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,48 +12,51 @@ export function LoginPage() {
   };
 
   return (
-    <Bullseye>
-      <Card style={{ minWidth: '400px', maxWidth: '450px' }}>
-        <CardBody>
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <img src={logo} alt="BillBuddy" style={{ height: '48px' }} />
-            <Title headingLevel="h2" size="xl" style={{ marginTop: '16px' }}>
-              Sign in to BillBuddy
-            </Title>
+    <div className="login-page">
+      <div className="login-card">
+        <img src={logo} alt="BillBuddy" className="login-logo" />
+        
+        <h1 className="login-title">Sign in to BillBuddy</h1>
+        
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="login-input"
+            />
           </div>
-          <Form onSubmit={handleSubmit}>
-            <FormGroup label="Email" isRequired fieldId="email">
-              <TextInput
-                id="email"
-                type="email"
-                value={email}
-                onChange={(_event, value) => setEmail(value)}
-                placeholder="Enter your email"
-                required
-              />
-            </FormGroup>
-            <FormGroup label="Password" isRequired fieldId="password">
-              <TextInput
-                id="password"
-                type="password"
-                value={password}
-                onChange={(_event, value) => setPassword(value)}
-                placeholder="Enter your password"
-                required
-              />
-            </FormGroup>
-            <FormGroup fieldId="remember">
-              <Checkbox
-                id="remember"
-                label="Remember me"
-              />
-            </FormGroup>
-            <Button type="submit" variant="primary" isBlock style={{ marginTop: '16px' }}>
-              Sign in
-            </Button>
-          </Form>
-        </CardBody>
-      </Card>
-    </Bullseye>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+              className="login-input"
+            />
+          </div>
+          
+          <div className="form-group checkbox-group">
+            <label>
+              <input type="checkbox" />
+              Remember me
+            </label>
+          </div>
+          
+          <button type="submit" className="login-submit-btn">
+            Sign in
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -1,0 +1,92 @@
+.merchants-page {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.merchants-header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  color: #1a1a1a;
+}
+
+.merchants-header p {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.merchants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.merchant-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.merchant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.merchant-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.merchant-business {
+  font-size: 13px;
+  color: #666;
+}
+
+.merchant-created {
+  font-size: 12px;
+  color: #999;
+}
+
+.merchant-delete-btn {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.merchant-delete-btn:hover {
+  background: #fff5f5;
+}
+
+.merchants-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.merchants-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+body.dark-mode .merchants-page h1 {
+  color: white;
+}
+
+body.dark-mode .merchant-card {
+  background: #1e1e1e;
+}
+
+body.dark-mode .merchant-name {
+  color: white;
+}

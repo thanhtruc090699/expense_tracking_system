@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Title,
-  Button,
-  Card,
-  CardBody,
-} from '@patternfly/react-core';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { TrashIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
+import './MerchantsPage.css';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -27,7 +20,7 @@ export function MerchantsPage() {
     if (!token) return;
     
     try {
-      const res = await fetch('http://10.0.0.2:3000/merchants', {
+      const res = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMerchants(await res.json());
@@ -57,38 +50,43 @@ export function MerchantsPage() {
   };
 
   if (!getToken()) {
-    return <Title headingLevel="h1">Merchants</Title>;
+    return <div className="merchants-page"><h1>Merchants</h1></div>;
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="merchants-loading">Loading...</div>;
 
   return (
-    <>
-      <Title headingLevel="h1" size="xl">Merchants</Title>
-      <p>Manage your merchants</p>
+    <div className="merchants-page">
+      <div className="merchants-header">
+        <h1>Merchants</h1>
+        <p>Manage your merchants</p>
+      </div>
 
-      <Card>
-        <CardBody>
-          <Table variant="compact" isStriped>
-            <Thead>
-              <Tr><Th>Name</Th><Th>Business</Th><Th>Created</Th><Th>Actions</Th></Tr>
-            </Thead>
-            <Tbody>
-              {merchants.map((m) => (
-                <Tr key={m.id}>
-                  <Td>{m.name}</Td>
-                  <Td>{m.business || '-'}</Td>
-                  <Td>{new Date(m.createdAt).toLocaleDateString()}</Td>
-                  <Td>
-                    <Button variant="danger" icon={<TrashIcon />} onClick={() => handleDelete(m.id)}>Delete</Button>
-                  </Td>
-                </Tr>
-              ))}
-              {merchants.length === 0 && <Tr><Td colSpan={4} style={{ textAlign: 'center' }}>No merchants</Td></Tr>}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
-    </>
+      <div className="merchants-list">
+        {merchants.length > 0 ? (
+          merchants.map((m) => (
+            <div className="merchant-card" key={m.id}>
+              <div className="merchant-info">
+                <span className="merchant-name">{m.name}</span>
+                <span className="merchant-business">{m.business || 'No business info'}</span>
+                <span className="merchant-created">
+                  Added: {new Date(m.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <button
+                className="merchant-delete-btn"
+                onClick={() => handleDelete(m.id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="merchants-empty">
+            <p>No merchants found</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

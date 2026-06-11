@@ -1,19 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Title,
-  Button,
-  Card,
-  CardTitle,
-  CardBody,
-  Form,
-  FormGroup,
-  TextInput,
-  Modal,
-  Badge,
-} from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { getToken } from '../auth';
+import './UsersPage.css';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -37,10 +24,10 @@ export function UsersPage() {
 
   if (!token) {
     return (
-      <>
-        <Title headingLevel="h1" size="xl">Users</Title>
+      <div className="users-page">
+        <h1>Users</h1>
         <p>Authentication required to view users</p>
-      </>
+      </div>
     );
   }
 
@@ -107,103 +94,104 @@ export function UsersPage() {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <div className="users-loading">Loading...</div>;
   }
 
   return (
-    <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <Title headingLevel="h1" size="xl">Users</Title>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+    <div className="users-page">
+      <div className="users-header">
+        <h1>Users</h1>
+        <button className="add-user-btn" onClick={() => setIsModalOpen(true)}>
           Add User
-        </Button>
+        </button>
       </div>
 
-      <Card>
-        <CardTitle>User List</CardTitle>
-        <CardBody>
-          <Table variant="compact" isStriped aria-label="Users table">
-            <Thead>
-              <Tr>
-                <Th>Email</Th>
-                <Th>Username</Th>
-                <Th>Created</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {users.map((user) => (
-                <Tr key={user.id}>
-                  <Td>{user.email}</Td>
-                  <Td>{user.username || <Badge isRead={false}>No username</Badge>}</Td>
-                  <Td>{new Date(user.createdAt).toLocaleDateString()}</Td>
-                  <Td>
-                    <Button
-                      variant="danger"
-                      icon={<TrashIcon />}
-                      onClick={() => handleDeleteUser(user.id)}
-                    >
-                      Delete
-                    </Button>
-                  </Td>
-                </Tr>
-              ))}
-              {users.length === 0 && (
-                <Tr>
-                  <Td colSpan={4} style={{ textAlign: 'center' }}>
-                    No users found
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
+      <div className="users-list">
+        {users.length > 0 ? (
+          users.map((user) => (
+            <div className="user-card" key={user.id}>
+              <div className="user-info">
+                <span className="user-email">{user.email}</span>
+                <span className="user-username">{user.username || 'No username'}</span>
+                <span className="user-created">
+                  Created: {new Date(user.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <button
+                className="delete-user-btn"
+                onClick={() => handleDeleteUser(user.id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="users-empty">
+            <p>No users found</p>
+          </div>
+        )}
+      </div>
 
-      <Modal
-        title="Add New User"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        width="50%"
-      >
-        <div style={{ padding: '16px' }}>
-          <Form>
-            <FormGroup label="Email" isRequired fieldId="email">
-              <TextInput
-                id="email"
-                value={formData.email}
-                onChange={(_, val) => setFormData({ ...formData, email: val })}
-                type="email"
-                placeholder="user@example.com"
-              />
-            </FormGroup>
-            <FormGroup label="Username" fieldId="username">
-              <TextInput
-                id="username"
-                value={formData.username}
-                onChange={(_, val) => setFormData({ ...formData, username: val })}
-                placeholder="Optional"
-              />
-            </FormGroup>
-            <FormGroup label="Password" isRequired fieldId="password">
-              <TextInput
-                id="password"
-                value={formData.password}
-                onChange={(_, val) => setFormData({ ...formData, password: val })}
-                type="password"
-              />
-            </FormGroup>
-          </Form>
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleCreateUser} isLoading={isLoading}>
-              Create User
-            </Button>
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Add New User</h2>
+            
+            <div className="modal-form">
+              <div className="form-group">
+                <label htmlFor="modal-email">Email</label>
+                <input
+                  id="modal-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="user@example.com"
+                  className="modal-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="modal-username">Username</label>
+                <input
+                  id="modal-username"
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="Optional"
+                  className="modal-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="modal-password">Password</label>
+                <input
+                  id="modal-password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="modal-input"
+                />
+              </div>
+            </div>
+            
+            <div className="modal-actions">
+              <button
+                className="modal-cancel-btn"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={`modal-submit-btn ${isLoading ? 'loading' : ''}`}
+                onClick={handleCreateUser}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating...' : 'Create User'}
+              </button>
+            </div>
           </div>
         </div>
-      </Modal>
-    </>
+      )}
+    </div>
   );
 }

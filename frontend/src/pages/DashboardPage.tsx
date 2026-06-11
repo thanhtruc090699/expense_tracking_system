@@ -18,7 +18,7 @@ interface ExpenseSummary {
   }>;
 }
 
-const categoryColors = ["red", "blue", "green", "yellow", "gray"];
+const colorHexCodes = ["#ff2d3d", "#2f80ed", "#06c956", "#f4b400", "#9aa4b2"];
 
 const getIconForMerchant = (name: string) => {
   const lower = name?.toLowerCase() || "";
@@ -85,8 +85,16 @@ export function DashboardPage() {
     name: t.merchant?.name || t.note || "Unknown",
     amount: `€${t.totalAmount.toFixed(2)}`,
     percent: `${((t.totalAmount / totalAmount) * 100).toFixed(0)}%`,
-    className: categoryColors[i % categoryColors.length],
+    color: colorHexCodes[i % colorHexCodes.length],
   }));
+
+  const chartGradients = chartItems.map((item, idx, arr) => {
+    const start = idx === 0 ? 0 : arr.slice(0, idx).reduce((sum, it, i) => {
+      return sum + ((it.amount.replace(/[^\d.]/g, '') / totalAmount) * 360);
+    }, 0);
+    const end = start + ((item.amount.replace(/[^\d.]/g, '') / totalAmount) * 360);
+    return `${item.color} ${start.toFixed(0)}deg ${end.toFixed(0)}deg`;
+  }).join(', ');
 
   return (
     <main className="dashboard-page">
@@ -124,7 +132,10 @@ export function DashboardPage() {
         </div>
 
         <div className="chart-layout">
-          <div className="donut-chart">
+          <div 
+            className="donut-chart"
+            style={{ background: `conic-gradient(${chartGradients})` }}
+          >
             <div className="donut-hole" />
           </div>
 
@@ -133,7 +144,7 @@ export function DashboardPage() {
               chartItems.map((item, idx) => (
                 <div className="legend-item" key={idx}>
                   <div className="legend-name-row">
-                    <span className={`legend-dot ${item.className}`} />
+                    <span className="legend-dot" style={{ background: item.color }} />
                     <span className="legend-name">{item.name}</span>
                   </div>
 

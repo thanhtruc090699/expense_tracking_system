@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Title,
-  Button,
-  Card,
-  CardBody,
-} from '@patternfly/react-core';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
-import { TrashIcon } from '@patternfly/react-icons';
 import { getToken } from '../auth';
+import './CategoriesPage.css';
 
 interface Category {
   id: string;
@@ -55,36 +48,43 @@ export function CategoriesPage() {
     }
   };
 
-  if (!getToken()) return <Title headingLevel="h1">Categories</Title>;
-  if (loading) return <p>Loading...</p>;
+  if (!getToken()) return <div className="categories-page"><h1>Categories</h1></div>;
+  if (loading) return <div className="categories-loading">Loading...</div>;
 
   return (
-    <>
-      <Title headingLevel="h1" size="xl">Categories</Title>
-      <p>Manage expense categories</p>
+    <div className="categories-page">
+      <div className="categories-header">
+        <h1>Categories</h1>
+        <p>Manage expense categories</p>
+      </div>
 
-      <Card>
-        <CardBody>
-          <Table variant="compact" isStriped>
-            <Thead>
-              <Tr><Th>Icon</Th><Th>Name</Th><Th>Created</Th><Th>Actions</Th></Tr>
-            </Thead>
-            <Tbody>
-              {categories.map((c) => (
-                <Tr key={c.id}>
-                  <Td>{c.icon || '📁'}</Td>
-                  <Td>{c.name}</Td>
-                  <Td>{new Date(c.createdAt).toLocaleDateString()}</Td>
-                  <Td>
-                    <Button variant="danger" icon={<TrashIcon />} onClick={() => handleDelete(c.id)}>Delete</Button>
-                  </Td>
-                </Tr>
-              ))}
-              {categories.length === 0 && <Tr><Td colSpan={4} style={{ textAlign: 'center' }}>No categories</Td></Tr>}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
-    </>
+      <div className="categories-list">
+        {categories.length > 0 ? (
+          categories.map((c) => (
+            <div className="category-card" key={c.id}>
+              <div className="category-left">
+                <span className="category-icon">{c.icon || '📁'}</span>
+                <div className="category-info">
+                  <span className="category-name">{c.name}</span>
+                  <span className="category-created">
+                    Created: {new Date(c.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+              <button
+                className="category-delete-btn"
+                onClick={() => handleDelete(c.id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="categories-empty">
+            <p>No categories found</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

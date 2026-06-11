@@ -1,0 +1,180 @@
+.bills-page {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.bills-header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  color: #1a1a1a;
+}
+
+.bills-header p {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bill-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.bill-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bill-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.bill-url {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1a1a;
+  word-break: break-all;
+}
+
+.bill-type {
+  font-size: 13px;
+  color: #666;
+}
+
+.bill-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.bill-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.bill-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bill-badge.new {
+  background: #e8f4e8;
+  color: #2d5b2d;
+}
+
+.bill-badge.duplicate {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.bill-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.bill-action-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+}
+
+.bill-action-btn.view {
+  background: #e8f4e8;
+  color: #2d5b2d;
+}
+
+.bill-action-btn.delete {
+  background: #fff5f5;
+  color: #dc3545;
+}
+
+.bill-details {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+.bill-details h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.bill-details pre {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.bills-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.bills-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+body.dark-mode .bills-page h1 {
+  color: white;
+}
+
+body.dark-mode .bill-card {
+  background: #1e1e1e;
+}
+
+body.dark-mode .bill-url {
+  color: white;
+}
+
+body.dark-mode .bill-details {
+  background: #2a2a2a;
+}
+
+body.dark-mode .bill-details pre {
+  background: #1e1e1e;
+  color: #ccc;
+}
+
+body.dark-mode .bill-action-btn.view {
+  background: #1a3a1a;
+  color: #4ade80;
+}
+
+body.dark-mode .bill-action-btn.delete {
+  background: #3a1a1a;
+  color: #ff6b6b;
+}

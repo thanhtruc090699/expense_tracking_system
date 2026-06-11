@@ -1,0 +1,135 @@
+.expenses-page {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.expenses-header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  color: #1a1a1a;
+}
+
+.expenses-header p {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expense-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.expense-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.expense-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expense-merchant {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.expense-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.expense-amount {
+  font-weight: 700;
+  font-size: 18px;
+  color: #2d5b2d;
+}
+
+.expense-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.expense-badge.recurring {
+  background: #e8f4e8;
+  color: #2d5b2d;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.expense-note {
+  font-size: 13px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.expense-delete-btn {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-left: auto;
+}
+
+.expense-delete-btn:hover {
+  text-decoration: underline;
+}
+
+.expenses-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.expenses-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+body.dark-mode .expenses-page h1 {
+  color: white;
+}
+
+body.dark-mode .expenses-page p {
+  color: #aaa;
+}
+
+body.dark-mode .expense-card {
+  background: #1e1e1e;
+}
+
+body.dark-mode .expense-merchant {
+  color: white;
+}
+
+body.dark-mode .expense-note {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+body.dark-mode .expense-badge.recurring {
+  background: #1a3a1a;
+  color: #4ade80;
+}

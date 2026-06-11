@@ -1,0 +1,113 @@
+.login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #f5f6fa;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.login-logo {
+  height: 48px;
+  display: block;
+  margin: 0 auto 16px;
+}
+
+.login-title {
+  text-align: center;
+  margin: 0 0 24px;
+  font-size: 20px;
+  color: #1a1a1a;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.login-input {
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #2d5b2d;
+}
+
+.login-submit-btn {
+  height: 50px;
+  background: #2d5b2d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.login-submit-btn:hover {
+  background: #244b24;
+}
+
+body.dark-mode .login-page {
+  background: #121212;
+}
+
+body.dark-mode .login-card {
+  background: #1e1e1e;
+}
+
+body.dark-mode .login-title {
+  color: white;
+}
+
+body.dark-mode .form-group label {
+  color: #ccc;
+}
+
+body.dark-mode .login-input {
+  background: #2a2a2a;
+  border-color: #333;
+  color: white;
+}
+
+body.dark-mode .login-input:focus {
+  border-color: #4ade80;
+}
