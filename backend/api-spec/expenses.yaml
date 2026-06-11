@@ -99,6 +99,47 @@ paths:
             application/json:
               schema:
                 $ref: './common.yaml#/components/schemas/Error'
+  /expenses/spendingSummary:
+    get:
+      operationId: fetchSpendingSummary
+      summary: Get categorised spending summary
+      description: Retrieve categorised expense statistics including total amount, category breakdown {Amount,Percentage}.
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The month to get summary for (ISO 8601 format, e.g., 2024-01-01T00:00:00Z)
+      responses:
+        '200':
+          description: Spending summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendingSummary'
+        '400':
+          description: Invalid month parameter
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /expenses/{id}:
     get:
       operationId: findOneExpense
@@ -323,3 +364,40 @@ components:
         - transactionCount
         - averageTransactionAmount
         - topTransactions
+    SpendingSummary:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date-time
+          description: The month this summary represents
+        totalAmount:
+          type: number
+          format: double
+          description: Sum of all expenses for the month
+        categoryBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              categoryId:
+                type: string
+                format: uuid
+              categoryName:
+                type: string
+              amount:
+                type: number
+                format: double
+              percentage:
+                type: number
+                format: double
+            required:
+              - categoryId
+              - categoryName
+              - amount
+              - percentage
+          description: Breakdown of expenses by category for the month
+      required:
+        - month
+        - totalAmount
+        - categoryBreakdown

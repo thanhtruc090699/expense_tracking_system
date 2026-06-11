@@ -19,6 +19,8 @@ paths:
     $ref: './expenses.yaml#/paths/~1expenses'
   /expenses/summary:
     $ref: './expenses.yaml#/paths/~1expenses~1summary'
+  /expenses/spendingSummary:
+    $ref: './expenses.yaml#/paths/~1expenses~1spendingSummary'
   /expenses/{id}:
     $ref: './expenses.yaml#/paths/~1expenses~1{id}'
   /expense-items:
@@ -70,6 +72,10 @@ components:
       $ref: './expenses.yaml#/components/schemas/UpdateExpenseDto'
     DeleteExpense200Response:
       $ref: './expenses.yaml#/components/schemas/DeleteExpense200Response'
+    ExpenseSummary:
+      $ref: './expenses.yaml#/components/schemas/ExpenseSummary'
+    SpendingSummary:
+      $ref: './expenses.yaml#/components/schemas/SpendingSummary'
     ExpenseItem:
       $ref: './expense-items.yaml#/components/schemas/ExpenseItem'
     CreateExpenseItemDto:
