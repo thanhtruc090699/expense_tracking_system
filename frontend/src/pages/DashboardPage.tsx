@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/DashboardPage.css";
 import { getToken } from "../auth";
+import { AskAIInput } from "../components/AskAIInput";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -99,13 +100,19 @@ export function DashboardPage() {
   return (
     <main className="dashboard-page">
       <section className="dashboard-header">
-        <h1>Welcome Back!</h1>
+        <div className="dashboard-header-top">
+          <h1>Welcome Back!</h1>
 
-        <div className="profile-image">
-          <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop"
-            alt="Profile"
-          />
+          <div className="profile-image">
+            <img
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop"
+              alt="Profile"
+            />
+          </div>
+        </div>
+
+        <div className="dashboard-ai-area">
+          <AskAIInput />
         </div>
       </section>
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Bot,
   ChevronLeft,
   ChevronRight,
   Pencil,
@@ -9,6 +8,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { getToken } from "../auth";
+import { AskAIInput } from "../components/AskAIInput";
 import "../styles/BudgetsPage.css";
 
 interface Budget {
@@ -340,35 +340,29 @@ export function BudgetsPage() {
   if (showCreateBudgetScreen) {
     return (
       <main className="budget-page">
-        <section className="budget-green-area">
-          <div className="budget-ai-row">
-            <div className="budget-ai-icon">
-              <Bot size={26} />
-            </div>
+      <section className="budget-green-area">
+        <AskAIInput />
 
-            <div className="budget-ai-input">Ask AI Assistant...</div>
-          </div>
+        <div className="budget-month-row">
+          <button
+            type="button"
+            className="budget-month-btn"
+            onClick={() => setShowCreateBudgetScreen(false)}
+          >
+            <ArrowLeft size={42} />
+          </button>
 
-          <div className="budget-month-row">
-            <button
-              type="button"
-              className="budget-month-btn"
-              onClick={() => setShowCreateBudgetScreen(false)}
-            >
-              <ArrowLeft size={42} />
-            </button>
+          <h1>{selectedMonth}</h1>
 
-            <h1>{selectedMonth}</h1>
-
-            <button
-              type="button"
-              className="budget-month-btn"
-              onClick={goToNextMonth}
-            >
-              <ChevronRight size={42} />
-            </button>
-          </div>
-        </section>
+          <button
+            type="button"
+            className="budget-month-btn"
+            onClick={goToNextMonth}
+          >
+            <ChevronRight size={42} />
+          </button>
+        </div>
+      </section>
 
         <section className="budget-empty-sheet">
           <div className="budget-empty-content">
@@ -394,13 +388,7 @@ export function BudgetsPage() {
   return (
     <main className="budget-page">
       <section className="budget-green-area">
-        <div className="budget-ai-row">
-          <div className="budget-ai-icon">
-            <Bot size={26} />
-          </div>
-
-          <div className="budget-ai-input">Ask AI Assistant...</div>
-        </div>
+        <AskAIInput />
 
         <div className="budget-month-row">
           <button

@@ -15,10 +15,14 @@
 
 /* HEADER */
 .dashboard-header {
+  margin-bottom: 34px;
+}
+
+.dashboard-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 34px;
+  margin-bottom: 20px;
 }
 
 .dashboard-header h1 {
@@ -42,6 +46,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.dashboard-ai-area {
+  margin-top: 14px;
 }
 
 /* STATS */
