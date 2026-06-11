@@ -40,6 +40,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expense'
+  /expenses/summary:
+    get:
+      operationId: fetchSummary
+      summary: Get expense summary
+      description: Retrieve expense summary statistics including total amount, transaction count, average transaction amount, and top 5 transactions for a specified month.
+      tags: [Expenses]
+      security:
+        - keycloak: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The month to get summary for (ISO 8601 format, e.g., 2024-01-01T00:00:00Z)
+      responses:
+        '200':
+          description: Expense summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSummary'
+        '400':
+          description: Invalid month parameter
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
   /expenses/{id}:
     get:
       operationId: findOneExpense
@@ -199,3 +240,32 @@ components:
       properties:
         message:
           type: string
+    ExpenseSummary:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date-time
+          description: The month this summary represents
+        totalAmount:
+          type: number
+          format: double
+          description: Sum of all expenses for the month
+        transactionCount:
+          type: integer
+          description: Number of transactions for the month
+        averageTransactionAmount:
+          type: number
+          format: double
+          description: Average transaction amount for the month
+        topTransactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+          description: Top 5 transactions by amount for the month
+      required:
+        - month
+        - totalAmount
+        - transactionCount
+        - averageTransactionAmount
+        - topTransactions

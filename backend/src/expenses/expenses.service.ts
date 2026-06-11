@@ -103,4 +103,53 @@ export class ExpensesService {
       throw error;
     }
   }
+
+  async getSummary(userId: string, month: Date) {
+    const startOfMonth = new Date(
+      month.getFullYear(),
+      month.getMonth(),
+      1,
+    );
+    const endOfMonth = new Date(
+      month.getFullYear(),
+      month.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const expenses = await prisma.expense.findMany({
+      where: {
+        userId,
+        expenseDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      include: {
+        merchant: true,
+        expenseItems: true,
+      },
+      orderBy: { totalAmount: 'desc' },
+    });
+
+    const totalAmount = expenses.reduce(
+      (sum, expense) => sum + Number(expense.totalAmount),
+      0,
+    );
+    const transactionCount = expenses.length;
+    const averageTransactionAmount =
+      transactionCount > 0 ? totalAmount / transactionCount : 0;
+    const topTransactions = expenses.slice(0, 5);
+
+    return {
+      month: startOfMonth.toISOString(),
+      totalAmount,
+      transactionCount,
+      averageTransactionAmount,
+      topTransactions,
+    };
+  }
 }

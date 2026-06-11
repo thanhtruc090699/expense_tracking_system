@@ -17,6 +17,8 @@ paths:
     $ref: './lisa.yaml#/paths/~1lisa~1process'
   /expenses:
     $ref: './expenses.yaml#/paths/~1expenses'
+  /expenses/summary:
+    $ref: './expenses.yaml#/paths/~1expenses~1summary'
   /expenses/{id}:
     $ref: './expenses.yaml#/paths/~1expenses~1{id}'
   /expense-items:
