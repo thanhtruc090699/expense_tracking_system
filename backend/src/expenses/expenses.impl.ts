@@ -9,6 +9,7 @@ import type {
   UpdateExpenseDto,
   DeleteExpense200Response,
   ExpenseSummary,
+  SpendingSummary,
 } from '../generated/models';
 import { ExpensesApi } from '../generated/api/ExpensesApi';
 import { ExpensesService } from './expenses.service';
@@ -121,6 +122,28 @@ export class ExpensesApiImpl extends ExpensesApi {
       totalAmount: Number(summary.totalAmount),
       averageTransactionAmount: Number(summary.averageTransactionAmount),
       topTransactions: summary.topTransactions.map((e) => this.toExpense(e)),
+    };
+  }
+
+  async fetchSpendingSummary(
+    month: string,
+    request: Request,
+  ): Promise<SpendingSummary> {
+    const monthDate = new Date(month);
+    if (isNaN(monthDate.getTime())) {
+      throw new BadRequestException('Invalid month format');
+    }
+
+    const user = request['user'] as { id: string };
+    const summary = await this.expensesService.getSpendingSummary(
+      user.id,
+      monthDate,
+    );
+
+    return {
+      month: summary.month,
+      totalAmount: summary.totalAmount,
+      categoryBreakdown: summary.categoryBreakdown,
     };
   }
 
