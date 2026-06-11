@@ -34,7 +34,11 @@ export default function NavBar() {
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [manualSaving, setManualSaving] = useState(false);
+  const [manualError, setManualError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -98,6 +102,95 @@ export default function NavBar() {
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleManualSave = async () => {
+    const amountValue = parseFloat(amount.replace(',', '.'));
+    
+    if (!amount || isNaN(amountValue) || amountValue <= 0) {
+      setManualError('Please enter a valid amount');
+      return;
+    }
+
+    if (!date) {
+      setManualError('Please select a date');
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      setManualError('Not authenticated. Please log in.');
+      return;
+    }
+
+    setManualSaving(true);
+    setManualError(null);
+
+    try {
+      const expenseDateTime = time ? `${date}T${time}` : date;
+      
+      const merchantName = category || description || 'Unknown Merchant';
+      
+      let merchantId: string | undefined;
+      
+      try {
+        const merchantRes = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: merchantName }),
+        });
+
+        if (merchantRes.ok) {
+          const merchantData = await merchantRes.json();
+          merchantId = merchantData.id;
+        }
+      } catch (err) {
+        console.error('Failed to create merchant, continuing without:', err);
+      }
+
+      const expensePayload = {
+        totalAmount: amountValue,
+        expenseDate: expenseDateTime,
+        isRecurring: repeat,
+        note: description || undefined,
+        ...(merchantId && { merchantId }),
+      };
+
+      const expenseRes = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(expensePayload),
+      });
+
+      if (!expenseRes.ok) {
+        const errorData = await expenseRes.json();
+        throw new Error(errorData.message || 'Failed to create expense');
+      }
+
+      setShowAddExpense(false);
+      resetForm();
+      navigate('/expenses');
+    } catch (err) {
+      setManualError(err instanceof Error ? err.message : 'Failed to save expense');
+    } finally {
+      setManualSaving(false);
+    }
+  };
+
+  const resetForm = () => {
+    setCategory('');
+    setDate('');
+    setTime('');
+    setAmount('');
+    setDescription('');
+    setRepeat(false);
+    setManualError(null);
   };
 
   return (
@@ -250,14 +343,21 @@ export default function NavBar() {
             {activeTab === "manual" && (
               <>
                 <div className="manual-card">
-                  <input className="expense-input" placeholder="Amount €" />
+                  <input 
+                    className="expense-input" 
+                    placeholder="Amount €" 
+                    type="number"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
 
                   <select
                     className="expense-input"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                   >
-                    <option value="">Category</option>
+                    <option value="">Category (optional)</option>
 
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -282,7 +382,12 @@ export default function NavBar() {
                     />
                   </div>
 
-                  <input className="expense-input" placeholder="Description" />
+                  <input 
+                    className="expense-input" 
+                    placeholder="Description" 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
 
                   <div className="repeat-row">
                     <div>
@@ -300,8 +405,30 @@ export default function NavBar() {
                   </div>
                 </div>
 
-                <button className="save-btn" type="button">
-                  Save
+                {manualError && (
+                  <div style={{ 
+                    margin: '12px 0', 
+                    padding: '10px', 
+                    background: '#ffe6e6', 
+                    color: '#cc0000', 
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}>
+                    {manualError}
+                  </div>
+                )}
+
+                <button 
+                  className="save-btn" 
+                  type="button"
+                  onClick={handleManualSave}
+                  disabled={manualSaving}
+                  style={{
+                    opacity: manualSaving ? 0.6 : 1,
+                    cursor: manualSaving ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {manualSaving ? 'Saving...' : 'Save'}
                 </button>
               </>
             )}
