@@ -40,6 +40,8 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 11.06.2026 | Ivan | lisa-pro-03-2026 | Expense Summary Endpoint | Updated OpenAPI spec with new `/expenses/summary` endpoint and added corresponding backend implementation (controller, service, impl). |
 | 11.06.2026 | Rathin | Lisa Pro | api-spec: expense.yaml error codes | generated missing error status codes for all methods 401, 401, 404, 422 |
 | 11.06.2026 | Rathin | Lisa Pro | Created seeding script | Updated data-seed script to add mock data to test new api |
+| 11.06.2026 | Rathin | Lisa Pro | Figma to Code | Converted figma design to code via a new project and strategically merged the changes to main project to redesign whole frontend according to the rendered Figma design. |
+|  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
 
