@@ -39,7 +39,6 @@ export class ProcessOcrInvoiceService {
       merchantId: merchant.id,
       totalAmount,
       expenseDate: new Date(),
-      note: `OCR Receipt - ${itemsCount} items detected`,
     });
 
     let itemsCreated = 0;

@@ -3,9 +3,12 @@ import { getToken } from '../auth';
 import type { Expense, ExpenseItem } from '../types/expense';
 import './ExpensesPage.css';
 import '../components/expenses/TransactionDetailSheet.css';
+import '../components/expenses/EditExpenseModal.css';
 import { TransactionDetailSheet } from '../components/expenses/TransactionDetailSheet';
 import type { AddItemFormData, EditingItemData } from '../components/expenses/AddItemModal';
 import { AddItemModal } from '../components/expenses/AddItemModal';
+import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
+import { Edit, Trash2 } from 'lucide-react';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -27,6 +30,10 @@ export function ExpensesPage() {
   // Add/Edit item modal state
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EditingItemData | null>(null);
+  
+  // Edit expense modal state
+  const [isEditExpenseModalOpen, setIsEditExpenseModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   
   // Categories state
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
@@ -149,15 +156,13 @@ export function ExpensesPage() {
   }, [activeFilter]);
 
   const fetchExpenseWithItems = async (expenseId: string) => {
-    console.log('[DEBUG] Clicking expense:', expenseId);
     const token = getToken();
     if (!token) {
-      console.error('[DEBUG] No token found');
+      console.error('No token found');
       return;
     }
 
     try {
-      console.log('[DEBUG] Fetching expense details...');
       const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${expenseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -165,7 +170,6 @@ export function ExpensesPage() {
       });
       if (res.ok) {
         const expense = await res.json();
-        console.log('[DEBUG] Got expense:', expense.merchant?.name);
         setSelectedExpense(expense);
         
         const itemsRes = await fetch(`${ALLOWED_HOST}:3000/expense-items?expenseId=${expenseId}`, {
@@ -314,6 +318,85 @@ export function ExpensesPage() {
     }
   };
 
+  const handleEditExpense = async (data: { merchantName: string; note: string; expenseDate: string }) => {
+    if (!editingExpense) return;
+    
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      let merchantId: string | undefined;
+      
+      // Check if merchant name matches an existing merchant
+      const trimmedName = data.merchantName.trim();
+      const lowercaseName = trimmedName.toLowerCase();
+      
+      // Fetch all merchants to find exact match
+      const merchantsRes = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      let existingMerchantId: string | null = null;
+      
+      if (merchantsRes.ok) {
+        const merchants = await merchantsRes.json();
+        const exactMatch = merchants.find(
+          (m: { id: string; name: string }) => m.name.toLowerCase() === lowercaseName
+        );
+        
+        if (exactMatch) {
+          existingMerchantId = exactMatch.id;
+        }
+      }
+      
+      // If no exact match, create new merchant
+      if (!existingMerchantId && trimmedName) {
+        const createMerchantRes = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: trimmedName }),
+        });
+
+        if (createMerchantRes.ok) {
+          const merchantData = await createMerchantRes.json();
+          merchantId = merchantData.id;
+        }
+      } else if (existingMerchantId) {
+        merchantId = existingMerchantId;
+      }
+
+      // Update expense
+      const updatePayload: any = {
+        totalAmount: editingExpense.totalAmount,
+        expenseDate: new Date(data.expenseDate).toISOString(),
+        isRecurring: editingExpense.isRecurring,
+        ...(merchantId && { merchantId }),
+        ...(data.note !== undefined && { note: data.note || null }),
+      };
+
+      const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${editingExpense.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatePayload),
+      });
+
+      if (res.ok) {
+        fetchExpenses(activeFilter, 0, false);
+      }
+    } catch (err) {
+      console.error('Failed to edit expense:', err);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
 
@@ -394,22 +477,34 @@ export function ExpensesPage() {
                 <span className="expense-amount">€{Number(expense.totalAmount).toFixed(2)}</span>
               </div>
 
-              <div className="expense-meta">
+              <div className="expense-actions-row">
                 {expense.isRecurring && (
                   <span className="expense-badge recurring">Recurring</span>
                 )}
                 {expense.note && (
                   <span className="expense-note">{expense.note}</span>
                 )}
-                <button
-                  className="expense-delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(expense.id);
-                  }}
-                >
-                  Delete
-                </button>
+                <div className="expense-actions" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="expense-action-btn edit"
+                    onClick={() => {
+                      setEditingExpense(expense);
+                      setIsEditExpenseModalOpen(true);
+                    }}
+                    title="Edit expense"
+                  >
+                    <Edit size={18} strokeWidth={2} />
+                  </button>
+                  <button
+                    className="expense-action-btn delete"
+                    onClick={() => {
+                      handleDelete(expense.id);
+                    }}
+                    title="Delete expense"
+                  >
+                    <Trash2 size={18} strokeWidth={2} />
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -462,6 +557,16 @@ export function ExpensesPage() {
         onEdit={handleEditItem}
         editingItem={editingItem}
         categories={categories}
+      />
+
+      <EditExpenseModal
+        isOpen={isEditExpenseModalOpen}
+        onClose={() => {
+          setIsEditExpenseModalOpen(false);
+          setEditingExpense(null);
+        }}
+        onSubmit={handleEditExpense}
+        expense={editingExpense}
       />
     </div>
   );

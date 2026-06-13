@@ -13,7 +13,7 @@ export function PieChart({ data, size = 120 }: PieChartProps) {
   const entries = Object.entries(data);
 
   if (entries.length === 1) {
-    const [category, value] = entries[0];
+    const [category] = entries[0];
     const color = getCategoryColor(category);
     const radius = size / 2 - 8;
     

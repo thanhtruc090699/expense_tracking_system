@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { Expense, ExpenseItem } from '../../types/expense';
 import { PieChart } from './PieChart';
 import { getCategoryColor } from '../../utils/categoryColors';

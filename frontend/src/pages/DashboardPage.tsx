@@ -308,7 +308,7 @@ export function DashboardPage() {
                   
                   acc.currentAngle = endAngle;
                   return acc;
-                }, { paths: [] as JSX.Element[], currentAngle: 0 }).paths}
+                }, { paths: [] as React.ReactNode[], currentAngle: 0 }).paths}
               </svg>
               {chartView === "pie" && chartData.length > 0 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
