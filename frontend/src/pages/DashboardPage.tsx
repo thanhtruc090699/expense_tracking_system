@@ -53,16 +53,6 @@ const calculateChange = (current: number, previous: number): number | null => {
   return ((current - previous) / previous) * 100;
 };
 
-const getIconForMerchant = (name: string) => {
-  const lower = name?.toLowerCase() || "";
-  if (lower.includes("amazon")) return "📦";
-  if (lower.includes("walmart") || lower.includes("target")) return "🛒";
-  if (lower.includes("shell") || lower.includes("gas")) return "⛽";
-  if (lower.includes("starbucks") || lower.includes("coffee")) return "☕";
-  if (lower.includes("restaurant")) return "🍽️";
-  return "💳";
-};
-
 export function DashboardPage() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState<ExpenseSummary | null>(null);
@@ -404,7 +394,7 @@ export function DashboardPage() {
                     }}
                   >
                     <span className="text-base leading-none">
-                      {getIconForMerchant(transaction.merchant?.name || "")}
+                      💲
                     </span>
                   </div>
 
