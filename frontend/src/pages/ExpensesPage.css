@@ -157,6 +157,29 @@ body.dark-mode .filter-tab.active:hover {
   color: #666;
 }
 
+.expenses-loading-more {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-size: 14px;
+}
+
+.expenses-end-message {
+  text-align: center;
+  padding: 20px;
+  color: #aaa;
+  font-size: 13px;
+  font-style: italic;
+}
+
+body.dark-mode .expenses-loading-more {
+  color: #aaa;
+}
+
+body.dark-mode .expenses-end-message {
+  color: #888;
+}
+
 body.dark-mode .expenses-page h1 {
   color: white;
 }

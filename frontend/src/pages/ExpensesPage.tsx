@@ -18,19 +18,25 @@ interface Expense {
 
 type FilterType = 'all' | 'month' | 'week';
 
+const EXPENSES_PER_PAGE = 20;
+
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchExpenses = async (filter: FilterType = 'all') => {
+  const fetchExpenses = async (filter: FilterType = 'all', newOffset: number = 0, append: boolean = false) => {
     const token = getToken();
     if (!token) {
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!append) {
+      setLoading(true);
+    }
 
     try {
       let url = `${ALLOWED_HOST}:3000/expenses`;
@@ -55,6 +61,9 @@ export function ExpensesPage() {
         
         params.set('startDate', monday.toISOString());
         params.set('endDate', sunday.toISOString());
+      } else if (filter === 'all') {
+        params.set('limit', EXPENSES_PER_PAGE.toString());
+        params.set('offset', newOffset.toString());
       }
 
       const queryString = params.toString();
@@ -68,7 +77,15 @@ export function ExpensesPage() {
         },
       });
       const data = await res.json();
-      setExpenses(data);
+      
+      if (append) {
+        setExpenses(prev => [...prev, ...data]);
+      } else {
+        setExpenses(data);
+      }
+      
+      // Check if there are more expenses to load
+      setHasMore(data.length === EXPENSES_PER_PAGE);
     } catch (err) {
       console.error('Failed to fetch expenses:', err);
     } finally {
@@ -76,8 +93,37 @@ export function ExpensesPage() {
     }
   };
 
+  const loadMoreExpenses = () => {
+    if (loading || !hasMore || activeFilter !== 'all') return;
+    
+    const newOffset = offset + EXPENSES_PER_PAGE;
+    setOffset(newOffset);
+    fetchExpenses('all', newOffset, true);
+  };
+
   useEffect(() => {
-    fetchExpenses(activeFilter);
+    const handleScroll = () => {
+      if (activeFilter !== 'all') return;
+      
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      // Trigger when user is within 100px of bottom
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMoreExpenses();
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, activeFilter, offset]);
+
+  useEffect(() => {
+    setExpenses([]);
+    setOffset(0);
+    setHasMore(true);
+    fetchExpenses(activeFilter, 0, false);
   }, [activeFilter]);
 
   const handleDelete = async (id: string) => {
@@ -94,7 +140,7 @@ export function ExpensesPage() {
         },
       });
 
-      fetchExpenses();
+      fetchExpenses(activeFilter, 0, false);
     } catch (err) {
       console.error('Failed to delete:', err);
     }
@@ -180,6 +226,14 @@ export function ExpensesPage() {
           )
         )}
         </div>
+      )}
+
+      {loading && expenses.length > 0 && activeFilter === 'all' && (
+        <div className="expenses-loading-more">Loading more...</div>
+      )}
+
+      {!hasMore && expenses.length > 0 && activeFilter === 'all' && (
+        <div className="expenses-end-message">No more expenses to load</div>
       )}
     </div>
   );
