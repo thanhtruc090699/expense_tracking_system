@@ -351,17 +351,17 @@ export function DashboardPage() {
                         </>
                       ) : (
                         <>
-                          <span className="text-[10px] font-medium text-[#364153] dark:text-gray-300 leading-none font-inter truncate">
-                            {item.name}
-                          </span>
                           <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[10px] font-medium text-[#364153] dark:text-gray-300 leading-none font-inter truncate">
+                            {item.name}
+                            </span>
                             <span className="text-[10px] font-bold text-black dark:text-white leading-none font-arimo">
                               €{item.value.toFixed(2)}
                             </span>
-                            <span className="text-[8px] text-[#6A7282] dark:text-gray-400 leading-none font-inter">
+                          </div>
+                          <span className="text-[8px] text-[#6A7282] dark:text-gray-400 leading-none font-inter">
                               ({item.percentage.toFixed(1)}%)
                             </span>
-                          </div>
                         </>
                       )}
                     </div>
@@ -382,7 +382,10 @@ export function DashboardPage() {
             <h2 className="text-sm font-bold text-[#101828] dark:text-white m-0 font-arimo">
               Recent Transactions
             </h2>
-            <button className="text-[12px] font-medium text-brand-green dark:text-green-400 font-inter border-none bg-transparent cursor-pointer">
+            <button 
+              className="text-[12px] font-medium text-brand-green dark:text-green-400 font-inter border-none bg-transparent cursor-pointer"
+              onClick={() => navigate('/expenses')}
+            >
               View All
             </button>
           </div>
