@@ -12,6 +12,34 @@ paths:
           required: false
           schema:
             type: string
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filter expenses from this date (inclusive)
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filter expenses until this date (inclusive)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+          description: Number of expenses to return per page
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Number of expenses to skip (for pagination)
       responses:
         '200':
           description: Array of expenses
