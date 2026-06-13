@@ -26,15 +26,42 @@ export class ExpensesService {
     }
   }
 
-  async findAll(userId?: string) {
+  async findAll(filters: {
+    userId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+    offset?: number;
+  }) {
     try {
+      const where: any = {};
+
+      if (filters.userId) {
+        where.userId = filters.userId;
+      }
+
+      if (filters.startDate || filters.endDate) {
+        where.expenseDate = {};
+        if (filters.startDate) {
+          where.expenseDate.gte = filters.startDate;
+        }
+        if (filters.endDate) {
+          where.expenseDate.lte = filters.endDate;
+        }
+      }
+
+      const limit = filters.limit ?? 20;
+      const offset = filters.offset ?? 0;
+
       return await prisma.expense.findMany({
-        where: userId ? { userId } : undefined,
+        where,
         include: {
           merchant: true,
           expenseItems: true,
         },
         orderBy: { expenseDate: 'desc' },
+        take: limit,
+        skip: offset,
       });
     } catch (error: any) {
       throw new BadRequestException('Failed to retrieve expenses');
@@ -105,11 +132,7 @@ export class ExpensesService {
   }
 
   async getSummary(userId: string, month: Date) {
-    const startOfMonth = new Date(
-      month.getFullYear(),
-      month.getMonth(),
-      1,
-    );
+    const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
     const endOfMonth = new Date(
       month.getFullYear(),
       month.getMonth() + 1,
@@ -154,11 +177,7 @@ export class ExpensesService {
   }
 
   async getSpendingSummary(userId: string, month: Date) {
-    const startOfMonth = new Date(
-      month.getFullYear(),
-      month.getMonth(),
-      1,
-    );
+    const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
     const endOfMonth = new Date(
       month.getFullYear(),
       month.getMonth() + 1,
@@ -224,7 +243,9 @@ export class ExpensesService {
           categoryName: 'Others',
           amount: Number(amount.toFixed(2)),
           percentage:
-            totalAmount > 0 ? Number(((amount / totalAmount) * 100).toFixed(2)) : 0,
+            totalAmount > 0
+              ? Number(((amount / totalAmount) * 100).toFixed(2))
+              : 0,
         });
       } else {
         const category = categoryMap.get(categoryId);
@@ -234,7 +255,9 @@ export class ExpensesService {
             categoryName: category.name,
             amount: Number(amount.toFixed(2)),
             percentage:
-              totalAmount > 0 ? Number(((amount / totalAmount) * 100).toFixed(2)) : 0,
+              totalAmount > 0
+                ? Number(((amount / totalAmount) * 100).toFixed(2))
+                : 0,
           });
         }
       }

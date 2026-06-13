@@ -52,10 +52,23 @@ export class ExpensesApiImpl extends ExpensesApi {
 
   async findAllExpenses(
     userId: string | undefined,
+    startDate: string | undefined,
+    endDate: string | undefined,
+    limit: number | undefined,
+    offset: number | undefined,
     request: Request,
   ): Promise<Expense[]> {
     const user = request['user'] as { id: string };
-    const expenses = await this.expensesService.findAll(userId || user.id);
+    const effectiveUserId = userId || user.id;
+
+    const expenses = await this.expensesService.findAll({
+      userId: effectiveUserId,
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+      limit,
+      offset,
+    });
+
     return expenses.map((e) => this.toExpense(e));
   }
 
@@ -105,10 +118,7 @@ export class ExpensesApiImpl extends ExpensesApi {
     }
   }
 
-  async fetchSummary(
-    month: string,
-    request: Request,
-  ): Promise<ExpenseSummary> {
+  async fetchSummary(month: string, request: Request): Promise<ExpenseSummary> {
     const monthDate = new Date(month);
     if (isNaN(monthDate.getTime())) {
       throw new BadRequestException('Invalid month format');

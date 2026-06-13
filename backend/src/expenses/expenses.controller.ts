@@ -11,11 +11,8 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
 import type {
-  Expense,
   CreateExpenseDto,
-  DeleteExpense200Response,
   UpdateExpenseDto,
 } from '../generated/models';
 import { ExpensesApi } from '../generated/api/ExpensesApi';
@@ -40,9 +37,20 @@ export class ExpensesController {
   @Get()
   findAllExpenses(
     @Query('userId') userId: string | undefined,
+    @Query('startDate') startDate: string | undefined,
+    @Query('endDate') endDate: string | undefined,
+    @Query('limit') limit: number | undefined,
+    @Query('offset') offset: number | undefined,
     @Req() request: Request,
   ): ReturnType<ExpensesApi['findAllExpenses']> {
-    return this.expensesApi.findAllExpenses(userId, request);
+    return this.expensesApi.findAllExpenses(
+      userId,
+      startDate,
+      endDate,
+      limit,
+      offset,
+      request,
+    );
   }
 
   @Get('summary')
