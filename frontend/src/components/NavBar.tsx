@@ -1,19 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Search } from "lucide-react";
 import { getToken } from "../auth";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
-const categories = [
-  "Food",
-  "Shopping",
-  "Transport",
-  "Health",
-  "Entertainment",
-  "Bills",
-  "Other",
-];
+interface Merchant {
+  id: string;
+  name: string;
+}
 
 export default function NavBar() {
   const [showAddExpense, setShowAddExpense] = useState(false);
@@ -22,16 +17,81 @@ export default function NavBar() {
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
 
-  const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [merchantName, setMerchantName] = useState("");
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
+  const [selectedMerchantId, setSelectedMerchantId] = useState<string | null>(null);
   const [manualSaving, setManualSaving] = useState(false);
   const [manualError, setManualError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (showAddExpense && activeTab === "manual") {
+      fetchMerchants();
+      prefillDateTime();
+    }
+  }, [showAddExpense, activeTab]);
+
+  useEffect(() => {
+    if (!merchantName.trim()) {
+      setFilteredMerchants([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const searchTimeout = setTimeout(() => {
+      const query = merchantName.toLowerCase().trim();
+      const matches = merchants.filter((m) =>
+        m.name.toLowerCase().includes(query)
+      );
+      
+      const exactMatch = matches.find(
+        (m) => m.name.toLowerCase() === query
+      );
+
+      setFilteredMerchants(matches.slice(0, 5));
+      setShowDropdown(true);
+
+      if (!exactMatch && query.length > 0) {
+        setShowDropdown(true);
+      }
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [merchantName, merchants]);
+
+  const fetchMerchants = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMerchants(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch merchants:", err);
+    }
+  };
+
+  const prefillDateTime = () => {
+    const now = new Date();
+    setDate(now.toISOString().split("T")[0]);
+    setTime(now.toTimeString().slice(0, 5));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -39,15 +99,17 @@ export default function NavBar() {
     setScanError(null);
   };
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const handleScanFile = async () => {
     if (!selectedFile) {
-      setScanError('Please select a file first');
+      setScanError("Please select a file first");
       return;
     }
 
     const token = getToken();
     if (!token) {
-      setScanError('Not authenticated. Please log in.');
+      setScanError("Not authenticated. Please log in.");
       return;
     }
 
@@ -56,20 +118,23 @@ export default function NavBar() {
 
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('lang', 'eng');
-      formData.append('psm', '6');
-      formData.append('oem', '1');
-      formData.append('min_conf', '30');
-      formData.append('pdf_mode', 'auto');
+      formData.append("file", selectedFile);
+      formData.append("lang", "eng");
+      formData.append("psm", "6");
+      formData.append("oem", "1");
+      formData.append("min_conf", "30");
+      formData.append("pdf_mode", "auto");
 
-      const response = await fetch(`${ALLOWED_HOST}:3000/ocr/process-invoice`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${ALLOWED_HOST}:3000/ocr/process-invoice`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json();
@@ -77,15 +142,17 @@ export default function NavBar() {
       }
 
       const result = await response.json();
-      
+
       if (result.ok && result.data) {
         setShowAddExpense(false);
-        navigate('/expenses');
+        navigate("/expenses");
       } else {
-        setScanError('Failed to process invoice');
+        setScanError("Failed to process invoice");
       }
     } catch (err) {
-      setScanError(err instanceof Error ? err.message : 'Failed to scan invoice');
+      setScanError(
+        err instanceof Error ? err.message : "Failed to scan invoice"
+      );
     } finally {
       setScanning(false);
     }
@@ -95,22 +162,39 @@ export default function NavBar() {
     fileInputRef.current?.click();
   };
 
+  const handleMerchantSelect = (merchant: Merchant) => {
+    setMerchantName(merchant.name);
+    setSelectedMerchantId(merchant.id);
+    setShowDropdown(false);
+  };
+
+  const handleMerchantInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMerchantName(e.target.value);
+    setSelectedMerchantId(null);
+  };
+
+  const handleMerchantInputFocus = () => {
+    if (merchantName.trim()) {
+      setShowDropdown(true);
+    }
+  };
+
   const handleManualSave = async () => {
-    const amountValue = parseFloat(amount.replace(',', '.'));
-    
+    const amountValue = parseFloat(amount.replace(",", "."));
+
     if (!amount || isNaN(amountValue) || amountValue <= 0) {
-      setManualError('Please enter a valid amount');
+      setManualError("Please enter a valid amount");
       return;
     }
 
     if (!date) {
-      setManualError('Please select a date');
+      setManualError("Please select a date");
       return;
     }
 
     const token = getToken();
     if (!token) {
-      setManualError('Not authenticated. Please log in.');
+      setManualError("Not authenticated. Please log in.");
       return;
     }
 
@@ -119,27 +203,30 @@ export default function NavBar() {
 
     try {
       const expenseDateTime = time ? `${date}T${time}` : date;
-      
-      const merchantName = category || description || 'Unknown Merchant';
-      
-      let merchantId: string | undefined;
-      
-      try {
-        const merchantRes = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name: merchantName }),
-        });
 
-        if (merchantRes.ok) {
-          const merchantData = await merchantRes.json();
-          merchantId = merchantData.id;
+      let merchantId: string | undefined;
+
+      if (selectedMerchantId) {
+        merchantId = selectedMerchantId;
+      } else if (merchantName.trim()) {
+        try {
+          const merchantRes = await fetch(`${ALLOWED_HOST}:3000/merchants`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ name: merchantName.trim() }),
+          });
+
+          if (merchantRes.ok) {
+            const merchantData = await merchantRes.json();
+            merchantId = merchantData.id;
+            fetchMerchants();
+          }
+        } catch (err) {
+          console.error("Failed to create merchant, continuing without:", err);
         }
-      } catch (err) {
-        console.error('Failed to create merchant, continuing without:', err);
       }
 
       const expensePayload = {
@@ -151,9 +238,9 @@ export default function NavBar() {
       };
 
       const expenseRes = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(expensePayload),
@@ -161,27 +248,37 @@ export default function NavBar() {
 
       if (!expenseRes.ok) {
         const errorData = await expenseRes.json();
-        throw new Error(errorData.message || 'Failed to create expense');
+        throw new Error(errorData.message || "Failed to create expense");
       }
 
       setShowAddExpense(false);
       resetForm();
-      navigate('/expenses');
+      navigate("/expenses");
     } catch (err) {
-      setManualError(err instanceof Error ? err.message : 'Failed to save expense');
+      setManualError(
+        err instanceof Error ? err.message : "Failed to save expense"
+      );
     } finally {
       setManualSaving(false);
     }
   };
 
   const resetForm = () => {
-    setCategory('');
-    setDate('');
-    setTime('');
-    setAmount('');
-    setDescription('');
+    setMerchantName("");
+    setDate("");
+    setTime("");
+    setAmount("");
+    setDescription("");
     setRepeat(false);
+    setSelectedMerchantId(null);
+    setFilteredMerchants([]);
+    setShowDropdown(false);
     setManualError(null);
+  };
+
+  const hasExactMerchantMatch = () => {
+    const query = merchantName.toLowerCase().trim();
+    return merchants.some((m) => m.name.toLowerCase() === query);
   };
 
   return (
@@ -191,7 +288,7 @@ export default function NavBar() {
         type="file"
         accept="image/*,.pdf"
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-[79px] z-[999]">
         <svg
@@ -204,7 +301,7 @@ export default function NavBar() {
           <path
             fillRule="evenodd"
             clipRule="evenodd"
-            d="M188 55C207.882 55 224 38.8823 224 19C224 17.0988 223.853 15.2321 223.569 13.4105C222.602 7.20823 226.711 0 232.988 0H367C371.418 0 375 3.58172 375 8V79H0V8C0 3.58172 3.58172 0 8 0H143.012C149.289 0 153.398 7.20824 152.431 13.4105C152.147 15.2321 152 17.0988 152 19C152 38.8823 168.118 55 188 55Z"
+            d="M188 55C207.882 55 224 38.8823 224 19C224 17.0988 223.853 15.2321 223.569 13.4105C222.602 7.20823 226.711 0 222.988 0H367C371.418 0 375 3.58172 375 8V79H0V8C0 3.58172 3.58172 0 8 0H143.012C149.289 0 153.398 7.20824 152.431 13.4105C152.147 15.2321 152 17.0988 152 19C152 38.8823 168.118 55 188 55Z"
             fill="#FCFCFC"
             className="dark:fill-[#1e1e1e]"
           />
@@ -329,7 +426,7 @@ export default function NavBar() {
                   </div>
                   <h3 className="font-semibold">Drag and drop files here</h3>
                   <p className="text-sm">or</p>
-                  <button 
+                  <button
                     className="text-[#667085] dark:text-gray-300 bg-white dark:bg-[#1e1e1e] border border-[#ddd] dark:border-gray-600 rounded px-3.5 py-2 text-sm"
                     onClick={handleBrowseClick}
                     disabled={scanning}
@@ -341,7 +438,9 @@ export default function NavBar() {
                       Selected: {selectedFile.name}
                     </small>
                   )}
-                  <small className="text-xs text-gray-500">Upload up to 5 files (max 10MB each)</small>
+                  <small className="text-xs text-gray-500">
+                    Upload up to 5 files (max 10MB each)
+                  </small>
                 </div>
 
                 {scanError && (
@@ -350,12 +449,12 @@ export default function NavBar() {
                   </div>
                 )}
 
-                <button 
+                <button
                   className="block mx-auto mt-7 w-[180px] h-[60px] bg-brand-green text-white rounded-xl text-xl font-bold disabled:opacity-60 disabled:cursor-not-allowed transition-opacity"
                   onClick={handleScanFile}
                   disabled={scanning || !selectedFile}
                 >
-                  {scanning ? 'Processing...' : 'Scan File'}
+                  {scanning ? "Processing..." : "Scan File"}
                 </button>
               </>
             )}
@@ -363,7 +462,7 @@ export default function NavBar() {
             {activeTab === "manual" && (
               <>
                 <div className="bg-white dark:bg-[#2a2a2a] rounded-3xl p-3.5 shadow-lg">
-                  <input 
+                  <input
                     className="w-full h-[54px] border border-[#edf0f7] dark:border-gray-600 rounded-xl px-5 text-lg mb-2 bg-white dark:bg-[#1e1e1e] text-[#20242b] dark:text-white placeholder:text-[#9498a8]"
                     placeholder="Amount €"
                     type="number"
@@ -372,18 +471,51 @@ export default function NavBar() {
                     onChange={(e) => setAmount(e.target.value)}
                   />
 
-                  <select
-                    className="w-full h-[54px] border border-[#edf0f7] dark:border-gray-600 rounded-xl px-5 text-lg mb-2 bg-white dark:bg-[#1e1e1e] text-[#20242b] dark:text-white"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="">Category (optional)</option>
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative mb-2">
+                    <div className="relative">
+                      <Search
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9498a8]"
+                        size={20}
+                      />
+                      <input
+                        className="w-full h-[54px] border border-[#edf0f7] dark:border-gray-600 rounded-xl pl-12 pr-5 text-lg bg-white dark:bg-[#1e1e1e] text-[#20242b] dark:text-white placeholder:text-[#9498a8]"
+                        placeholder="Merchant name"
+                        value={merchantName}
+                        onChange={handleMerchantInputChange}
+                        onFocus={handleMerchantInputFocus}
+                        onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                      />
+                    </div>
+
+                    {showDropdown && filteredMerchants.length > 0 && (
+                      <div className="absolute bottom-full left-0 right-0 mb-1 bg-white dark:bg-[#2a2a2a] border border-[#edf0f7] dark:border-gray-600 rounded-xl shadow-lg overflow-hidden z-50">
+                        {filteredMerchants.map((merchant) => (
+                          <button
+                            key={merchant.id}
+                            className="w-full px-5 py-3 text-left hover:bg-[#f1f0f8] dark:hover:bg-[#3a3a3a] flex items-center justify-between"
+                            onClick={() => handleMerchantSelect(merchant)}
+                          >
+                            <span className="text-[#20242b] dark:text-white">
+                              {merchant.name}
+                            </span>
+                            {selectedMerchantId === merchant.id && (
+                              <span className="text-brand-green">✓</span>
+                            )}
+                          </button>
+                        ))}
+                        {!hasExactMerchantMatch() && (
+                          <button
+                            className="w-full px-5 py-3 text-left hover:bg-[#f1f0f8] dark:hover:bg-[#3a3a3a] border-t border-[#edf0f7] dark:border-gray-600"
+                            onClick={() => setSelectedMerchantId(null)}
+                          >
+                            <span className="text-[#20242b] dark:text-white">
+                              Create new: <strong>{merchantName}</strong>
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex gap-3.5 text-[#9498a8]">
                     <input
@@ -400,7 +532,7 @@ export default function NavBar() {
                     />
                   </div>
 
-                  <input 
+                  <input
                     className="w-full h-[54px] border border-[#edf0f7] dark:border-gray-600 rounded-xl px-5 text-lg mt-2 bg-white dark:bg-[#1e1e1e] text-[#20242b] dark:text-white placeholder:text-[#9498a8]"
                     placeholder="Description"
                     value={description}
@@ -410,7 +542,9 @@ export default function NavBar() {
                   <div className="flex justify-between items-center mt-2">
                     <div>
                       <strong className="text-lg">Repeat</strong>
-                      <p className="text-[#9498a8] text-sm m-0">Repeat transaction</p>
+                      <p className="text-[#9498a8] text-sm m-0">
+                        Repeat transaction
+                      </p>
                     </div>
                     <button
                       className={`w-14 h-[30px] rounded-full p-[3px] transition-colors ${
@@ -418,9 +552,11 @@ export default function NavBar() {
                       }`}
                       onClick={() => setRepeat(!repeat)}
                     >
-                      <div className={`w-6 h-6 rounded-full bg-white transition-transform ${
-                        repeat ? "translate-x-[26px]" : ""
-                      }`} />
+                      <div
+                        className={`w-6 h-6 rounded-full bg-white transition-transform ${
+                          repeat ? "translate-x-[26px]" : ""
+                        }`}
+                      />
                     </button>
                   </div>
                 </div>
@@ -431,12 +567,12 @@ export default function NavBar() {
                   </div>
                 )}
 
-                <button 
+                <button
                   className="block mx-auto mt-7 w-[180px] h-[60px] bg-brand-green text-white rounded-xl text-xl font-bold disabled:opacity-60 disabled:cursor-not-allowed transition-opacity"
                   onClick={handleManualSave}
                   disabled={manualSaving}
                 >
-                  {manualSaving ? 'Saving...' : 'Save'}
+                  {manualSaving ? "Saving..." : "Save"}
                 </button>
               </>
             )}
