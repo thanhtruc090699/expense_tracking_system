@@ -54,7 +54,7 @@ export class ExpensesService {
       const offset = filters.offset ?? 0;
 
       return await prisma.expense.findMany({
-        where,
+        where: Object.keys(where).length > 0 ? where : undefined,
         include: {
           merchant: true,
           expenseItems: true,

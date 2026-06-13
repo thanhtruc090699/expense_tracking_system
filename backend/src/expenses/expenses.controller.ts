@@ -39,16 +39,16 @@ export class ExpensesController {
     @Query('userId') userId: string | undefined,
     @Query('startDate') startDate: string | undefined,
     @Query('endDate') endDate: string | undefined,
-    @Query('limit') limit: number | undefined,
-    @Query('offset') offset: number | undefined,
+    @Query('limit', ) limit: string | undefined,
+    @Query('offset') offset: string | undefined,
     @Req() request: Request,
   ): ReturnType<ExpensesApi['findAllExpenses']> {
     return this.expensesApi.findAllExpenses(
       userId,
       startDate,
       endDate,
-      limit,
-      offset,
+      limit ? parseInt(limit, 10) : undefined,
+      offset ? parseInt(offset, 10) : undefined,
       request,
     );
   }
