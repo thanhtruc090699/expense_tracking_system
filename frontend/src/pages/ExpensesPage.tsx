@@ -16,19 +16,53 @@ interface Expense {
   merchant?: { name: string } | null;
 }
 
+type FilterType = 'all' | 'month' | 'week';
+
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (filter: FilterType = 'all') => {
     const token = getToken();
     if (!token) {
       setLoading(false);
       return;
     }
 
+    setLoading(true);
+
     try {
-      const res = await fetch(`${ALLOWED_HOST}:3000/expenses`, {
+      let url = `${ALLOWED_HOST}:3000/expenses`;
+      const params = new URLSearchParams();
+
+      if (filter === 'month') {
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        params.set('startDate', startDate.toISOString());
+        params.set('endDate', endDate.toISOString());
+      } else if (filter === 'week') {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+        monday.setHours(0, 0, 0, 0);
+        
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        sunday.setHours(23, 59, 59, 999);
+        
+        params.set('startDate', monday.toISOString());
+        params.set('endDate', sunday.toISOString());
+      }
+
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+
+      const res = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,8 +77,8 @@ export function ExpensesPage() {
   };
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
+    fetchExpenses(activeFilter);
+  }, [activeFilter]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
@@ -77,8 +111,6 @@ export function ExpensesPage() {
     );
   }
 
-  if (loading) return <div className="expenses-loading">Loading...</div>;
-
   return (
     <div className="expenses-page">
       <div className="expenses-header">
@@ -86,7 +118,31 @@ export function ExpensesPage() {
         <p>Track your expenses</p>
       </div>
 
-      <div className="expense-list">
+      <div className="filter-tabs">
+        <button
+          className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('all')}
+        >
+          All
+        </button>
+        <button
+          className={`filter-tab ${activeFilter === 'month' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('month')}
+        >
+          Month
+        </button>
+        <button
+          className={`filter-tab ${activeFilter === 'week' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('week')}
+        >
+          Week
+        </button>
+      </div>
+
+      {loading && <div className="expenses-loading">Loading...</div>}
+
+      {!loading && (
+        <div className="expense-list">
         {expenses.length > 0 ? (
           expenses.map((expense) => (
             <div className="expense-card" key={expense.id}>
@@ -117,11 +173,14 @@ export function ExpensesPage() {
             </div>
           ))
         ) : (
-          <div className="expenses-empty">
-            <p>No expenses found</p>
-          </div>
+          !loading && (
+            <div className="expenses-empty">
+              <p>No expenses found</p>
+            </div>
+          )
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
