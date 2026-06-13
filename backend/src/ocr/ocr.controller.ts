@@ -10,7 +10,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { ScanResponse, ProcessInvoiceRequestDto, ProcessInvoiceResponse, ProcessedInvoice } from '../generated/models';
+import type {
+  ScanResponse,
+  ProcessInvoiceRequestDto,
+  ProcessInvoiceResponse,
+  ProcessedInvoice,
+} from '../generated/models';
 import { OCRApi } from '../generated/api/OCRApi';
 import { OCR_API_PROVIDER } from './ocr.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';

@@ -1,11 +1,20 @@
-import { Injectable, HttpException, HttpStatus, 
-  ServiceUnavailableException, BadGatewayException, 
-  BadRequestException, GatewayTimeoutException,
-  RequestTimeoutException, UnauthorizedException, ForbiddenException,
-  UnprocessableEntityException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  ServiceUnavailableException,
+  BadGatewayException,
+  BadRequestException,
+  GatewayTimeoutException,
+  RequestTimeoutException,
+  UnauthorizedException,
+  ForbiddenException,
+  UnprocessableEntityException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
-  export function handleLisaError(error: any): never {
-    const status =
+export function handleLisaError(error: any): never {
+  const status =
     typeof error?.getStatus === 'function'
       ? error.getStatus()
       : error?.response?.status;

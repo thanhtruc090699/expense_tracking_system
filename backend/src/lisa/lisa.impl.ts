@@ -34,7 +34,6 @@ export class LisaApiImpl extends LisaApi {
     processRequest: ProcessRequest,
     request: Request,
   ): Promise<ProcessResponse> {
-    return await this.lisaService
-      .lisaProcess( processRequest, request)
+    return await this.lisaService.lisaProcess(processRequest, request);
   }
 }

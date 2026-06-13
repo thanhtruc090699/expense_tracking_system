@@ -47,10 +47,7 @@ export class ExpenseItemsController {
     @Query('expenseId') expenseId: string | undefined,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['findAllExpenseItems']> {
-    return this.expenseItemsApi.findAllExpenseItems(
-      expenseId,
-      request,
-    );
+    return this.expenseItemsApi.findAllExpenseItems(expenseId, request);
   }
 
   @Get(':id')
@@ -58,10 +55,7 @@ export class ExpenseItemsController {
     @Param('id') id: string,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['findOneExpenseItem']> {
-    return this.expenseItemsApi.findOneExpenseItem(
-      id,
-      request,
-    );
+    return this.expenseItemsApi.findOneExpenseItem(id, request);
   }
 
   @Put(':id')
@@ -82,9 +76,6 @@ export class ExpenseItemsController {
     @Param('id') id: string,
     @Req() request: Request,
   ): ReturnType<ExpenseItemsApi['deleteExpenseItem']> {
-    return this.expenseItemsApi.deleteExpenseItem(
-      id,
-      request,
-    );
+    return this.expenseItemsApi.deleteExpenseItem(id, request);
   }
 }

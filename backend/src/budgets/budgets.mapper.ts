@@ -7,7 +7,7 @@ import type {
 } from '../generated/models';
 export const BudgetMapper = {
   toBudget(createdBudget: any) {
-     return{
+    return {
       id: createdBudget.id,
       userId: createdBudget.userId,
       categoryId: createdBudget.categoryId ?? null,

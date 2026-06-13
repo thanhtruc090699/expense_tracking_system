@@ -65,6 +65,11 @@ async function main() {
       update: {},
       create: { name: 'Utilities', icon: '💡' },
     }),
+    prisma.category.upsert({
+      where: { name: 'Others' },
+      update: {},
+      create: { name: 'Others', icon: '📦' },
+    }),
   ]);
 
   const categoryMap: Record<string, string> = {};

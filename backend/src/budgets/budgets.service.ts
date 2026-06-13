@@ -1,24 +1,25 @@
-import { Injectable, 
+import {
+  Injectable,
   NotFoundException,
   UnauthorizedException,
   ForbiddenException,
   BadRequestException,
   ConflictException,
- } from '@nestjs/common';
+} from '@nestjs/common';
 import { prisma } from '../prisma';
 import {
-Budget, CreateBudgetDto,
-DeleteBudget200Response,
-PartiallyUpdateBudgetDto,
-UpdateBudgetDto,
+  Budget,
+  CreateBudgetDto,
+  DeleteBudget200Response,
+  PartiallyUpdateBudgetDto,
+  UpdateBudgetDto,
 } from '../generated/models';
 
-import { BudgetMapper} from './budgets.mapper';
-
+import { BudgetMapper } from './budgets.mapper';
 
 @Injectable()
 export class BudgetsService {
-  async createBudget(dto: CreateBudgetDto, request: Request):Promise<Budget> {
+  async createBudget(dto: CreateBudgetDto, request: Request): Promise<Budget> {
     const user = request['user'] as { id: string } | undefined;
 
     console.log('REQUEST USER =', user);
@@ -29,11 +30,11 @@ export class BudgetsService {
       throw new UnauthorizedException('Authentification is required');
     }
 
-    if(!dto.userId){
+    if (!dto.userId) {
       throw new BadRequestException('userId is required');
     }
 
-    if (dto.userId != user.id){
+    if (dto.userId != user.id) {
       throw new ForbiddenException('You can only create budgets for yourself');
     }
     if (dto.amount <= 0) {
@@ -49,29 +50,31 @@ export class BudgetsService {
 
     const endDate = normalizedEndDate ? new Date(normalizedEndDate) : null;
 
-
-    if(dto.endDate && Number.isNaN(endDate!.getTime())){
+    if (dto.endDate && Number.isNaN(endDate!.getTime())) {
       throw new BadRequestException('End date must be a valid date string');
     }
 
-    if(endDate && endDate < new Date()){
+    if (endDate && endDate < new Date()) {
       throw new BadRequestException('End date must be in the future');
     }
 
-
-    if(dto.notifyThreshold !== undefined && dto.notifyThreshold < 0){
-      throw new BadRequestException('Notify threshold must be greater than or equal to 0');
+    if (dto.notifyThreshold !== undefined && dto.notifyThreshold < 0) {
+      throw new BadRequestException(
+        'Notify threshold must be greater than or equal to 0',
+      );
     }
 
-    if(dto.notifyThreshold !== undefined && dto.notifyThreshold > dto.amount){
-      throw new BadRequestException('Notify threshold cannot be greater than amount');
+    if (dto.notifyThreshold !== undefined && dto.notifyThreshold > dto.amount) {
+      throw new BadRequestException(
+        'Notify threshold cannot be greater than amount',
+      );
     }
 
-    if(dto.categoryId){
+    if (dto.categoryId) {
       const category = await prisma.category.findUnique({
-        where: { id: dto.categoryId},
-      })
-      if(!category){
+        where: { id: dto.categoryId },
+      });
+      if (!category) {
         throw new BadRequestException('Category does not exist');
       }
     }
@@ -83,63 +86,56 @@ export class BudgetsService {
       },
     });
 
-    if (existingBudget){
+    if (existingBudget) {
       throw new ConflictException('Budget already exists for this category');
     }
 
     const createdBudget = await prisma.budget.create({
-      data:{
+      data: {
         userId: dto.userId,
         categoryId: dto.categoryId || null,
         amount: dto.amount,
         notifyThreshold: dto.notifyThreshold,
         endDate: endDate,
       },
-      include: { category:true,
-      },
+      include: { category: true },
     });
     return BudgetMapper.toBudget(createdBudget);
-
   }
 
-
   async findAllBudgets(userId?: string, request?: Request): Promise<Budget[]> {
-
     const user = request?.['user'] as { id: string } | undefined;
 
-    if(!user?.id){
+    if (!user?.id) {
       throw new UnauthorizedException('Authentication is required');
     }
-    if (userId && userId !== user.id){
+    if (userId && userId !== user.id) {
       throw new ForbiddenException('You can only access your own budgets');
     }
 
     const budgets = await prisma.budget.findMany({
-      where:{
+      where: {
         userId: user.id,
       },
-      include:{
+      include: {
         category: true,
       },
-      orderBy:{
+      orderBy: {
         createdAt: 'desc',
       },
     });
     return budgets.map((budget) => BudgetMapper.toBudget(budget));
-    
   }
 
   async findOneBudget(id: string, request?: Request): Promise<Budget> {
     const user = request?.['user'] as { id: string } | undefined;
 
-    if(!user?.id){
+    if (!user?.id) {
       throw new UnauthorizedException('Authentication is required');
     }
-   
+
     const budget = await prisma.budget.findUnique({
-      where: { id: id,
-        userId: user.id,
-       },
+      where: { id: id, userId: user.id },
       include: { category: true },
     });
     if (!budget) {
@@ -149,39 +145,44 @@ export class BudgetsService {
   }
 
   async updateBudget(
-    id: string, updateBudgetDto: UpdateBudgetDto, request?: Request
+    id: string,
+    updateBudgetDto: UpdateBudgetDto,
+    request?: Request,
   ): Promise<Budget> {
     const user = request?.['user'] as { id: string } | undefined;
 
-    if(!user?.id){
+    if (!user?.id) {
       throw new UnauthorizedException('Authentication is required');
     }
 
-    const requiredFields = ['amount', 'notifyThreshold', 'endDate', 'categoryId'];
+    const requiredFields = [
+      'amount',
+      'notifyThreshold',
+      'endDate',
+      'categoryId',
+    ];
 
     const missingFields = requiredFields.filter(
-      (field) => 
+      (field) =>
         updateBudgetDto[field] === undefined || updateBudgetDto[field] === null,
     );
-    
+
     if (missingFields.length > 0) {
-      throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`);
+      throw new BadRequestException(
+        `Missing required fields: ${missingFields.join(', ')}`,
+      );
     }
 
-
     const existingBudget = await prisma.budget.findUnique({
-      where: { id: id,
-        userId: user.id,
-       },
-      include: { category: true 
-       },
+      where: { id: id, userId: user.id },
+      include: { category: true },
     });
 
     if (!existingBudget) {
       throw new NotFoundException('Budget not found');
     }
 
-    if(user.id !== existingBudget.userId){
+    if (user.id !== existingBudget.userId) {
       throw new ForbiddenException('You can only update your own budgets');
     }
 
@@ -197,12 +198,17 @@ export class BudgetsService {
       }
     }
 
-    if(endDate && endDate < new Date()){
+    if (endDate && endDate < new Date()) {
       throw new BadRequestException('End date must be in the future');
     }
 
-    if(updateBudgetDto.notifyThreshold !== undefined && updateBudgetDto.notifyThreshold < 0){
-      throw new BadRequestException('Notify threshold must be greater than or equal to 0');
+    if (
+      updateBudgetDto.notifyThreshold !== undefined &&
+      updateBudgetDto.notifyThreshold < 0
+    ) {
+      throw new BadRequestException(
+        'Notify threshold must be greater than or equal to 0',
+      );
     }
 
     if (updateBudgetDto.categoryId) {
@@ -215,9 +221,7 @@ export class BudgetsService {
     }
 
     const updatedBudget = await prisma.budget.update({
-      where: { id: id,
-        userId: user.id,
-       },
+      where: { id: id, userId: user.id },
       data: {
         amount: updateBudgetDto.amount,
         notifyThreshold: updateBudgetDto.notifyThreshold,
@@ -230,17 +234,19 @@ export class BudgetsService {
     return BudgetMapper.toBudget(updatedBudget);
   }
 
-  async partiallyUpdateBudget(id: string, partiallyUpdateBudgetDto: PartiallyUpdateBudgetDto, request?: Request): Promise<Budget> {
+  async partiallyUpdateBudget(
+    id: string,
+    partiallyUpdateBudgetDto: PartiallyUpdateBudgetDto,
+    request?: Request,
+  ): Promise<Budget> {
     const user = request?.['user'] as { id: string } | undefined;
 
-    if(!user?.id){
+    if (!user?.id) {
       throw new UnauthorizedException('Authentication is required');
     }
 
     const existingBudget = await prisma.budget.findFirst({
-      where: { id: id,
-        userId: user.id,
-       },
+      where: { id: id, userId: user.id },
       include: { category: true },
     });
 
@@ -248,11 +254,14 @@ export class BudgetsService {
       throw new NotFoundException('Budget not found');
     }
 
-    if(user.id !== existingBudget.userId){
+    if (user.id !== existingBudget.userId) {
       throw new ForbiddenException('You can only update your own budgets');
     }
 
-    if (partiallyUpdateBudgetDto.amount !== undefined && partiallyUpdateBudgetDto.amount <= 0) {
+    if (
+      partiallyUpdateBudgetDto.amount !== undefined &&
+      partiallyUpdateBudgetDto.amount <= 0
+    ) {
       throw new BadRequestException('Amount must be greater than 0');
     }
 
@@ -264,10 +273,10 @@ export class BudgetsService {
       }
     }
 
-    if(endDate && endDate < new Date()){
+    if (endDate && endDate < new Date()) {
       throw new BadRequestException('End date must be in the future');
     }
-    
+
     if (partiallyUpdateBudgetDto.categoryId) {
       const category = await prisma.category.findUnique({
         where: { id: partiallyUpdateBudgetDto.categoryId },
@@ -278,9 +287,7 @@ export class BudgetsService {
     }
 
     const updatedBudget = await prisma.budget.update({
-      where: { id: id,
-        userId: user.id,
-       },
+      where: { id: id, userId: user.id },
       data: {
         ...(partiallyUpdateBudgetDto.amount !== undefined && {
           amount: partiallyUpdateBudgetDto.amount,
@@ -304,17 +311,15 @@ export class BudgetsService {
   async deleteBudget(id: string, request?: Request) {
     const user = request?.['user'] as { id: string } | undefined;
 
-    if(!user?.id){
+    if (!user?.id) {
       throw new UnauthorizedException('Authentication is required');
     }
 
     const existingBudget = await prisma.budget.findUnique({
-      where: { id: id,
-        userId: user.id,
-      },
+      where: { id: id, userId: user.id },
     });
 
-    if(user.id !== existingBudget?.userId){
+    if (user.id !== existingBudget?.userId) {
       throw new ForbiddenException('You can only delete your own budgets');
     }
 

@@ -36,30 +36,49 @@ export class LisaService {
     try {
       const now = new Date();
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      
-      const expenseSummary = await this.expensesService.getSummary(userId, currentMonth);
-      const recentExpenses = await this.expensesService.findAll(userId);
-      
+
+      const expenseSummary = await this.expensesService.getSummary(
+        userId,
+        currentMonth,
+      );
+      const recentExpenses = await this.expensesService.findAll({
+        userId,
+        limit: 10,
+      });
+
       let budgets: any[] = [];
       try {
         budgets = await this.budgetsService.findAllBudgets(userId);
       } catch (budgetError) {
-        console.error('[LisaService.getUserContext] budgets error:', budgetError);
+        console.error(
+          '[LisaService.getUserContext] budgets error:',
+          budgetError,
+        );
       }
 
       const contextParts: string[] = [];
 
       // Monthly summary
-      contextParts.push(`MONTHLY SUMMARY (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}:`);
-      contextParts.push(`- Total spent: €${expenseSummary.totalAmount.toFixed(2)}`);
-      contextParts.push(`- Number of transactions: ${expenseSummary.transactionCount}`);
-      contextParts.push(`- Average transaction: €${expenseSummary.averageTransactionAmount.toFixed(2)}`);
-      
+      contextParts.push(
+        `MONTHLY SUMMARY (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}:`,
+      );
+      contextParts.push(
+        `- Total spent: €${expenseSummary.totalAmount.toFixed(2)}`,
+      );
+      contextParts.push(
+        `- Number of transactions: ${expenseSummary.transactionCount}`,
+      );
+      contextParts.push(
+        `- Average transaction: €${expenseSummary.averageTransactionAmount.toFixed(2)}`,
+      );
+
       if (expenseSummary.topTransactions.length > 0) {
         contextParts.push('- Top transactions:');
         expenseSummary.topTransactions.slice(0, 5).forEach((t) => {
           const merchantName = t.merchant?.name || 'Unknown';
-          contextParts.push(`  • €${t.totalAmount.toFixed(2)} at ${merchantName} on ${new Date(t.expenseDate).toLocaleDateString()}`);
+          contextParts.push(
+            `  • €${t.totalAmount.toFixed(2)} at ${merchantName} on ${new Date(t.expenseDate).toLocaleDateString()}`,
+          );
         });
       }
       contextParts.push('');
@@ -70,7 +89,9 @@ export class LisaService {
         recentExpenses.slice(0, 10).forEach((e) => {
           const merchantName = e.merchant?.name || 'Unknown';
           const date = new Date(e.expenseDate).toLocaleDateString();
-          contextParts.push(`- €${e.totalAmount.toFixed(2)} at ${merchantName} on ${date}${e.note ? ` (${e.note})` : ''}`);
+          contextParts.push(
+            `- €${e.totalAmount.toFixed(2)} at ${merchantName} on ${date}${e.note ? ` (${e.note})` : ''}`,
+          );
         });
         contextParts.push('');
       }
@@ -81,8 +102,13 @@ export class LisaService {
         budgets.forEach((b) => {
           const categoryName = b.category?.name || 'General';
           const remaining = b.amount - expenseSummary.totalAmount;
-          const percentUsed = ((expenseSummary.totalAmount / b.amount) * 100).toFixed(0);
-          contextParts.push(`- ${categoryName}: €${b.amount.toFixed(2)} budget, €${remaining.toFixed(2)} remaining (${percentUsed}% used)`);
+          const percentUsed = (
+            (expenseSummary.totalAmount / b.amount) *
+            100
+          ).toFixed(0);
+          contextParts.push(
+            `- ${categoryName}: €${b.amount.toFixed(2)} budget, €${remaining.toFixed(2)} remaining (${percentUsed}% used)`,
+          );
         });
         contextParts.push('');
       }
@@ -117,12 +143,12 @@ export class LisaService {
 
     const user = request?.['user'] as { id: string } | undefined;
     const model = chatRequest.model || 'lisa-pro-03-2026';
-    
+
     let messages: Array<{ role: string; content: string }> = [];
-    
+
     if (user?.id) {
       const userContext = await this.getUserContext(user.id);
-      
+
       const systemPrompt = `You are Lisa, a helpful financial assistant for Bill Buddy, an expense tracking application.
 
 You have access to the user's financial data including:
@@ -145,7 +171,7 @@ When answering:
 - If you don't have enough information, ask clarifying questions`;
 
       messages.push({ role: 'system', content: systemPrompt });
-      
+
       messages = messages.concat(
         chatRequest.messages.map((message) => ({
           role: message.role,
@@ -153,7 +179,7 @@ When answering:
             typeof message.content === 'string'
               ? message.content
               : JSON.stringify(message.content, null, 2),
-        }))
+        })),
       );
     } else {
       const defaultSystemPrompt = `You are Lisa, a helpful financial assistant for Bill Buddy, an expense tracking application.
@@ -165,7 +191,7 @@ You help users with:
 - Answering questions about the app`;
 
       messages.push({ role: 'system', content: defaultSystemPrompt });
-      
+
       messages = messages.concat(
         chatRequest.messages.map((message) => ({
           role: message.role,
@@ -173,7 +199,7 @@ You help users with:
             typeof message.content === 'string'
               ? message.content
               : JSON.stringify(message.content, null, 2),
-        }))
+        })),
       );
     }
 
@@ -375,7 +401,7 @@ Return exactly:
       }
 
       return {
-        ...parseLisaContent(content) as ProcessResponse,
+        ...parseLisaContent(content),
       };
     } catch (error: any) {
       console.error('[LisaService.lisaProcess] error:', {

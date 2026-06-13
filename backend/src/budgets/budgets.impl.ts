@@ -8,7 +8,7 @@ import type {
 } from '../generated/models';
 import { BudgetsApi } from '../generated/api/BudgetsApi';
 import { BudgetsService } from './budgets.service';
-import { BudgetMapper} from './budgets.mapper';
+import { BudgetMapper } from './budgets.mapper';
 
 @Injectable()
 export class BudgetsApiImpl extends BudgetsApi {
@@ -20,7 +20,10 @@ export class BudgetsApiImpl extends BudgetsApi {
     createBudgetDto: CreateBudgetDto,
     request: Request,
   ): Promise<Budget> {
-    const budget = await this.budgetsService.createBudget(createBudgetDto, request);
+    const budget = await this.budgetsService.createBudget(
+      createBudgetDto,
+      request,
+    );
     return BudgetMapper.toBudget(budget);
   }
 
@@ -40,26 +43,34 @@ export class BudgetsApiImpl extends BudgetsApi {
   async updateBudget(
     id: string,
     updateBudgetDto: UpdateBudgetDto,
-    request?: Request
+    request?: Request,
   ): Promise<Budget> {
-    const budget = await this.budgetsService.updateBudget(id, updateBudgetDto, request);
+    const budget = await this.budgetsService.updateBudget(
+      id,
+      updateBudgetDto,
+      request,
+    );
     return BudgetMapper.toBudget(budget);
   }
 
   async partiallyUpdateBudget(
     id: string,
     partiallyUpdateBudgetDto: PartiallyUpdateBudgetDto,
-    request?: Request
+    request?: Request,
   ): Promise<Budget> {
- 
-    const budget = await this.budgetsService.partiallyUpdateBudget(id, partiallyUpdateBudgetDto, request);
+    const budget = await this.budgetsService.partiallyUpdateBudget(
+      id,
+      partiallyUpdateBudgetDto,
+      request,
+    );
     return BudgetMapper.toBudget(budget);
   }
 
-  async deleteBudget(id: string, request?: Request): Promise<DeleteBudget200Response> {
+  async deleteBudget(
+    id: string,
+    request?: Request,
+  ): Promise<DeleteBudget200Response> {
     await this.budgetsService.deleteBudget(id, request);
     return { message: 'Budget deleted successfully' };
   }
-
-
 }
