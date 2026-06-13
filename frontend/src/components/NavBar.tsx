@@ -307,7 +307,7 @@ export default function NavBar() {
           />
         </svg>
 
-        <div className="relative z-10 h-full flex items-end pb-3 px-6">
+        <div className="relative z-10 h-full flex items-end pb-3 px-7">
           <div className="flex w-full items-end justify-between">
             <NavLink
               to="/dashboard"
@@ -343,7 +343,7 @@ export default function NavBar() {
               </span>
             </NavLink>
 
-            <div className="flex flex-col items-center" style={{ marginBottom: 15, marginRight: 10 }}>
+            <div className="flex flex-col items-center" style={{ marginBottom: 22, marginRight: 10 }}>
               <button
                 onClick={() => setShowAddExpense(true)}
                 className="w-14 h-14 rounded-full flex items-center justify-center bg-brand-green hover:bg-[#1a4522] transition-transform hover:scale-106 shadow-lg"
