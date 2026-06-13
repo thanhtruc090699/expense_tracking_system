@@ -1,49 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Bill` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Budget` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Category` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Expense` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Bill" DROP CONSTRAINT "Bill_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Budget" DROP CONSTRAINT "Budget_categoryId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Budget" DROP CONSTRAINT "Budget_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Category" DROP CONSTRAINT "Category_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Expense" DROP CONSTRAINT "Expense_categoryId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Expense" DROP CONSTRAINT "Expense_userId_fkey";
-
--- DropTable
-DROP TABLE "Bill";
-
--- DropTable
-DROP TABLE "Budget";
-
--- DropTable
-DROP TABLE "Category";
-
--- DropTable
-DROP TABLE "Expense";
-
--- DropTable
-DROP TABLE "User";
-
--- DropEnum
-DROP TYPE "BudgetType";
-
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -112,7 +66,7 @@ CREATE TABLE "expense_items" (
     "quantity" INTEGER NOT NULL,
     "unit_price" DECIMAL(10,2) NOT NULL,
     "total_price" DECIMAL(10,2) NOT NULL,
-    "category_id" TEXT NOT NULL,
+    "category_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "expense_items_pkey" PRIMARY KEY ("id")
@@ -123,6 +77,12 @@ CREATE UNIQUE INDEX "users_keycloak_id_key" ON "users"("keycloak_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "merchants_name_key" ON "merchants"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- AddForeignKey
 ALTER TABLE "budgets" ADD CONSTRAINT "budgets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -140,4 +100,4 @@ ALTER TABLE "expenses" ADD CONSTRAINT "expenses_merchant_id_fkey" FOREIGN KEY ("
 ALTER TABLE "expense_items" ADD CONSTRAINT "expense_items_expense_id_fkey" FOREIGN KEY ("expense_id") REFERENCES "expenses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "expense_items" ADD CONSTRAINT "expense_items_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "expense_items" ADD CONSTRAINT "expense_items_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
