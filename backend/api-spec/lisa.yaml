@@ -127,9 +127,23 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ValidateBillRequest'
+              type: object
+              properties:
+                model:
+                  type: string
+                  default: lisa-pro-03-2026
+                  description: Model to use for processing
+                prompt:
+                  type: string
+                  description: Validate OCR results and extract item-level expense data
+                file:
+                  type: string
+                  format: binary
+                  description: Original bill image file for reference
+              required:
+                - file
       responses:
-        '201':
+        '200':
           description: Successful processing response
           content:
             application/json:
@@ -225,10 +239,83 @@ paths:
                 statusCode: 504
                 message: "Gateway timed out"
                 error: "Gateway Timeout"
+  /lisa/process-invoice:
+    post:
+      operationId: lisaProcessInvoice
+      summary: create bill data with Lisa AI and persist invoice
+      tags:
+        - Lisa
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  default: lisa-pro-03-2026
+                  description: Model to use for processing
+                prompt:
+                  type: string
+                  description: Validate OCR results and extract item-level expense data
+                file:
+                  type: string
+                  format: binary
+                  description: Original bill image file for reference
+              required:
+                - file
+      responses:
+        '201':
+          description: Invoice validated and persisted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiProcessInvoiceResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
+        '504':
+          description: Gateway timeout
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      $ref: './common.yaml#/components/schemas/Error'
     Message:
       type: object
       properties:
@@ -323,34 +410,6 @@ components:
         - model
         - choices
 
-    ValidateBillRequest:
-      type: object
-      properties:
-        model:
-          type: string
-          default: lisa-pro-03-2026
-          description: Model to use for processing 
-        ocrResults:
-          type: string
-          description: OCR results from the bill scan
-        categories:
-          type: array
-          items:
-            type: string
-          description: List of categories to assist with classification
-        prompt:
-          type: string
-          description: Validate OCR results and extract item-level expense data
-        file:
-          type: string
-          format: binary
-          description: Original bill image file for reference
-      required:
-        - ocrResults
-        - file
-        - categories
-        
-
     ProcessResponse:
       type: object
       properties:
@@ -359,6 +418,44 @@ components:
           description: Processed result from Lisa AI
       required:
         - invoice
+    AiProcessInvoiceResponse:
+      type: object
+      properties:
+        invoice:
+          $ref: '#/components/schemas/AiProcessedInvoice'
+          description: Validated invoice persisted to the database
+      required:
+        - invoice
+    AiProcessedInvoice:
+      type: object
+      required:
+        - expenseId
+        - merchantId
+        - merchantName
+        - totalAmount
+        - items
+        - createdAt
+      properties:
+        expenseId:
+          type: string
+          format: uuid
+        merchantId:
+          type: string
+          format: uuid
+        merchantName:
+          type: string
+        totalAmount:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: './expense-items.yaml#/components/schemas/ExpenseItem'
+        createdAt:
+          type: string
+          format: date-time
+        validationStatus:
+          type: string
+          enum: [valid, needs_review, invalid]
     AiValidatedInvoice:
       type: object
       required:

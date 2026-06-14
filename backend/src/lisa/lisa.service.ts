@@ -7,14 +7,18 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import type {
+  AiValidatedInvoice,
+  ExpenseItem,
   ChatRequest,
   ChatResponse,
-  ValidateBillRequest,
   ProcessResponse,
+  AiProcessInvoiceResponse,
 } from '../generated/models';
 import { parseLisaContent } from './utils/parse-lisa-content.util';
 import { handleLisaError } from './utils/lisa-error.util';
 import { ExpensesService } from '../expenses/expenses.service';
+import { MerchantsService } from '../merchants/merchants.service';
+import { ExpenseItemsService } from '../expense-items/expense-items.service';
 import { BudgetsService } from '../budgets/budgets.service';
 import { Multer } from 'multer';
 import { prisma } from '../prisma';
@@ -29,6 +33,8 @@ export class LisaService {
   constructor(
     private readonly expensesService: ExpensesService,
     private readonly budgetsService: BudgetsService,
+    private readonly merchantsService: MerchantsService,
+    private readonly expenseItemsService: ExpenseItemsService,
   ) {}
 
   private async getUserContext(userId: string): Promise<string> {
@@ -253,7 +259,9 @@ You help users with:
   }
 
   async lisaAnalyzeBill(
-    validateBillRequest: ValidateBillRequest,
+    uploadedFile: Blob,
+    model: string | undefined,
+    customPrompt: string | undefined,
     request?: Request,
   ): Promise<ProcessResponse> {
     console.log('[LisaService.lisaAnalyzeBill] called');
@@ -263,9 +271,8 @@ You help users with:
       throw new ServiceUnavailableException('LISA_API_KEY not configured');
     }
 
-    const body = validateBillRequest ?? ((request as any)?.body ?? {});
-    const model = body.model || 'lisa-pro-03-2026';
-    const file = (request as any).file as Express.Multer.File | undefined;
+    const selectedModel = model || 'lisa-pro-03-2026';
+    const file = uploadedFile as unknown as Express.Multer.File;
 
     if (!file) {
       throw new BadRequestException('File is required');
@@ -380,7 +387,7 @@ Return exactly:
   }
 }
 `;
-    const prompt = body.prompt || defaultPrompt;
+    const prompt = customPrompt || defaultPrompt;
 
     const messages: ChatRequest['messages'] = [
       {
@@ -405,7 +412,7 @@ Return exactly:
     ];
 
     try {
-      const result = await this.lisaChat({ model, messages });
+      const result = await this.lisaChat({ model: selectedModel, messages }, request);
       const content = result.choices?.[0]?.message?.content;
 
       if (!content || typeof content !== 'string') {
@@ -477,6 +484,93 @@ Return exactly:
           : 'Failed to process OCR request';
       throw new HttpException({ message }, HttpStatus.BAD_GATEWAY);
     }
+  }
+
+  async lisaProcessInvoice(
+    uploadedFile: Blob,
+    model: string | undefined,
+    prompt: string | undefined,
+    request?: Request,
+  ): Promise<AiProcessInvoiceResponse> {
+    const user = request?.['user'] as { id: string } | undefined;
+
+    if (!user?.id) {
+      throw new BadRequestException('Authenticated user is required');
+    }
+
+    const analyzed = await this.lisaAnalyzeBill(
+      uploadedFile,
+      model,
+      prompt,
+      request,
+      );
+    const invoice = analyzed.invoice;
+
+    if (!invoice?.merchant || !invoice.totalAmount) {
+      throw new BadRequestException('Validated invoice is missing merchant or total amount');
+      }
+
+    const merchant = await this.merchantsService.create({
+      name: invoice.merchant,
+    });
+
+    const expense = await this.expensesService.create({
+      userId: user.id,
+      merchantId: merchant.id,
+      totalAmount: invoice.totalAmount,
+      expenseDate: invoice.date ? new Date(invoice.date) : new Date(),
+      note: `Lisa validation: ${invoice.validationStatus}`,
+    });
+
+    const createdItems: ExpenseItem[] = [];
+
+    for (const item of invoice.items ?? []) {
+      if (!item.name || !item.totalPrice || item.totalPrice <= 0) {
+        continue;
+      }
+
+      const quantity =
+        item.quantity && Number.isInteger(item.quantity) && item.quantity > 0
+          ? item.quantity
+          : 1;
+      const unitPrice =
+        item.unitPrice && item.unitPrice > 0
+          ? item.unitPrice
+          : item.totalPrice / quantity;
+
+      const created = await this.expenseItemsService.create({
+        expenseId: expense.id,
+        itemName: item.name,
+        quantity,
+        unitPrice,
+        totalPrice: item.totalPrice,
+        categoryId: item.categoryId ?? undefined,
+    });
+
+      createdItems.push(this.toExpenseItem(created));
+    }
+
+    return {
+      invoice: {
+        expenseId: expense.id,
+        merchantId: merchant.id,
+        merchantName: merchant.name,
+        totalAmount: Number(expense.totalAmount),
+        items: createdItems,
+        createdAt: expense.createdAt.toISOString(),
+        validationStatus: invoice.validationStatus,
+      },
+    };
+  }
+
+  private toExpenseItem(item: any): ExpenseItem {
+    return {
+      ...item,
+      quantity: Number(item.quantity),
+      unitPrice: Number(item.unitPrice),
+      totalPrice: Number(item.totalPrice),
+      createdAt: item.createdAt.toISOString(),
+    };
   }
 }
   

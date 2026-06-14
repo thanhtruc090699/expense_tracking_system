@@ -9,10 +9,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type {
+  AiProcessInvoiceResponse,
   ChatRequest,
   ChatResponse,
   ProcessResponse,
-  ValidateBillRequest,
 } from '../generated/models';
 import { LisaApi } from '../generated/api/LisaApi';
 import { LisaService } from './lisa.service';
@@ -31,10 +31,30 @@ export class LisaApiImpl extends LisaApi {
   }
 
   async lisaAnalyzeBill(
-    validateBillRequest: ValidateBillRequest,
+    file: Blob,
+    model: string | undefined,
+    prompt: string | undefined,
     request: Request,
   ): Promise<ProcessResponse> {
-    return await this.lisaService
-      .lisaAnalyzeBill( validateBillRequest, request)
+    return await this.lisaService.lisaAnalyzeBill(
+      file,
+      model,
+      prompt,
+      request,
+    );
+  }
+
+  async lisaProcessInvoice(
+    file: Blob,
+    model: string | undefined,
+    prompt: string | undefined,
+    request: Request,
+  ): Promise<AiProcessInvoiceResponse> {
+    return await this.lisaService.lisaProcessInvoice(
+      file,
+      model,
+      prompt,
+      request,
+    );
   }
 }

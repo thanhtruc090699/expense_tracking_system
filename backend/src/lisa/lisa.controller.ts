@@ -4,12 +4,16 @@ import type {
   ChatRequest,
   ChatResponse,
   ProcessResponse,
-  ValidateBillRequest,
 } from '../generated/models';
 import { LisaApi } from '../generated/api/LisaApi';
 import { LISA_API_PROVIDER } from './lisa.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+type LisaBillForm = {
+  model?: string;
+  prompt?: string;
+};
 
 @Controller('lisa')
 @UseGuards(JwtGuard)
@@ -28,9 +32,29 @@ export class LisaController {
   @UseInterceptors(FileInterceptor('file'))
   lisaAnalyzeBill(
     @UploadedFile() file: Express.Multer.File,
-    @Body() validateBillRequest: ValidateBillRequest,
+    @Body() body: LisaBillForm,
     @Req() request: Request,
   ): ReturnType<LisaApi['lisaAnalyzeBill']> {
-    return this.lisaApi.lisaAnalyzeBill(validateBillRequest, request);
+    return this.lisaApi.lisaAnalyzeBill(
+      file as unknown as Blob,
+      body.model,
+      body.prompt,
+      request,
+    );
+  }
+
+  @Post('process-invoice')
+  @UseInterceptors(FileInterceptor('file'))
+  lisaProcessInvoice(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: LisaBillForm,
+    @Req() request: Request,
+  ): ReturnType<LisaApi['lisaProcessInvoice']> {
+    return this.lisaApi.lisaProcessInvoice(
+      file as unknown as Blob,
+      body.model,
+      body.prompt,
+      request,
+    );
   }
 }

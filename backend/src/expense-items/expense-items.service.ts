@@ -115,7 +115,7 @@ export class ExpenseItemsService {
       quantity?: number;
       unitPrice?: number;
       totalPrice?: number;
-      categoryId?: string;
+      categoryId?: string | null;
     },
   ) {
     const existingItem = await this.findOne(id);

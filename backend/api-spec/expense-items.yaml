@@ -82,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './lisa.yaml#/components/schemas/Error'
+                $ref: './common.yaml#/components/schemas/Error'
     put:
       operationId: updateExpenseItem
       summary: Update an expense item
@@ -180,11 +180,13 @@ components:
         categoryId:
           type: string
           format: uuid
+          nullable: true
         createdAt:
           type: string
           format: date-time
         category:
           $ref: './categories.yaml#/components/schemas/Category'
+          nullable: true
       required:
         - id
         - expenseId
@@ -192,7 +194,6 @@ components:
         - quantity
         - unitPrice
         - totalPrice
-        - categoryId
         - createdAt
 
     CreateExpenseItemDto:
@@ -211,12 +212,12 @@ components:
         categoryId:
           type: string
           format: uuid
+          nullable: true
       required:
         - expenseId
         - itemName
         - quantity
         - unitPrice
-        - categoryId
 
     UpdateExpenseItemDto:
       type: object
@@ -229,6 +230,8 @@ components:
           type: number
         categoryId:
           type: string
+          format: uuid
+          nullable: true
 
     DeleteExpenseItem200Response:
       type: object

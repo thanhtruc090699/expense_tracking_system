@@ -10,6 +10,26 @@ interface Merchant {
   name: string;
 }
 
+interface ValidatedInvoiceItem {
+  name: string | null;
+  quantity: number | null;
+  unitPrice: number | null;
+  totalPrice: number | null;
+  categoryName: string | null;
+  categoryId: string | null;
+  confidence: number;
+  status: "ok" | "missing_price" | "uncertain";
+}
+
+interface ValidatedInvoice {
+  merchant: string | null;
+  totalAmount: number | null;
+  date: string | null;
+  currency: string | null;
+  items: ValidatedInvoiceItem[];
+  validationStatus: "valid" | "needs_review" | "invalid";
+}
+
 export default function NavBar() {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [activeTab, setActiveTab] = useState<"scan" | "manual">("scan");
@@ -126,7 +146,7 @@ export default function NavBar() {
       formData.append("pdf_mode", "auto");
 
       const response = await fetch(
-        `${ALLOWED_HOST}:3000/ocr/process-invoice`,
+        `${ALLOWED_HOST}:3000/lisa/process-invoice`,
         {
           method: "POST",
           headers: {
@@ -142,9 +162,12 @@ export default function NavBar() {
       }
 
       const result = await response.json();
+      const invoice: ValidatedInvoice | undefined =
+        result.invoice ?? result.data?.invoice;
 
-      if (result.ok && result.data) {
-        setShowAddExpense(false);
+      if(result && invoice)
+      {
+        setShowAddExpense(true);
         navigate("/expenses");
       } else {
         setScanError("Failed to process invoice");
@@ -157,6 +180,9 @@ export default function NavBar() {
       setScanning(false);
     }
   };
+
+
+   
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
