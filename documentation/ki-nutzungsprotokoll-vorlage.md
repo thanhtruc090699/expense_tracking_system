@@ -41,6 +41,10 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 11.06.2026 | Rathin | Lisa Pro | api-spec: expense.yaml error codes | generated missing error status codes for all methods 401, 401, 404, 422 |
 | 11.06.2026 | Rathin | Lisa Pro | Created seeding script | Updated data-seed script to add mock data to test new api |
 | 11.06.2026 | Rathin | Lisa Pro | Figma to Code | Converted figma design to code via a new project and strategically merged the changes to main project to redesign whole frontend according to the rendered Figma design. |
+| 14.06.2026 | Truc Trinh | OpenAI Codex | Lisa invoice validation and processing flow | Updated `lisa.yaml` and `openapi.yaml` with a separate `/lisa/process-invoice` endpoint, regenerated backend OpenAPI artifacts, aligned generated `LisaApi` signatures with controller, impl and service code, and kept `/lisa/analyze-bill` as the validation-only endpoint. |
+| 14.06.2026 | Truc Trinh | OpenAI Codex | Lisa OCR and category-based invoice analysis | Adjusted the backend flow so Lisa receives the uploaded receipt image, OCR is called from the backend, categories are loaded from the database, and the prompt was refined to keep only real purchased products with name, quantity, price, total price and category data. |
+| 14.06.2026 | Truc Trinh | OpenAI Codex | Fixing Lisa API response mapping and frontend handling | Investigated backend/frontend mismatch for receipt scan results, adapted response handling so validated invoice data can be mapped to the frontend form, and checked the backend build after generated model updates. |
+| 14.06.2026 | Truc Trinh | OpenAI Codex | Allow uncategorized expense items | Fixed Prisma error `P2011` for `expense_items.category_id` by allowing nullable category IDs in `expense-items.yaml`, regenerating models, updating service typing, adding a migration to drop the database NOT NULL constraint, and verifying the backend build. |
 |  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
