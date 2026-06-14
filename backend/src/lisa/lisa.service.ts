@@ -9,18 +9,17 @@ import {
 import type {
   ChatRequest,
   ChatResponse,
-  ProcessRequest,
+  ValidateBillRequest,
   ProcessResponse,
 } from '../generated/models';
 import { parseLisaContent } from './utils/parse-lisa-content.util';
 import { handleLisaError } from './utils/lisa-error.util';
 import { ExpensesService } from '../expenses/expenses.service';
 import { BudgetsService } from '../budgets/budgets.service';
+import { Multer } from 'multer';
+import { prisma } from '../prisma';
 
-interface Message {
-  role: string;
-  content: string;
-}
+type LisaMessageContent = ChatRequest['messages'][number]['content'];
 
 @Injectable()
 export class LisaService {
@@ -144,7 +143,7 @@ export class LisaService {
     const user = request?.['user'] as { id: string } | undefined;
     const model = chatRequest.model || 'lisa-pro-03-2026';
 
-    let messages: Array<{ role: string; content: string }> = [];
+    let messages: Array<{ role: string; content: LisaMessageContent }> = [];
 
     if (user?.id) {
       const userContext = await this.getUserContext(user.id);
@@ -175,10 +174,7 @@ When answering:
       messages = messages.concat(
         chatRequest.messages.map((message) => ({
           role: message.role,
-          content:
-            typeof message.content === 'string'
-              ? message.content
-              : JSON.stringify(message.content, null, 2),
+          content: message.content,
         })),
       );
     } else {
@@ -195,10 +191,7 @@ You help users with:
       messages = messages.concat(
         chatRequest.messages.map((message) => ({
           role: message.role,
-          content:
-            typeof message.content === 'string'
-              ? message.content
-              : JSON.stringify(message.content, null, 2),
+          content: message.content,
         })),
       );
     }
@@ -215,7 +208,6 @@ You help users with:
       firstRole: payload.messages[0]?.role,
       secondRole: payload.messages[1]?.role,
       authPreview: `Bearer ${apiKey}`.slice(0, 18),
-      payloadPreview: JSON.stringify(payload).slice(0, 500),
     });
 
     const response = await fetch(this.lisaApiUrl, {
@@ -260,120 +252,135 @@ You help users with:
     }
   }
 
-  async lisaProcess(
-    processRequest: ProcessRequest,
+  async lisaAnalyzeBill(
+    validateBillRequest: ValidateBillRequest,
     request?: Request,
   ): Promise<ProcessResponse> {
-    console.log('[LisaService.lisaProcess] called');
+    console.log('[LisaService.lisaAnalyzeBill] called');
     const apiKey = process.env.LISA_API_KEY?.trim();
 
     if (!apiKey) {
       throw new ServiceUnavailableException('LISA_API_KEY not configured');
     }
 
-    if (processRequest.data === undefined || processRequest.data === null) {
-      throw new BadRequestException('Invalid request data');
+    const body = validateBillRequest ?? ((request as any)?.body ?? {});
+    const model = body.model || 'lisa-pro-03-2026';
+    const file = (request as any).file as Express.Multer.File | undefined;
+
+    if (!file) {
+      throw new BadRequestException('File is required');
     }
 
-    const model = processRequest.model || 'lisa-pro-03-2026';
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException(
+        'Only image files are supported for Lisa bill analysis at this stage',
+      );
+    }
+
+    const [ocrResult, categories] = await Promise.all([
+      this.scanInvoiceWithOcr(file),
+      prisma.category.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      }),
+    ]);
+
+    const invoice = ocrResult?.data?.invoice;
+
+    if (!invoice) {
+      throw new BadRequestException('OCR response is missing invoice data');
+    }
+
+    const compactOcr = {
+      vendor: invoice.vendor ?? null,
+      totals: {
+        totalAmount: invoice.totals?.total_amount ?? null,
+        lineItemsSum: invoice.totals?.line_items_sum ?? null,
+        lineSumMatchesTotal: invoice.totals?.line_sum_matches_total ?? null,
+      },
+      items: Array.isArray(invoice.items)
+        ? invoice.items.map((item) => ({
+            name: item.item_name,
+            quantity: item.quantity,
+            unitPrice: item.quantity
+              ? Number((Number(item.final_amount ?? 0) / item.quantity).toFixed(2))
+              : null,
+            totalPrice: item.final_amount,
+          }))
+        : [],
+    };
+
+    const input = JSON.stringify(
+      {
+        file: {
+          filename: file.originalname,
+          size: file.size,
+          mimetype: file.mimetype,
+        },
+        categories,
+        ocr: compactOcr,
+      },
+      null,
+      2,
+    );
+
+    const fileBase64 = file.buffer.toString('base64');
 
     const defaultPrompt = `
-You are an OCR result validation and categorization assistant.
+You validate a receipt by reading the original image and comparing it with OCR invoice data.
+You receive:
+1. The original receipt image.
+2. The OCR invoice extracted by the backend.
+3. The allowed category list from Bill Buddy.
 
-You receive OCR output from a receipt or invoice.
-You do not receive the original image or PDF.
-Your job is to validate the OCR result, extract/display line items from OCR text when possible, suggest an expense category, and return the final display result.
+Use the image as the source of truth. Use OCR as a baseline to compare against and to avoid missing visible line items.
+Return one validated invoice.
 
-Use OCR rows/raw text only.
-Do not invent values that are not supported by OCR text.
-If item price is not visible, set unitPrice and totalPrice to null.
-If quantity is not visible, set quantity to null.
-If OCR text is unclear, keep confidence low.
-
-Validate:
-- vendor
-- total amount
-- currency
-- line items
-- item prices
-- line item sum vs total
-
-Line item rules:
-- Return visible product/service rows as items.
-- For each item, include name, quantity, unitPrice, totalPrice, categoryName, confidence, and status.
-- If a product name is visible but price is missing, still return the item with price fields as null and status "missing_price".
-- Do not create fake item prices from the invoice total unless there is exactly one clear item and the OCR text strongly supports that the total belongs to that item.
-- If there is exactly one visible item and no separate item price is found, you may set totalPrice equal to totalAmount only when there are no other visible purchasable items. Set confidence below 0.8 and explain in auditMessage.
-- Treat "€2,92", "2,92", and "2.92" as the same amount.
-
-Category rules:
-- Suggest one overall expense category using vendor name, visible item text, receipt context, and total amount if useful.
-- Also suggest categoryName for each item when possible.
-- Prefer practical personal finance categories.
-- If vendor is a pharmacy/drugstore/beauty retailer, suggest "Personal Care" or "Health & Beauty".
-- If line item text is unclear, use vendor context but lower confidence.
-- Return alternatives if there are plausible categories.
-- Do not create overly specific categories unless strongly supported.
+Extraction requirements:
+- Return only real purchasable products or services as items.
+- Exclude loyalty cards, customer cards, vouchers, coupons, discounts, cashback, Pfand/deposit summary lines, tax/VAT lines, subtotal lines, total lines, payment/card/cash/change lines, invoice metadata, and informational receipt text.
+- Do not create an item for "Kaufland Card", customer numbers, receipt numbers, payment method, tax, discount, or totals.
+- Keep product names close to OCR text, but remove obvious receipt codes when they are not part of the product name.
+- If quantity is missing but the OCR line is clearly a single product with one line price, set quantity to 1 and unitPrice equal to totalPrice.
+- If quantity is explicit, use it. If totalPrice is present and unitPrice is missing, calculate unitPrice only when quantity is numeric and greater than 0.
+- If price is missing, keep unitPrice and totalPrice null and set status to "missing_price".
+- If OCR includes a line that is not a real product/service after checking the image, exclude it.
+- If OCR misses a real product/service visible in the image, include it.
 
 Validation rules:
-- If vendor and total are found but item prices are missing, status must be "needs_review".
-- If vendor or total cannot be verified, status must be "invalid".
-- If vendor, total, items, and item prices are reliable, status must be "valid".
-- Keep audit messages short and useful.
-- Return JSON only.
+- validationStatus is "valid" when merchant, totalAmount, and at least one real item are reliable.
+- validationStatus is "needs_review" when some item names/prices are uncertain but usable.
+- validationStatus is "invalid" when merchant or totalAmount is missing.
 
+Category rules:
+- Choose categoryName and categoryId only from the provided categories array.
+- If no category fits, set categoryName and categoryId to null.
+
+Return JSON only. Do not include markdown.
 Return exactly:
 {
-  "status": "valid" | "needs_review" | "invalid",
-  "valid": boolean,
-  "vendor": string | null,
-  "totals": {
+  "invoice": {
+    "merchant": string | null,
     "totalAmount": number | null,
-    "itemsDeclared": number | null,
-    "lineItemsSum": number | null,
-    "difference": number | null,
-    "matches": boolean | null
-  },
-  "items": [
-    {
-      "name": string | null,
-      "quantity": number | null,
-      "unitPrice": number | null,
-      "totalPrice": number | null,
-      "categoryName": string | null,
-      "confidence": number,
-      "status": "ok" | "missing_price" | "uncertain"
-    }
-  ],
-  "checks": {
-    "vendorMatched": boolean,
-    "totalMatched": boolean,
-    "itemsDetected": boolean,
-    "itemPricesDetected": boolean,
-    "sumMatched": boolean | null
-  },
-  "categorySuggestion": {
-    "categoryName": string | null,
-    "confidence": number,
-    "reason": string,
-    "alternatives": string[]
-  },
-  "auditMessage": string,
-  "issues": [
-    {
-      "field": string,
-      "severity": "info" | "warning" | "error",
-      "message": string
-    }
-  ]
+    "date": string | null,
+    "currency": string | null,
+    "items": [
+      {
+        "name": string | null,
+        "quantity": number | null,
+        "unitPrice": number | null,
+        "totalPrice": number | null,
+        "categoryName": string | null,
+        "categoryId": string | null,
+        "confidence": number,
+        "status": "ok" | "missing_price" | "uncertain"
+      }
+    ],
+    "validationStatus": "valid" | "needs_review" | "invalid"
+  }
 }
 `;
-    const prompt = processRequest.prompt || defaultPrompt;
-
-    const input =
-      typeof processRequest.data === 'string'
-        ? processRequest.data
-        : JSON.stringify(processRequest.data, null, 2);
+    const prompt = body.prompt || defaultPrompt;
 
     const messages: ChatRequest['messages'] = [
       {
@@ -382,29 +389,45 @@ Return exactly:
       },
       {
         role: 'user',
-        content: `OCR extraction result:\n\n${input}`,
+        content: [
+          {
+            type: 'text',
+            text: `Compare the receipt image against this OCR invoice and category list:\n\n${input}`,
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${file.mimetype};base64,${fileBase64}`,
+            },
+          },
+        ],
       },
     ];
 
     try {
-      const chatRequest: ChatRequest = {
-        model,
-        messages,
-      };
-
-      const result = await this.lisaChat(chatRequest, request);
-
+      const result = await this.lisaChat({ model, messages });
       const content = result.choices?.[0]?.message?.content;
 
-      if (!content) {
-        throw new InternalServerErrorException('LISA returned empty response');
+      if (!content || typeof content !== 'string') {
+        throw new InternalServerErrorException(
+          'LISA returned empty or non-text response',
+        );
       }
 
       return {
-        ...parseLisaContent(content),
+        ...parseLisaContent(content as string),
       };
     } catch (error: any) {
-      console.error('[LisaService.lisaProcess] error:', {
+      console.log({
+        promptLength: prompt.length,
+        inputLength: input.length,
+        fileSize: file.size,
+        base64Length: fileBase64.length,
+        ocrItems: compactOcr.items.length,
+        categories: categories.length,
+      });
+
+      console.error('[LisaService.lisaAnalyzeBill] error:', {
         name: error?.name,
         message: error?.message,
         status: error?.response?.status,
@@ -415,4 +438,45 @@ Return exactly:
       handleLisaError(error);
     }
   }
+
+  private async scanInvoiceWithOcr(file: Express.Multer.File) {
+    const formData = new FormData();
+    formData.append(
+      'file',
+      new Blob([new Uint8Array(file.buffer)]),
+      file.originalname,
+    );
+    formData.set('include_tokens', 'false');
+
+    try {
+      const response = await fetch(
+        process.env.INVOICE_OCR_URL?.trim() || 'http://localhost:8000/scan',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new HttpException(
+          { message: data?.error || data?.message || 'OCR processing failed' },
+          response.status,
+        );
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to process OCR request';
+      throw new HttpException({ message }, HttpStatus.BAD_GATEWAY);
+    }
+  }
 }
+  

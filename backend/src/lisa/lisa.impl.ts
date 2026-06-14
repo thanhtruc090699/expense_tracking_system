@@ -11,8 +11,8 @@ import {
 import type {
   ChatRequest,
   ChatResponse,
-  ProcessRequest,
   ProcessResponse,
+  ValidateBillRequest,
 } from '../generated/models';
 import { LisaApi } from '../generated/api/LisaApi';
 import { LisaService } from './lisa.service';
@@ -30,10 +30,11 @@ export class LisaApiImpl extends LisaApi {
     return await this.lisaService.lisaChat(chatRequest, request);
   }
 
-  async lisaProcess(
-    processRequest: ProcessRequest,
+  async lisaAnalyzeBill(
+    validateBillRequest: ValidateBillRequest,
     request: Request,
   ): Promise<ProcessResponse> {
-    return await this.lisaService.lisaProcess(processRequest, request);
+    return await this.lisaService
+      .lisaAnalyzeBill( validateBillRequest, request)
   }
 }

@@ -1,14 +1,15 @@
-import { Inject, Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Inject, Controller, Post, Body, Req, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 import type {
   ChatRequest,
   ChatResponse,
-  ProcessRequest,
   ProcessResponse,
+  ValidateBillRequest,
 } from '../generated/models';
 import { LisaApi } from '../generated/api/LisaApi';
 import { LISA_API_PROVIDER } from './lisa.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('lisa')
 @UseGuards(JwtGuard)
@@ -23,11 +24,13 @@ export class LisaController {
     return this.lisaApi.lisaChat(chatRequest, request);
   }
 
-  @Post('process')
-  lisaProcess(
-    @Body() processRequest: ProcessRequest,
+  @Post('analyze-bill')
+  @UseInterceptors(FileInterceptor('file'))
+  lisaAnalyzeBill(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() validateBillRequest: ValidateBillRequest,
     @Req() request: Request,
-  ): ReturnType<LisaApi['lisaProcess']> {
-    return this.lisaApi.lisaProcess(processRequest, request);
+  ): ReturnType<LisaApi['lisaAnalyzeBill']> {
+    return this.lisaApi.lisaAnalyzeBill(validateBillRequest, request);
   }
 }

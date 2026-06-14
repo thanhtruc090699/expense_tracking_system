@@ -116,18 +116,18 @@ paths:
                 statusCode: 504
                 message: "Gateway timed out"
                 error: "Gateway Timeout"
-  /lisa/process:
+  /lisa/analyze-bill:
     post:
-      operationId: lisaProcess
-      summary: Process data with Lisa AI
+      operationId: lisaAnalyzeBill
+      summary: Analyze bill data with Lisa AI
       tags:
         - Lisa
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProcessRequest'
+              $ref: '#/components/schemas/ValidateBillRequest'
       responses:
         '201':
           description: Successful processing response
@@ -236,10 +236,45 @@ components:
           type: string
           enum: [user, assistant, system]
         content:
-          type: string
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/TextContentPart'
+                  - $ref: '#/components/schemas/ImageUrlContentPart'
       required:
         - role
         - content
+
+    TextContentPart:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [text]
+        text:
+          type: string
+      required:
+        - type
+        - text
+
+    ImageUrlContentPart:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [image_url]
+        image_url:
+          type: object
+          properties:
+            url:
+              type: string
+          required:
+            - url
+      required:
+        - type
+        - image_url
 
     ChatRequest:
       type: object
@@ -288,27 +323,113 @@ components:
         - model
         - choices
 
-    ProcessRequest:
+    ValidateBillRequest:
       type: object
       properties:
         model:
           type: string
           default: lisa-pro-03-2026
           description: Model to use for processing 
-        data:
-          type: object
-          description: Data to process
+        ocrResults:
+          type: string
+          description: OCR results from the bill scan
+        categories:
+          type: array
+          items:
+            type: string
+          description: List of categories to assist with classification
         prompt:
           type: string
-          description: Custom prompt for processing
+          description: Validate OCR results and extract item-level expense data
+        file:
+          type: string
+          format: binary
+          description: Original bill image file for reference
       required:
-        - data
+        - ocrResults
+        - file
+        - categories
+        
 
     ProcessResponse:
       type: object
       properties:
-        result:
-          type: object
+        invoice:
+          $ref: '#/components/schemas/AiValidatedInvoice'
           description: Processed result from Lisa AI
       required:
-        - result
+        - invoice
+    AiValidatedInvoice:
+      type: object
+      required:
+        - merchant
+        - totalAmount
+        - items
+        - validationStatus
+      properties:
+        merchant:
+          type: string
+          nullable: true
+          description: Name of the merchant
+        totalAmount:
+          type: number
+          format: float
+          nullable: true
+          description: Total amount on the bill
+        date:
+          type: string
+          format: date
+          description: Date of the transaction
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiLisaExpenseItem'
+          description: List of expense items extracted from the bill
+        validationStatus:
+          type: string
+          enum: [valid, needs_review, invalid]
+          description: Overall validation status of the bill
+    AiLisaExpenseItem:
+      type: object
+      required:
+        - name
+        - quantity
+        - unitPrice
+        - totalPrice
+      properties:
+        name:
+          type: string
+          nullable: true
+          description: Name or description of the expense item
+        quantity:
+          type: number
+          nullable: true
+          description: Quantity of the item purchased
+        unitPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Unit price of the item
+        totalPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Total price for the item (quantity * unit price)
+        categoryName:
+          type: string
+          nullable: true
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        status:
+          type: string
+          enum: [ok, missing_price, uncertain]
+

@@ -13,8 +13,8 @@ paths:
     $ref: './users.yaml#/paths/~1users~1{id}'
   /lisa/chat:
     $ref: './lisa.yaml#/paths/~1lisa~1chat'
-  /lisa/process:
-    $ref: './lisa.yaml#/paths/~1lisa~1process'
+  /lisa/analyze-bill:
+    $ref: './lisa.yaml#/paths/~1lisa~1analyze-bill'
   /expenses:
     $ref: './expenses.yaml#/paths/~1expenses'
   /expenses/summary:
@@ -60,10 +60,14 @@ components:
       $ref: './lisa.yaml#/components/schemas/ChatRequest'
     ChatResponse:
       $ref: './lisa.yaml#/components/schemas/ChatResponse'
-    ProcessRequest:
-      $ref: './lisa.yaml#/components/schemas/ProcessRequest'
+    ValidateBillRequest:
+      $ref: './lisa.yaml#/components/schemas/ValidateBillRequest'
     ProcessResponse:
       $ref: './lisa.yaml#/components/schemas/ProcessResponse'
+    AiValidatedInvoice:
+      $ref: './lisa.yaml#/components/schemas/AiValidatedInvoice'
+    AiLisaExpenseItem:
+      $ref: './lisa.yaml#/components/schemas/AiLisaExpenseItem'
     Expense:
       $ref: './expenses.yaml#/components/schemas/Expense'
     CreateExpenseDto:
