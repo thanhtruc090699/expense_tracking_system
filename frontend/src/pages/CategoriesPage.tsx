@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getToken } from '../auth';
+import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
 import './CategoriesPage.css';
 
 interface Category {
@@ -12,6 +13,7 @@ interface Category {
 export function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
   const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
   const fetchCategories = async () => {
@@ -33,7 +35,6 @@ export function CategoriesPage() {
   useEffect(() => { fetchCategories(); }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
     const token = getToken();
     if (!token) return;
     
@@ -42,6 +43,7 @@ export function CategoriesPage() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
+      setDeleteCategoryId(null);
       fetchCategories();
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -73,7 +75,7 @@ export function CategoriesPage() {
               </div>
               <button
                 className="category-delete-btn"
-                onClick={() => handleDelete(c.id)}
+                onClick={() => setDeleteCategoryId(c.id)}
               >
                 Delete
               </button>
@@ -85,6 +87,17 @@ export function CategoriesPage() {
           </div>
         )}
       </div>
+      <ConfirmDeleteDialog
+        isOpen={deleteCategoryId !== null}
+        title="Delete category?"
+        message="This category will be removed if it is not used by transactions or budgets."
+        onCancel={() => setDeleteCategoryId(null)}
+        onConfirm={() => {
+          if (deleteCategoryId) {
+            return handleDelete(deleteCategoryId);
+          }
+        }}
+      />
     </div>
   );
 }

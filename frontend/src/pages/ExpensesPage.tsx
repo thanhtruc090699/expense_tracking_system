@@ -8,11 +8,16 @@ import { TransactionDetailSheet } from '../components/expenses/TransactionDetail
 import type { AddItemFormData, EditingItemData } from '../components/expenses/AddItemModal';
 import { AddItemModal } from '../components/expenses/AddItemModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
+import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
 import { Edit, Trash2 } from 'lucide-react';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
 type FilterType = 'all' | 'month' | 'week';
+type PendingDelete =
+  | { type: 'expense'; id: string }
+  | { type: 'item'; id: string }
+  | null;
 
 const EXPENSES_PER_PAGE = 50;
 
@@ -28,6 +33,7 @@ export function ExpensesPage() {
   // Detail sheet state
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [expenseItems, setExpenseItems] = useState<ExpenseItem[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete>(null);
   
   // Add/Edit item modal state
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
@@ -268,8 +274,6 @@ export function ExpensesPage() {
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!confirm('Delete this item?')) return;
-
     const token = getToken();
     if (!token) return;
 
@@ -281,6 +285,7 @@ export function ExpensesPage() {
     });
 
     await refreshExpenseItems();
+    setPendingDelete(null);
   };
 
   const refreshExpenseItems = async () => {
@@ -414,8 +419,6 @@ export function ExpensesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
-
     const token = getToken();
     if (!token) return;
 
@@ -428,6 +431,7 @@ export function ExpensesPage() {
       });
 
       fetchExpenses(activeFilter, 0, false, selectedCategoryId);
+      setPendingDelete(null);
     } catch (err) {
       console.error('Failed to delete:', err);
     }
@@ -554,7 +558,7 @@ export function ExpensesPage() {
                   <button
                     className="expense-action-btn delete"
                     onClick={() => {
-                      handleDelete(expense.id);
+                      setPendingDelete({ type: 'expense', id: expense.id });
                     }}
                     title="Delete expense"
                   >
@@ -600,7 +604,7 @@ export function ExpensesPage() {
           });
           setIsAddItemModalOpen(true);
         }}
-        onDeleteItem={handleDeleteItem}
+        onDeleteItem={(itemId) => setPendingDelete({ type: 'item', id: itemId })}
       />
 
       <AddItemModal
@@ -623,6 +627,27 @@ export function ExpensesPage() {
         }}
         onSubmit={handleEditExpense}
         expense={editingExpense}
+      />
+      <ConfirmDeleteDialog
+        isOpen={pendingDelete !== null}
+        title={
+          pendingDelete?.type === 'item'
+            ? 'Delete transaction item?'
+            : 'Delete transaction?'
+        }
+        message={
+          pendingDelete?.type === 'item'
+            ? 'This item will be removed from the transaction.'
+            : 'This transaction and its items will be removed.'
+        }
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          if (pendingDelete.type === 'item') {
+            return handleDeleteItem(pendingDelete.id);
+          }
+          return handleDelete(pendingDelete.id);
+        }}
       />
     </div>
   );

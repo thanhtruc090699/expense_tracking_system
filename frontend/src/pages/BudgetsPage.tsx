@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getToken } from "../auth";
 import { AskAIInput } from "../components/AskAIInput";
+import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog";
 import "../styles/BudgetsPage.css";
 
 interface Budget {
@@ -82,6 +83,7 @@ export function BudgetsPage() {
   const [showBudgetForm, setShowBudgetForm] = useState(false);
 
   const [editBudgetId, setEditBudgetId] = useState<string | null>(null);
+  const [deleteBudgetId, setDeleteBudgetId] = useState<string | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [budgetLimit, setBudgetLimit] = useState("");
@@ -151,12 +153,11 @@ export function BudgetsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-
     const token = getToken();
 
     if (!token) {
       setBudgets((prev) => prev.filter((budget) => budget.id !== id));
+      setDeleteBudgetId(null);
       return;
     }
 
@@ -168,6 +169,7 @@ export function BudgetsPage() {
         },
       });
 
+      setDeleteBudgetId(null);
       fetchBudgets();
     } catch (err) {
       console.error("Failed to delete budget:", err);
@@ -462,7 +464,7 @@ export function BudgetsPage() {
                     <button
                       type="button"
                       className="budget-icon-btn delete"
-                      onClick={() => handleDelete(budget.id)}
+                      onClick={() => setDeleteBudgetId(budget.id)}
                     >
                       <Trash2 size={23} />
                     </button>
@@ -497,6 +499,17 @@ export function BudgetsPage() {
           })}
         </div>
       </section>
+      <ConfirmDeleteDialog
+        isOpen={deleteBudgetId !== null}
+        title="Delete budget?"
+        message="This monthly budget category will be removed."
+        onCancel={() => setDeleteBudgetId(null)}
+        onConfirm={() => {
+          if (deleteBudgetId) {
+            return handleDelete(deleteBudgetId);
+          }
+        }}
+      />
     </main>
   );
 }

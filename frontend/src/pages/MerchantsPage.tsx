@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getToken } from '../auth';
+import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
 import './MerchantsPage.css';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
@@ -14,6 +15,7 @@ interface Merchant {
 export function MerchantsPage() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteMerchantId, setDeleteMerchantId] = useState<string | null>(null);
 
   const fetchMerchants = async () => {
     const token = getToken();
@@ -34,7 +36,6 @@ export function MerchantsPage() {
   useEffect(() => { fetchMerchants(); }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
     const token = getToken();
     if (!token) return;
     
@@ -43,6 +44,7 @@ export function MerchantsPage() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
+      setDeleteMerchantId(null);
       fetchMerchants();
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -75,7 +77,7 @@ export function MerchantsPage() {
               </div>
               <button
                 className="merchant-delete-btn"
-                onClick={() => handleDelete(m.id)}
+                onClick={() => setDeleteMerchantId(m.id)}
               >
                 Delete
               </button>
@@ -87,6 +89,17 @@ export function MerchantsPage() {
           </div>
         )}
       </div>
+      <ConfirmDeleteDialog
+        isOpen={deleteMerchantId !== null}
+        title="Delete merchant?"
+        message="This merchant will be removed if no transactions still depend on it."
+        onCancel={() => setDeleteMerchantId(null)}
+        onConfirm={() => {
+          if (deleteMerchantId) {
+            return handleDelete(deleteMerchantId);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getToken } from '../auth';
+import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
 import './BillsPage.css';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
@@ -19,6 +20,7 @@ export function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleteBillId, setDeleteBillId] = useState<string | null>(null);
 
   const fetchBills = async () => {
     const token = getToken();
@@ -47,7 +49,6 @@ export function BillsPage() {
   }, []);
 
   const handleDeleteBill = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this bill?')) return;
     const token = getToken();
     if (!token) return;
     
@@ -58,6 +59,7 @@ export function BillsPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+      setDeleteBillId(null);
       fetchBills();
     } catch (err) {
       console.error('Failed to delete bill:', err);
@@ -120,7 +122,7 @@ export function BillsPage() {
                     className="bill-action-btn delete"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteBill(bill.id);
+                      setDeleteBillId(bill.id);
                     }}
                   >
                     Delete
@@ -142,6 +144,17 @@ export function BillsPage() {
           </div>
         )}
       </div>
+      <ConfirmDeleteDialog
+        isOpen={deleteBillId !== null}
+        title="Delete bill?"
+        message="This bill file and its stored data will be removed."
+        onCancel={() => setDeleteBillId(null)}
+        onConfirm={() => {
+          if (deleteBillId) {
+            return handleDeleteBill(deleteBillId);
+          }
+        }}
+      />
     </div>
   );
 }
