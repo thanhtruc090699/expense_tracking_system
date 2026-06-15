@@ -45,6 +45,8 @@ Pflegen Sie das Protokoll möglichst zeitnah, damit die Git-Historie die Entwick
 | 14.06.2026 | Truc Trinh | OpenAI Codex | Lisa OCR and category-based invoice analysis | Adjusted the backend flow so Lisa receives the uploaded receipt image, OCR is called from the backend, categories are loaded from the database, and the prompt was refined to keep only real purchased products with name, quantity, price, total price and category data. |
 | 14.06.2026 | Truc Trinh | OpenAI Codex | Fixing Lisa API response mapping and frontend handling | Investigated backend/frontend mismatch for receipt scan results, adapted response handling so validated invoice data can be mapped to the frontend form, and checked the backend build after generated model updates. |
 | 14.06.2026 | Truc Trinh | OpenAI Codex | Allow uncategorized expense items | Fixed Prisma error `P2011` for `expense_items.category_id` by allowing nullable category IDs in `expense-items.yaml`, regenerating models, updating service typing, adding a migration to drop the database NOT NULL constraint, and verifying the backend build. |
+| 15.06.2026 | Hanna | OpenAI Codex | Delete modal | Replaced browser confirm dialogs with a shared delete confirmation modal across pages. |
+| 15.06.2026 | Hanna| OpenAI Codex | Analytics page | Implemented analytics page from Figma with spending trend, export buttons, category breakdown, and insight cards. |
 |  |  |  |  |  |
 
 ## Optionale ergänzende Hinweise
