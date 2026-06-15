@@ -48,12 +48,14 @@ export class LisaApiImpl extends LisaApi {
     file: Blob,
     model: string | undefined,
     prompt: string | undefined,
+    expenseId: string | undefined,
     request: Request,
   ): Promise<AiProcessInvoiceResponse> {
     return await this.lisaService.lisaProcessInvoice(
       file,
       model,
       prompt,
+      expenseId,
       request,
     );
   }

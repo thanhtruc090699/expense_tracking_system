@@ -134,6 +134,39 @@ body.dark-mode .filter-tab.active:hover {
   font-weight: 600;
 }
 
+.expense-badge.validating {
+  background: #fff7cc;
+  color: #b58105;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.expense-badge.validated {
+  background: #d4edda;
+  color: #155724;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.expense-badge.needs-review {
+  background: #fff3cd;
+  color: #856404;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .expense-note {
   font-size: 13px;
   color: #666;
@@ -240,6 +273,21 @@ body.dark-mode .expense-note {
 body.dark-mode .expense-badge.recurring {
   background: #1a3a1a;
   color: #4ade80;
+}
+
+body.dark-mode .expense-badge.validating {
+  background: #2d2a1a;
+  color: #f0c94e;
+}
+
+body.dark-mode .expense-badge.validated {
+  background: #1a3a1a;
+  color: #4ade80;
+}
+
+body.dark-mode .expense-badge.needs-review {
+  background: #2d2610;
+  color: #f0c94e;
 }
 
 body.dark-mode .expense-action-btn {

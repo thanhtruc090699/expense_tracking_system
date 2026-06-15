@@ -22,6 +22,7 @@ export function ExpensesPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [validatingExpenseIds, setValidatingExpenseIds] = useState<Set<string>>(new Set());
   
   // Detail sheet state
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -153,7 +154,59 @@ export function ExpensesPage() {
     setHasMore(true);
     fetchExpenses(activeFilter, 0, false);
     fetchCategories();
+    
+    const recentlyScanned = sessionStorage.getItem('recentlyScannedExpenseIds');
+    if (recentlyScanned) {
+      const ids = JSON.parse(recentlyScanned);
+      setValidatingExpenseIds(new Set(ids));
+      ids.forEach((id: string) => {
+        pollLisaValidation(id);
+      });
+    }
   }, [activeFilter]);
+
+  const pollLisaValidation = async (expenseId: string, maxAttempts = 30) => {
+    const token = getToken();
+    if (!token) return;
+
+    let attempts = 0;
+    const pollInterval = setInterval(async () => {
+      attempts++;
+      
+      try {
+        const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${expenseId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        if (res.ok) {
+          const expense = await res.json();
+          
+          if (expense.note?.includes('Lisa validation:') || attempts >= maxAttempts) {
+            clearInterval(pollInterval);
+            setValidatingExpenseIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(expenseId);
+              sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify([...newSet]));
+              return newSet;
+            });
+            
+            setExpenses(prev => 
+              prev.map(e => e.id === expenseId ? expense : e)
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+        }
+      }
+    }, 2000);
+
+    setTimeout(() => clearInterval(pollInterval), maxAttempts * 2000);
+  };
 
   const fetchExpenseWithItems = async (expenseId: string) => {
     const token = getToken();
@@ -481,7 +534,16 @@ export function ExpensesPage() {
                 {expense.isRecurring && (
                   <span className="expense-badge recurring">Recurring</span>
                 )}
-                {expense.note && (
+                {validatingExpenseIds.has(expense.id) && (
+                  <span className="expense-badge validating">Lisa validating...</span>
+                )}
+                {!validatingExpenseIds.has(expense.id) && expense.note?.includes('Lisa validation: valid') && (
+                  <span className="expense-badge validated">✓ Lisa validated</span>
+                )}
+                {!validatingExpenseIds.has(expense.id) && expense.note?.includes('Lisa validation: needs_review') && (
+                  <span className="expense-badge needs-review">Lisa needs review</span>
+                )}
+                {expense.note && !expense.note.includes('Lisa validation:') && (
                   <span className="expense-note">{expense.note}</span>
                 )}
                 <div className="expense-actions" onClick={(e) => e.stopPropagation()}>
