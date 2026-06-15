@@ -54,6 +54,7 @@ export class ExpensesApiImpl extends ExpensesApi {
     userId: string | undefined,
     startDate: string | undefined,
     endDate: string | undefined,
+    categoryId: string | undefined,
     limit: number | undefined,
     offset: number | undefined,
     request: Request,
@@ -65,6 +66,7 @@ export class ExpensesApiImpl extends ExpensesApi {
       userId: effectiveUserId,
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
+      categoryId,
       limit,
       offset,
     });

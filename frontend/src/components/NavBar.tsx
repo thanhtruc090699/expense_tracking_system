@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Plus, Upload, Search } from "lucide-react";
+import { ChevronDown, Plus, Upload, Search } from "lucide-react";
 import { getToken } from "../auth";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
@@ -30,6 +30,11 @@ interface ValidatedInvoice {
   validationStatus: "valid" | "needs_review" | "invalid";
 }
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 export default function NavBar() {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [activeTab, setActiveTab] = useState<"scan" | "manual">("scan");
@@ -43,6 +48,8 @@ export default function NavBar() {
   const [description, setDescription] = useState("");
   const [merchantName, setMerchantName] = useState("");
   const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchantId, setSelectedMerchantId] = useState<string | null>(null);
@@ -54,6 +61,7 @@ export default function NavBar() {
   useEffect(() => {
     if (showAddExpense && activeTab === "manual") {
       fetchMerchants();
+      fetchCategories();
       prefillDateTime();
     }
   }, [showAddExpense, activeTab]);
@@ -104,6 +112,27 @@ export default function NavBar() {
       }
     } catch (err) {
       console.error("Failed to fetch merchants:", err);
+    }
+  };
+
+  const fetchCategories = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${ALLOWED_HOST}:3000/categories`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
     }
   };
 
@@ -218,6 +247,11 @@ export default function NavBar() {
       return;
     }
 
+    if (!selectedCategoryId) {
+      setManualError("Please select a category");
+      return;
+    }
+
     const token = getToken();
     if (!token) {
       setManualError("Not authenticated. Please log in.");
@@ -277,6 +311,37 @@ export default function NavBar() {
         throw new Error(errorData.message || "Failed to create expense");
       }
 
+      const expense = await expenseRes.json();
+
+      const itemRes = await fetch(`${ALLOWED_HOST}:3000/expense-items`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          expenseId: expense.id,
+          itemName:
+            description.trim() || merchantName.trim() || "Manual expense",
+          unitPrice: amountValue,
+          quantity: 1,
+          totalPrice: amountValue,
+          categoryId: selectedCategoryId,
+        }),
+      });
+
+      if (!itemRes.ok) {
+        await fetch(`${ALLOWED_HOST}:3000/expenses/${expense.id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const errorData = await itemRes.json();
+        throw new Error(errorData.message || "Failed to categorize expense");
+      }
+
       setShowAddExpense(false);
       resetForm();
       navigate("/expenses");
@@ -297,6 +362,7 @@ export default function NavBar() {
     setDescription("");
     setRepeat(false);
     setSelectedMerchantId(null);
+    setSelectedCategoryId("");
     setFilteredMerchants([]);
     setShowDropdown(false);
     setManualError(null);
@@ -564,6 +630,30 @@ export default function NavBar() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
+
+                  <div className="relative mt-2">
+                    <select
+                      className={`w-full h-[54px] appearance-none border border-[#edf0f7] dark:border-gray-600 rounded-xl pl-5 pr-12 text-lg bg-white dark:bg-[#1e1e1e] ${
+                        selectedCategoryId
+                          ? "text-[#20242b] dark:text-white"
+                          : "text-[#9498a8]"
+                      }`}
+                      value={selectedCategoryId}
+                      onChange={(e) => setSelectedCategoryId(e.target.value)}
+                    >
+                      <option value="">Select category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#20242b] dark:text-white"
+                      size={20}
+                      strokeWidth={2.25}
+                    />
+                  </div>
 
                   <div className="flex justify-between items-center mt-2">
                     <div>

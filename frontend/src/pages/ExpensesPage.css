@@ -16,52 +16,148 @@
 }
 
 .filter-tabs {
-  display: flex;
-  gap: 8px;
+  position: relative;
   margin-bottom: 20px;
 }
 
+.filter-tab-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .filter-tab {
-  background: #f5f5f5;
-  border: none;
-  padding: 8px 20px;
+  min-width: 58px;
+  height: 38px;
+  background: #fff;
+  border: 1px solid #e7e7e7;
+  padding: 0 14px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: #050505;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .filter-tab:hover {
-  background: #e5e5e5;
+  background: #f8f8f8;
 }
 
 .filter-tab.active {
-  background: #2d5b2d;
+  background: #185925;
+  border-color: #185925;
   color: white;
+  box-shadow: none;
 }
 
 .filter-tab.active:hover {
-  background: #234a23;
+  background: #185925;
+}
+
+.category-filter {
+  position: relative;
+}
+
+.category-filter-button {
+  min-width: 94px;
+}
+
+.category-filter-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(220px, calc(100vw - 32px));
+  background: #fff;
+  border: 1px solid #efefef;
+  border-radius: 14px;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
+  padding: 8px 0;
+  z-index: 50;
+}
+
+.category-filter-option {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  background: transparent;
+  border: 0;
+  padding: 0 16px;
+  text-align: left;
+  color: #101828;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.category-filter-option:hover {
+  background: #f5f7f5;
 }
 
 body.dark-mode .filter-tab {
-  background: #2a2a2a;
-  color: #ccc;
+  background: #fff;
+  border-color: #e7e7e7;
+  color: #050505;
 }
 
 body.dark-mode .filter-tab:hover {
-  background: #3a3a3a;
+  background: #f8f8f8;
 }
 
 body.dark-mode .filter-tab.active {
-  background: #2d5b2d;
+  background: #185925;
+  border-color: #185925;
   color: white;
 }
 
 body.dark-mode .filter-tab.active:hover {
-  background: #3a7a3a;
+  background: #185925;
+}
+
+body.dark-mode .category-filter-menu {
+  background: #fff;
+  border-color: #efefef;
+}
+
+body.dark-mode .category-filter-option {
+  color: #101828;
+}
+
+body.dark-mode .category-filter-option:hover {
+  background: #f5f7f5;
+}
+
+@media (max-width: 430px) {
+  .filter-tab-row {
+    gap: 8px;
+  }
+
+  .filter-tab {
+    min-width: 52px;
+    height: 36px;
+    padding: 0 13px;
+    font-size: 14px;
+  }
+
+  .category-filter-button {
+    min-width: 88px;
+  }
+
+  .category-filter-menu {
+    right: auto;
+    left: 0;
+    width: min(220px, calc(100vw - 32px));
+    border-radius: 14px;
+    padding: 8px 0;
+  }
+
+  .category-filter-option {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
 }
 
 .expense-list {

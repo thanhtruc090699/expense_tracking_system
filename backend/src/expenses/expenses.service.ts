@@ -6,6 +6,16 @@ import {
 } from '@nestjs/common';
 import { prisma } from '../prisma';
 
+const CATEGORY_FILTER_ALIASES: Record<string, string[]> = {
+  Groceries: ['Groceries', 'Food'],
+  Restaurant: ['Restaurant', 'Restaurants'],
+  Transportation: ['Transportation', 'Transport'],
+  Subscription: ['Subscription', 'Subscriptions'],
+  'Clothing / Apparel': ['Clothing / Apparel', 'Clothing', 'Clothes'],
+  Electronics: ['Electronics'],
+  Other: ['Other', 'Others'],
+};
+
 @Injectable()
 export class ExpensesService {
   async create(data: {
@@ -30,6 +40,7 @@ export class ExpensesService {
     userId?: string;
     startDate?: Date;
     endDate?: Date;
+    categoryId?: string;
     limit?: number;
     offset?: number;
   }) {
@@ -48,6 +59,39 @@ export class ExpensesService {
         if (filters.endDate) {
           where.expenseDate.lte = filters.endDate;
         }
+      }
+
+      if (filters.categoryId) {
+        const selectedCategory = await prisma.category.findUnique({
+          where: { id: filters.categoryId },
+        });
+        const categoryNames = selectedCategory
+          ? CATEGORY_FILTER_ALIASES[selectedCategory.name] ?? [
+              selectedCategory.name,
+            ]
+          : [];
+        const matchingCategories = categoryNames.length
+          ? await prisma.category.findMany({
+              where: {
+                name: {
+                  in: categoryNames,
+                },
+              },
+              select: { id: true },
+            })
+          : [];
+        const categoryIds = [
+          filters.categoryId,
+          ...matchingCategories.map((category) => category.id),
+        ];
+
+        where.expenseItems = {
+          some: {
+            categoryId: {
+              in: [...new Set(categoryIds)],
+            },
+          },
+        };
       }
 
       const limit = filters.limit ?? 20;

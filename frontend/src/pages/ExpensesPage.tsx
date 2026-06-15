@@ -20,6 +20,8 @@ export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   
@@ -57,7 +59,12 @@ export function ExpensesPage() {
     }
   };
 
-  const fetchExpenses = async (filter: FilterType = 'all', newOffset: number = 0, append: boolean = false) => {
+  const fetchExpenses = async (
+    filter: FilterType = 'all',
+    newOffset: number = 0,
+    append: boolean = false,
+    categoryId: string = selectedCategoryId,
+  ) => {
     const token = getToken();
     if (!token) {
       setLoading(false);
@@ -96,6 +103,10 @@ export function ExpensesPage() {
         params.set('offset', newOffset.toString());
       }
 
+      if (categoryId) {
+        params.set('categoryId', categoryId);
+      }
+
       const queryString = params.toString();
       if (queryString) {
         url += `?${queryString}`;
@@ -127,7 +138,7 @@ export function ExpensesPage() {
     
     const newOffset = offset + EXPENSES_PER_PAGE;
     setOffset(newOffset);
-    fetchExpenses('all', newOffset, true);
+    fetchExpenses('all', newOffset, true, selectedCategoryId);
   };
 
   useEffect(() => {
@@ -151,9 +162,9 @@ export function ExpensesPage() {
     setExpenses([]);
     setOffset(0);
     setHasMore(true);
-    fetchExpenses(activeFilter, 0, false);
+    fetchExpenses(activeFilter, 0, false, selectedCategoryId);
     fetchCategories();
-  }, [activeFilter]);
+  }, [activeFilter, selectedCategoryId]);
 
   const fetchExpenseWithItems = async (expenseId: string) => {
     const token = getToken();
@@ -258,7 +269,7 @@ export function ExpensesPage() {
 
   const handleDeleteItem = async (itemId: string) => {
     if (!confirm('Delete this item?')) return;
-    
+
     const token = getToken();
     if (!token) return;
 
@@ -371,8 +382,13 @@ export function ExpensesPage() {
         merchantId = existingMerchantId;
       }
 
-      // Update expense
-      const updatePayload: any = {
+      const updatePayload: {
+        totalAmount: number;
+        expenseDate: string;
+        isRecurring: boolean;
+        merchantId?: string;
+        note?: string | null;
+      } = {
         totalAmount: editingExpense.totalAmount,
         expenseDate: new Date(data.expenseDate).toISOString(),
         isRecurring: editingExpense.isRecurring,
@@ -390,7 +406,7 @@ export function ExpensesPage() {
       });
 
       if (res.ok) {
-        fetchExpenses(activeFilter, 0, false);
+        fetchExpenses(activeFilter, 0, false, selectedCategoryId);
       }
     } catch (err) {
       console.error('Failed to edit expense:', err);
@@ -411,7 +427,7 @@ export function ExpensesPage() {
         },
       });
 
-      fetchExpenses(activeFilter, 0, false);
+      fetchExpenses(activeFilter, 0, false, selectedCategoryId);
     } catch (err) {
       console.error('Failed to delete:', err);
     }
@@ -436,24 +452,64 @@ export function ExpensesPage() {
       </div>
 
       <div className="filter-tabs">
-        <button
-          className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('all')}
-        >
-          All
-        </button>
-        <button
-          className={`filter-tab ${activeFilter === 'month' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('month')}
-        >
-          Month
-        </button>
-        <button
-          className={`filter-tab ${activeFilter === 'week' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('week')}
-        >
-          Week
-        </button>
+        <div className="filter-tab-row">
+          <button
+            className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveFilter('all');
+              setSelectedCategoryId('');
+              setShowCategoryMenu(false);
+            }}
+          >
+            All
+          </button>
+          <button
+            className={`filter-tab ${activeFilter === 'month' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveFilter('month');
+              setShowCategoryMenu(false);
+            }}
+          >
+            Month
+          </button>
+          <button
+            className={`filter-tab ${activeFilter === 'week' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveFilter('week');
+              setShowCategoryMenu(false);
+            }}
+          >
+            Week
+          </button>
+          <div className="category-filter">
+            <button
+              className={`filter-tab category-filter-button ${
+                selectedCategoryId ? 'active' : ''
+              }`}
+              onClick={() => setShowCategoryMenu((open) => !open)}
+            >
+              Category
+            </button>
+            {showCategoryMenu && (
+              <div className="category-filter-menu">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    className="category-filter-option"
+                    onClick={() => {
+                      setSelectedCategoryId(category.id);
+                      setShowCategoryMenu(false);
+                    }}
+                  >
+                    {category.name === 'Clothing / Apparel'
+                      ? 'Clothing'
+                      : category.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {loading && <div className="expenses-loading">Loading...</div>}

@@ -26,6 +26,13 @@ paths:
             type: string
             format: date-time
           description: Filter expenses until this date (inclusive)
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter expenses that contain at least one item in this category
         - name: limit
           in: query
           required: false
