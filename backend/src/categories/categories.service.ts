@@ -5,30 +5,8 @@ import {
 } from '@nestjs/common';
 import { prisma } from '../prisma';
 
-const DEFAULT_CATEGORIES = [
-  { name: 'Restaurant', icon: 'restaurant' },
-  { name: 'Groceries', icon: 'groceries' },
-  { name: 'Transportation', icon: 'transportation' },
-  { name: 'Subscription', icon: 'subscription' },
-  { name: 'Clothing / Apparel', icon: 'clothing' },
-  { name: 'Electronics', icon: 'electronics' },
-  { name: 'Other', icon: 'other' },
-];
-
 @Injectable()
 export class CategoriesService {
-  private async ensureDefaultCategories() {
-    await Promise.all(
-      DEFAULT_CATEGORIES.map((category) =>
-        prisma.category.upsert({
-          where: { name: category.name },
-          update: {},
-          create: category,
-        }),
-      ),
-    );
-  }
-
   async create(data: { name: string; icon?: string }) {
     try {
       return await prisma.category.create({ data });
@@ -41,7 +19,6 @@ export class CategoriesService {
   }
 
   async findAll() {
-    await this.ensureDefaultCategories();
     return prisma.category.findMany({ orderBy: { name: 'asc' } });
   }
 
