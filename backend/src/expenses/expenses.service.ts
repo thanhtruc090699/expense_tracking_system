@@ -199,7 +199,7 @@ export class ExpensesService {
         merchant: true,
         expenseItems: true,
       },
-      orderBy: { totalAmount: 'desc' },
+      orderBy: { expenseDate: 'desc' },
     });
 
     const totalAmount = expenses.reduce(
