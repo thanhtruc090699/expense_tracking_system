@@ -13,11 +13,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  background: #f7f7f7;
 }
 
 .profile-header h2 {
   font-size: 1.25rem;
   font-weight: 700;
+  background: #f7f7f7;
 }
 
 .close-btn {
@@ -25,7 +27,7 @@
   height: 28px;
   border: none;
   border-radius: 50%;
-  background: #ececec;
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,7 +52,7 @@
 }
 
 .profile-image-avatar {
-  margin: 0 auto 24px;
+  margin: 0 auto 36px;
   display: flex;
   justify-content: center;
 }
@@ -60,7 +62,7 @@
   height: 115px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 24px;
+  margin-bottom: 50px;
 }
 
 .profile-buttons {
@@ -68,6 +70,7 @@
   gap: 10px;
   justify-content: center;
   margin-bottom: 50px;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
