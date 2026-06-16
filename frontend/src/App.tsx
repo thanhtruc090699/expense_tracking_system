@@ -1,4 +1,6 @@
 import "./index.css";
+import "./styles/darkmode.css";
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Layout } from "./components/Layout";
@@ -11,6 +13,7 @@ import { EasyOcrPage } from "./pages/EasyOcrPage";
 import { LisaChatPage } from "./pages/LisaChatPage";
 import { DocsPage } from "./pages/DocsPage";
 import { LoginPage } from "./pages/LoginPage";
+
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 
@@ -21,6 +24,7 @@ import EditProfilePage from "./pages/ProfileAndSettingsPages/EditProfilePage";
 import LanguagePage from "./pages/ProfileAndSettingsPages/LanguagePage";
 import ResetPasswordPage from "./pages/ProfileAndSettingsPages/ResetPasswordPage";
 import ThemePage from "./pages/ProfileAndSettingsPages/ThemePage";
+
 
 import { isAuthenticated, redirectToLogin, getTokenFromCode } from "./auth";
 
@@ -37,10 +41,12 @@ function App() {
     const theme = localStorage.getItem("theme");
 
     if (theme === "dark") {
+      document.documentElement.classList.add("dark");
       document.body.classList.add("dark-mode");
-    } else {
+  } else {
+      document.documentElement.classList.remove("dark");
       document.body.classList.remove("dark-mode");
-    }
+  }
   }, []);
 
   const handleLogin = () => {
