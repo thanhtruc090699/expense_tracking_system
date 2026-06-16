@@ -24,7 +24,7 @@ import EditProfilePage from "./pages/ProfileAndSettingsPages/EditProfilePage";
 import LanguagePage from "./pages/ProfileAndSettingsPages/LanguagePage";
 import ResetPasswordPage from "./pages/ProfileAndSettingsPages/ResetPasswordPage";
 import ThemePage from "./pages/ProfileAndSettingsPages/ThemePage";
-
+import NotFoundPage from "./pages/NotFoundPage";
 
 import { isAuthenticated, redirectToLogin, getTokenFromCode } from "./auth";
 
@@ -78,6 +78,7 @@ function App() {
         <Route path="/language" element={<LanguagePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/theme" element={<ThemePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
