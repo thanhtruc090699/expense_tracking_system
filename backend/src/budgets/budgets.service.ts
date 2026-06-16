@@ -22,21 +22,10 @@ export class BudgetsService {
   async createBudget(dto: CreateBudgetDto, request: Request): Promise<Budget> {
     const user = request['user'] as { id: string } | undefined;
 
-    console.log('REQUEST USER =', user);
-    console.log('REQUEST USER ID =', user?.id);
-    console.log('DTO USER ID =', dto.userId);
-
     if (!user?.id) {
       throw new UnauthorizedException('Authentification is required');
     }
 
-    if (!dto.userId) {
-      throw new BadRequestException('userId is required');
-    }
-
-    if (dto.userId != user.id) {
-      throw new ForbiddenException('You can only create budgets for yourself');
-    }
     if (dto.amount <= 0) {
       throw new BadRequestException('Amount must be greater than 0');
     }
@@ -54,19 +43,16 @@ export class BudgetsService {
       throw new BadRequestException('End date must be a valid date string');
     }
 
-    if (endDate && endDate < new Date()) {
-      throw new BadRequestException('End date must be in the future');
+    if (!endDate) {
+      throw new BadRequestException('End date is required');
     }
 
-    if (dto.notifyThreshold !== undefined && dto.notifyThreshold < 0) {
+    if (
+      dto.notifyThreshold !== undefined &&
+      (dto.notifyThreshold < 0 || dto.notifyThreshold > 100)
+    ) {
       throw new BadRequestException(
-        'Notify threshold must be greater than or equal to 0',
-      );
-    }
-
-    if (dto.notifyThreshold !== undefined && dto.notifyThreshold > dto.amount) {
-      throw new BadRequestException(
-        'Notify threshold cannot be greater than amount',
+        'Notify threshold must be between 0 and 100',
       );
     }
 
@@ -81,8 +67,9 @@ export class BudgetsService {
 
     const existingBudget = await prisma.budget.findFirst({
       where: {
-        userId: dto.userId,
+        userId: user.id,
         categoryId: dto.categoryId || null,
+        endDate: this.monthDateRange(endDate),
       },
     });
 
@@ -92,7 +79,7 @@ export class BudgetsService {
 
     const createdBudget = await prisma.budget.create({
       data: {
-        userId: dto.userId,
+        userId: user.id,
         categoryId: dto.categoryId || null,
         amount: dto.amount,
         notifyThreshold: dto.notifyThreshold,
@@ -198,16 +185,13 @@ export class BudgetsService {
       }
     }
 
-    if (endDate && endDate < new Date()) {
-      throw new BadRequestException('End date must be in the future');
-    }
-
     if (
       updateBudgetDto.notifyThreshold !== undefined &&
-      updateBudgetDto.notifyThreshold < 0
+      (updateBudgetDto.notifyThreshold < 0 ||
+        updateBudgetDto.notifyThreshold > 100)
     ) {
       throw new BadRequestException(
-        'Notify threshold must be greater than or equal to 0',
+        'Notify threshold must be between 0 and 100',
       );
     }
 
@@ -218,6 +202,19 @@ export class BudgetsService {
       if (!category) {
         throw new BadRequestException('Category does not exist');
       }
+    }
+
+    const duplicateBudget = await prisma.budget.findFirst({
+      where: {
+        id: { not: id },
+        userId: user.id,
+        categoryId: updateBudgetDto.categoryId || null,
+        ...(endDate ? { endDate: this.monthDateRange(endDate) } : {}),
+      },
+    });
+
+    if (duplicateBudget) {
+      throw new ConflictException('Budget already exists for this category');
     }
 
     const updatedBudget = await prisma.budget.update({
@@ -273,8 +270,14 @@ export class BudgetsService {
       }
     }
 
-    if (endDate && endDate < new Date()) {
-      throw new BadRequestException('End date must be in the future');
+    if (
+      partiallyUpdateBudgetDto.notifyThreshold !== undefined &&
+      (partiallyUpdateBudgetDto.notifyThreshold < 0 ||
+        partiallyUpdateBudgetDto.notifyThreshold > 100)
+    ) {
+      throw new BadRequestException(
+        'Notify threshold must be between 0 and 100',
+      );
     }
 
     if (partiallyUpdateBudgetDto.categoryId) {
@@ -283,6 +286,30 @@ export class BudgetsService {
       });
       if (!category) {
         throw new BadRequestException('Category does not exist');
+      }
+    }
+
+    const nextCategoryId =
+      partiallyUpdateBudgetDto.categoryId !== undefined
+        ? partiallyUpdateBudgetDto.categoryId
+        : existingBudget.categoryId;
+    const nextEndDate =
+      partiallyUpdateBudgetDto.endDate !== undefined
+        ? endDate
+        : existingBudget.endDate;
+
+    if (nextEndDate) {
+      const duplicateBudget = await prisma.budget.findFirst({
+        where: {
+          id: { not: id },
+          userId: user.id,
+          categoryId: nextCategoryId || null,
+          endDate: this.monthDateRange(nextEndDate),
+        },
+      });
+
+      if (duplicateBudget) {
+        throw new ConflictException('Budget already exists for this category');
       }
     }
 
@@ -328,5 +355,20 @@ export class BudgetsService {
     }
 
     return prisma.budget.delete({ where: { id } });
+  }
+
+  private monthDateRange(date: Date) {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1);
+    const end = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    return { gte: start, lte: end };
   }
 }
