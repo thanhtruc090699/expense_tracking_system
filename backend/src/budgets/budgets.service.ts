@@ -10,7 +10,6 @@ import { prisma } from '../prisma';
 import {
   Budget,
   CreateBudgetDto,
-  DeleteBudget200Response,
   PartiallyUpdateBudgetDto,
   UpdateBudgetDto,
 } from '../generated/models';

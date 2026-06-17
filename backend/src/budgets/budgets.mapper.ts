@@ -1,10 +1,3 @@
-// budgets.mapper.ts
-import type {
-  Budget,
-  CreateBudgetDto,
-  UpdateBudgetDto,
-  DeleteBudget200Response,
-} from '../generated/models';
 export const BudgetMapper = {
   toBudget(createdBudget: any) {
     return {
