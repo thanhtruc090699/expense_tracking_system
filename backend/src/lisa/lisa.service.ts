@@ -490,6 +490,7 @@ Return exactly:
     uploadedFile: Blob,
     model: string | undefined,
     prompt: string | undefined,
+    expenseId?: string,
     request?: Request,
   ): Promise<AiProcessInvoiceResponse> {
     const user = request?.['user'] as { id: string } | undefined;
@@ -508,53 +509,171 @@ Return exactly:
 
     if (!invoice?.merchant || !invoice.totalAmount) {
       throw new BadRequestException('Validated invoice is missing merchant or total amount');
-      }
+    }
 
-    const merchant = await this.merchantsService.create({
-      name: invoice.merchant,
-    });
-
-    const expense = await this.expensesService.create({
-      userId: user.id,
-      merchantId: merchant.id,
-      totalAmount: invoice.totalAmount,
-      expenseDate: invoice.date ? new Date(invoice.date) : new Date(),
-      note: `Lisa validation: ${invoice.validationStatus}`,
-    });
-
+    let merchantId: string;
+    let merchantName: string;
+    let expense: any;
     const createdItems: ExpenseItem[] = [];
 
-    for (const item of invoice.items ?? []) {
-      if (!item.name || !item.totalPrice || item.totalPrice <= 0) {
-        continue;
+    if (expenseId) {
+      const existingExpense = await this.expensesService.findOne(expenseId);
+      
+      if (!existingExpense) {
+        throw new BadRequestException(`Expense with ID ${expenseId} not found`);
       }
 
-      const quantity =
-        item.quantity && Number.isInteger(item.quantity) && item.quantity > 0
-          ? item.quantity
-          : 1;
-      const unitPrice =
-        item.unitPrice && item.unitPrice > 0
-          ? item.unitPrice
-          : item.totalPrice / quantity;
+      if (existingExpense.userId !== user.id) {
+        throw new BadRequestException('Expense does not belong to authenticated user');
+      }
 
-      const created = await this.expenseItemsService.create({
-        expenseId: expense.id,
-        itemName: item.name,
-        quantity,
-        unitPrice,
-        totalPrice: item.totalPrice,
-        categoryId: item.categoryId ?? undefined,
-    });
+      merchantId = existingExpense.merchantId!;
+      
+      if (invoice.merchant !== existingExpense.merchant?.name) {
+        await this.merchantsService.update(merchantId, {
+          name: invoice.merchant,
+        });
+      }
+      merchantName = invoice.merchant;
 
-      createdItems.push(this.toExpenseItem(created));
+      const updateData: any = {
+        totalAmount: invoice.totalAmount,
+        note: `Lisa validation: ${invoice.validationStatus}`,
+      };
+      
+      if (invoice.date) {
+        updateData.expenseDate = new Date(invoice.date);
+      }
+
+      await this.expensesService.update(expenseId, updateData);
+      expense = {
+        id: expenseId,
+        totalAmount: invoice.totalAmount,
+        createdAt: existingExpense.createdAt,
+      };
+
+      const existingItems = await this.expenseItemsService.findAll(expenseId);
+      
+      const lisaItemsMap = new Map<string, typeof invoice.items[number]>();
+      for (const item of invoice.items ?? []) {
+        if (item.name) {
+          lisaItemsMap.set(item.name.toLowerCase().trim(), item);
+        }
+      }
+
+      const itemsToDelete = existingItems.filter(
+        (existingItem) => !lisaItemsMap.has(existingItem.itemName.toLowerCase().trim())
+      );
+
+      for (const itemToDelete of itemsToDelete) {
+        await this.expenseItemsService.delete(itemToDelete.id);
+      }
+
+      for (const item of invoice.items ?? []) {
+        if (!item.name || item.totalPrice === null || item.totalPrice === undefined) {
+          continue;
+        }
+
+        const existingItem = existingItems.find(
+          (ei) => ei.itemName.toLowerCase().trim() === item.name!.toLowerCase().trim()
+        );
+
+        const quantity =
+          item.quantity && Number.isInteger(item.quantity) && item.quantity > 0
+            ? item.quantity
+            : 1;
+        const unitPrice =
+          item.unitPrice && item.unitPrice > 0
+            ? item.unitPrice
+            : item.totalPrice / quantity;
+
+        if (existingItem) {
+          const needsUpdate =
+            Math.abs(Number(existingItem.totalPrice) - item.totalPrice) > 0.01 ||
+            Math.abs(Number(existingItem.unitPrice) - unitPrice) > 0.01 ||
+            existingItem.quantity !== quantity;
+
+          if (needsUpdate) {
+            await this.expenseItemsService.update(existingItem.id, {
+              itemName: item.name,
+              quantity,
+              unitPrice,
+              totalPrice: item.totalPrice,
+              categoryId: item.categoryId ?? undefined,
+            });
+          }
+
+          createdItems.push(this.toExpenseItem({
+            ...existingItem,
+            quantity,
+            unitPrice,
+            totalPrice: item.totalPrice,
+          }));
+        } else {
+          if (item.totalPrice <= 0) {
+            continue;
+          }
+
+          const created = await this.expenseItemsService.create({
+            expenseId: expenseId,
+            itemName: item.name,
+            quantity,
+            unitPrice,
+            totalPrice: item.totalPrice,
+            categoryId: item.categoryId ?? undefined,
+          });
+
+          createdItems.push(this.toExpenseItem(created));
+        }
+      }
+    } else {
+      const merchant = await this.merchantsService.create({
+        name: invoice.merchant,
+      });
+
+      expense = await this.expensesService.create({
+        userId: user.id,
+        merchantId: merchant.id,
+        totalAmount: invoice.totalAmount,
+        expenseDate: invoice.date ? new Date(invoice.date) : new Date(),
+        note: `Lisa validation: ${invoice.validationStatus}`,
+      });
+
+      merchantId = merchant.id;
+      merchantName = merchant.name;
+
+      for (const item of invoice.items ?? []) {
+        if (!item.name || !item.totalPrice || item.totalPrice <= 0) {
+          continue;
+        }
+
+        const quantity =
+          item.quantity && Number.isInteger(item.quantity) && item.quantity > 0
+            ? item.quantity
+            : 1;
+        const unitPrice =
+          item.unitPrice && item.unitPrice > 0
+            ? item.unitPrice
+            : item.totalPrice / quantity;
+
+        const created = await this.expenseItemsService.create({
+          expenseId: expense.id,
+          itemName: item.name,
+          quantity,
+          unitPrice,
+          totalPrice: item.totalPrice,
+          categoryId: item.categoryId ?? undefined,
+        });
+
+        createdItems.push(this.toExpenseItem(created));
+      }
     }
 
     return {
       invoice: {
         expenseId: expense.id,
-        merchantId: merchant.id,
-        merchantName: merchant.name,
+        merchantId: merchantId,
+        merchantName: merchantName,
         totalAmount: Number(expense.totalAmount),
         items: createdItems,
         createdAt: expense.createdAt.toISOString(),

@@ -174,8 +174,8 @@ export default function NavBar() {
       formData.append("min_conf", "30");
       formData.append("pdf_mode", "auto");
 
-      const response = await fetch(
-        `${ALLOWED_HOST}:3000/lisa/process-invoice`,
+      const ocrResponse = await fetch(
+        `${ALLOWED_HOST}:3000/ocr/process-invoice`,
         {
           method: "POST",
           headers: {
@@ -185,22 +185,50 @@ export default function NavBar() {
         }
       );
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || `Error: ${response.status}`);
+      if (!ocrResponse.ok) {
+        const ocrData = await ocrResponse.json();
+        throw new Error(ocrData.message || `OCR Error: ${ocrResponse.status}`);
       }
 
-      const result = await response.json();
-      const invoice: ValidatedInvoice | undefined =
-        result.invoice ?? result.data?.invoice;
+      const ocrResult = await ocrResponse.json();
+      const expenseId = ocrResult.data?.expenseId;
 
-      if(result && invoice)
-      {
-        setShowAddExpense(true);
-        navigate("/expenses");
-      } else {
-        setScanError("Failed to process invoice");
+      if (!expenseId) {
+        throw new Error("OCR did not return expense ID");
       }
+
+      const currentScanning = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
+      currentScanning.push(expenseId);
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(currentScanning));
+
+      setShowAddExpense(true);
+      navigate("/expenses");
+
+      const lisaFormData = new FormData();
+      lisaFormData.append("file", selectedFile);
+      lisaFormData.append("expenseId", expenseId);
+
+      fetch(
+        `${ALLOWED_HOST}:3000/lisa/process-invoice`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: lisaFormData,
+        }
+      ).then(async (lisaResponse) => {
+        if (lisaResponse.ok) {
+          const lisaResult = await lisaResponse.json();
+          console.log("[Lisa Validation] Completed:", lisaResult);
+        } else {
+          const lisaError = await lisaResponse.json();
+          console.error("[Lisa Validation] Error:", lisaError);
+        }
+      }).catch((err) => {
+        console.error("[Lisa Validation] Failed:", err);
+      });
+
     } catch (err) {
       setScanError(
         err instanceof Error ? err.message : "Failed to scan invoice"

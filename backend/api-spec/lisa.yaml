@@ -242,7 +242,7 @@ paths:
   /lisa/process-invoice:
     post:
       operationId: lisaProcessInvoice
-      summary: create bill data with Lisa AI and persist invoice
+      summary: Validate bill with Lisa AI and persist invoice (optionally update existing expense)
       tags:
         - Lisa
       requestBody:
@@ -263,6 +263,10 @@ paths:
                   type: string
                   format: binary
                   description: Original bill image file for reference
+                expenseId:
+                  type: string
+                  format: uuid
+                  description: Optional existing expense ID to update instead of creating new
               required:
                 - file
       responses:

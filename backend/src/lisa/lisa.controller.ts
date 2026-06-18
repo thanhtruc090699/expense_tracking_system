@@ -13,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 type LisaBillForm = {
   model?: string;
   prompt?: string;
+  expenseId?: string;
 };
 
 @Controller('lisa')
@@ -54,6 +55,7 @@ export class LisaController {
       file as unknown as Blob,
       body.model,
       body.prompt,
+      body.expenseId,
       request,
     );
   }
