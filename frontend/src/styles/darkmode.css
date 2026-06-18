@@ -1,0 +1,183 @@
+
+/* Main background */
+body.dark-mode {
+  background-color: #0f1f14;
+  color: #f4fff6;
+}
+
+/* App wrappers */
+body.dark-mode .layout-container,
+body.dark-mode .main-wrapper,
+body.dark-mode .mobile-content,
+body.dark-mode main {
+  background-color: #0f1f14 !important;
+  color: #f4fff6 !important;
+}
+
+/* Tailwind dark background fix */
+body.dark-mode .dark\:bg-\[\#121212\] {
+  background-color: #0f1f14 !important;
+}
+
+/* Page titles and normal text */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode label {
+  color: #f4fff6;
+}
+
+/* Cards / white boxes */
+body.dark-mode .bg-white,
+body.dark-mode .card,
+body.dark-mode .manual-card,
+body.dark-mode .expense-sheet,
+body.dark-mode .pf-v5-c-card {
+  background-color: #182d1f !important;
+  color: #f4fff6 !important;
+  border-color: #2f4f38 !important;
+}
+
+/* Inputs */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #213826 !important;
+  color: #f4fff6 !important;
+  border-color: #4f6f58 !important;
+}
+
+/* Placeholder */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #c6d8c8 !important;
+}
+
+/* Light green accents */
+body.dark-mode .text-green-700,
+body.dark-mode .text-green-800,
+body.dark-mode .text-\[\#2d5b2d\],
+body.dark-mode .text-\[\#3d6b3d\] {
+  color: #a7f3a1 !important;
+}
+
+/* Dark green buttons become light green */
+body.dark-mode .bg-green-700,
+body.dark-mode .bg-green-800,
+body.dark-mode .bg-\[\#2d5b2d\],
+body.dark-mode .bg-\[\#3d6b3d\] {
+  background-color: #a7f3a1 !important;
+  color: #0f1f14 !important;
+}
+
+/* Navbar */
+body.dark-mode .bottom-nav,
+body.dark-mode .bottom-nav-wrapper,
+body.dark-mode nav {
+  background-color: #f4fff6 !important;
+  color: #0f1f14 !important;
+}
+
+/* Navbar icons/text */
+body.dark-mode .nav-item,
+body.dark-mode .bottom-nav button,
+body.dark-mode .bottom-nav a {
+  color: #0f1f14 !important;
+}
+
+/* Plus button */
+body.dark-mode .plus-button,
+body.dark-mode .add-button,
+body.dark-mode .floating-add-button {
+  background-color: #a7f3a1 !important;
+  color: #0f1f14 !important;
+}
+
+/* Small pills / badges */
+body.dark-mode .badge,
+body.dark-mode .pill {
+  background-color: #213826 !important;
+  color: #d9f99d !important;
+}
+
+/* Links */
+body.dark-mode a {
+  color: #d9f99d;
+}
+
+/* Scrollbar */
+body.dark-mode ::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #0f1f14;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: #4f6f58;
+  border-radius: 10px;
+}
+
+/* Overlay / Add Expense dark mode */
+body.dark-mode .expense-sheet,
+body.dark-mode .manual-card,
+body.dark-mode .scan-card,
+body.dark-mode .upload-box {
+  background-color: #182d1f !important;
+  color: #f4fff6 !important;
+}
+
+/* White tab background */
+body.dark-mode .expense-tabs {
+  background-color: #e8f5e9 !important;
+}
+
+/* Inactive tab text */
+body.dark-mode .expense-tabs button {
+  color: #0f1f14 !important;
+}
+
+/* Active tab */
+body.dark-mode .expense-tabs .active {
+  background-color: #2f5f35 !important;
+  color: #ffffff !important;
+}
+
+/* Budget page dark mode */
+body.dark-mode .budget-page {
+  background-color: #0f1f14 !important;
+  color: #f4fff6 !important;
+}
+
+body.dark-mode .budget-white-sheet,
+body.dark-mode .budget-empty-sheet {
+  background-color: #182d1f !important;
+  color: #f4fff6 !important;
+}
+
+body.dark-mode .budget-card {
+  background-color: #213826 !important;
+  color: #f4fff6 !important;
+  border-color: #3f6548 !important;
+}
+
+body.dark-mode .budget-head-row h2,
+body.dark-mode .budget-card h3,
+body.dark-mode .budget-money,
+body.dark-mode .budget-loading {
+  color: #f4fff6 !important;
+}
+
+body.dark-mode .budget-form-sheet {
+  background-color: #182d1f !important;
+  color: #f4fff6 !important;
+}
+
+body.dark-mode .budget-form-input {
+  background-color: #213826 !important;
+  color: #f4fff6 !important;
+  border-color: #4f6f58 !important;
+}

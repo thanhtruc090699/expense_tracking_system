@@ -489,7 +489,7 @@ export function BudgetsPage() {
                 {isDanger && (
                   <div className="budget-warning">
                     <span>
-                      <AlertCircle size={20} />
+                      <AlertCircle size={20} className= "text-[#0f1f14]" />
                     </span>
                     You&apos;ve exceed the limit
                   </div>

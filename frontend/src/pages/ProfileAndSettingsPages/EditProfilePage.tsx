@@ -13,9 +13,8 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // TODO: Add API call to save profile
       console.log("Saving profile:", { fullName });
-      // Simulating API call
+
       setTimeout(() => {
         navigate("/profile");
         setIsLoading(false);
@@ -27,19 +26,19 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="edit-profile-page">
+    <div className="edit-profile-page bg-[#f5f6fa] text-[#101828] dark:bg-[#0f1f14] dark:text-[#f4fff6]">
       
       {/* TOP NAVIGATION */}
-      <div className="edit-profile-header">
+      <div className="edit-profile-header bg-white text-[#101828] dark:bg-[#182d1f] dark:text-[#f4fff6]">
         <button 
-          className="back-btn"
+          className="back-btn bg-[#f0f1f4] text-[#101828] dark:bg-[#213826] dark:text-[#f4fff6]"
           onClick={() => navigate("/profile")}
           aria-label="Go back"
         >
           <ArrowLeft size={24} />
         </button>
 
-        <h2>Edit Profile</h2>
+        <h2 className="dark:text-[#f4fff6]">Edit Profile</h2>
 
         <div className="header-placeholder"></div>
       </div>
@@ -53,7 +52,7 @@ export default function EditProfilePage() {
         />
 
         <button 
-          className="camera-btn"
+          className="camera-btn bg-[#2d5b2d] text-white dark:bg-[#a7f3a1] dark:text-[#0f1f14]"
           aria-label="Change profile picture"
         >
           <Camera size={20} />
@@ -61,22 +60,27 @@ export default function EditProfilePage() {
       </div>
 
       {/* FORM */}
-      <div className="edit-profile-form">
+      <div className="edit-profile-form bg-white text-[#101828] dark:bg-[#182d1f] dark:text-[#f4fff6]">
         <div className="form-group">
-          <label htmlFor="fullName">Full Name:</label>
+          <label htmlFor="fullName" className="dark:text-[#f4fff6]">
+            Full Name:
+          </label>
+
           <input
             id="fullName"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="form-input"
-            placeholder="Enter your name"
+            className="save-btn !mt-10 !w-full !rounded-2xl !bg-[#2f5f35] !py-4 !text-lg !font-bold !text-white hover:!bg-[#3d7544] disabled:!opacity-60"            placeholder="Enter your name"
           />
-          <span className="form-helper">This is your display name.</span>
+
+          <span className="form-helper text-[#667085] dark:text-[#c6d8c8]">
+            This is your display name.
+          </span>
         </div>
 
         <button 
-          className="save-btn"
+          className="save-btn bg-[#2d5b2d] text-white dark:bg-[#2f5f35] dark:text-[#f4fff6]"
           onClick={handleSave}
           disabled={isLoading}
         >

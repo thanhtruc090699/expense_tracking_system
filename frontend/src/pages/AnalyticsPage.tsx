@@ -121,13 +121,13 @@ const buildLinePath = (points: TrendPoint[]) => {
   const max = Math.max(...values);
   const range = max - min || 1;
   const width = 500;
-  const height = 185;
+  const height = 165;
   const xStep = points.length > 1 ? width / (points.length - 1) : width;
 
   return points
     .map((point, index) => {
       const x = index * xStep;
-      const y = height - ((point.value - min) / range) * 150 - 18;
+      const y = height - ((point.value - min) / range) * 125 - 18;
       return `${index === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
     })
     .join(" ");
@@ -146,6 +146,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       const token = getToken();
+
       if (!token) {
         setLoading(false);
         return;
@@ -258,6 +259,8 @@ export default function AnalyticsPage() {
     downloadBlob(blob, "bill-buddy-analytics.csv");
   };
 
+  const currentMonth = longMonth(monthStart(0));
+
   const exportPdf = () => {
     const totalChangeLabel =
       totalChange === null
@@ -289,7 +292,6 @@ export default function AnalyticsPage() {
   };
 
   const trendPath = buildLinePath(trend);
-  const currentMonth = longMonth(monthStart(0));
   const maxCategoryAmount = Math.max(
     1,
     ...comparisons.flatMap((category) => [category.current, category.previous]),
@@ -297,24 +299,24 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f5f6fa] dark:bg-[#121212] flex items-center justify-center">
-        <p className="font-inter text-[#101828] dark:text-white">Loading...</p>
+      <main className="flex min-h-screen items-center justify-center bg-[#f5f6fa] dark:bg-[#0f1f14]">
+        <p className="font-inter text-[#101828] dark:text-[#f4fff6]">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6fa] dark:bg-[#121212] pb-[110px]">
+    <main className="min-h-screen bg-[#f5f6fa] pb-[120px] dark:bg-[#0f1f14]">
       <div className="mx-auto max-w-[430px] px-4 pt-5">
-        <section className="rounded-[14px] border border-[#dedede] bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-[#1e1e1e]">
-          <h1 className="font-arimo text-[22px] font-bold text-[#101828] dark:text-white">
+        <section className="rounded-[22px] border border-[#dedede] bg-white p-5 shadow-sm dark:border-[#3f6548] dark:bg-[#182d1f]">
+          <h1 className="font-arimo text-[22px] font-bold text-[#101828] dark:text-[#f4fff6]">
             Monthly Spending Trend
           </h1>
 
-          <div className="mt-8 h-[270px]">
+          <div className="mt-6 h-[220px] rounded-[18px] bg-[#f8f9fb] p-3 dark:bg-[#213826]">
             <svg
-              viewBox="-10 0 520 220"
-              className="h-[210px] w-full overflow-visible"
+              viewBox="-10 0 520 205"
+              className="h-[190px] w-full overflow-visible"
               role="img"
               aria-label="Monthly spending trend line chart"
             >
@@ -322,28 +324,29 @@ export default function AnalyticsPage() {
                 <path
                   d={trendPath}
                   fill="none"
-                  stroke="#1E5128"
+                  stroke="#A7F3A1"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="5"
                 />
               )}
+
               {trend.map((point, index) => {
                 const values = trend.map((item) => item.value);
                 const min = Math.min(...values);
                 const max = Math.max(...values);
                 const range = max - min || 1;
                 const x = (500 / Math.max(1, trend.length - 1)) * index;
-                const y = 185 - ((point.value - min) / range) * 150 - 18;
+                const y = 165 - ((point.value - min) / range) * 125 - 18;
 
                 return (
                   <g key={point.monthLabel}>
-                    <circle cx={x} cy={y} r="7" fill="#1E5128" />
+                    <circle cx={x} cy={y} r="7" fill="#A7F3A1" />
                     <text
                       x={x}
-                      y="212"
+                      y="194"
                       textAnchor="middle"
-                      className="fill-[#667085] text-[18px] font-medium"
+                      className="fill-[#667085] text-[17px] font-medium dark:fill-[#d9f99d]"
                     >
                       {point.label}
                     </text>
@@ -353,22 +356,23 @@ export default function AnalyticsPage() {
             </svg>
           </div>
 
-          <div className="mt-1 flex items-center justify-between gap-3 rounded-xl bg-[#f8f9fb] px-3 py-2 dark:bg-[#2a2a2a]">
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-[#f8f9fb] px-3 py-3 dark:bg-[#213826]">
             <div className="flex min-w-0 items-center gap-2">
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
                   (totalChange ?? 0) > 0
-                    ? "bg-red-100 text-red-600"
-                    : "bg-[#d9f0a0] text-brand-green"
+                   ? "bg-red-100 text-red-600"
+                   : "bg-[#d9f0a0] text-[#0f1f14]"
                 }`}
               >
                 {(totalChange ?? 0) > 0 ? (
-                  <ArrowUp size={17} />
-                ) : (
-                  <ArrowDown size={17} />
-                )}
+                   <ArrowUp size={17} className="text-red-600" />
+                    ) : (
+                      <ArrowDown size={17} className="text-[#0f1f14]" />
+)}
               </span>
-              <span className="min-w-0 font-inter text-sm font-semibold leading-tight text-[#344054] dark:text-gray-100">
+
+              <span className="min-w-0 font-inter text-sm font-semibold leading-tight text-[#344054] dark:text-[#f4fff6]">
                 {totalChange === null
                   ? "No previous month data"
                   : `${totalChange >= 0 ? "+" : ""}${totalChange.toFixed(
@@ -376,16 +380,18 @@ export default function AnalyticsPage() {
                     )}% vs last month`}
               </span>
             </div>
-            <span className="shrink-0 rounded-lg bg-[#eceef2] px-3 py-1.5 font-inter text-xs font-semibold leading-tight text-[#101828] dark:bg-gray-700 dark:text-white">
+
+            <span className="shrink-0 rounded-lg bg-[#eceef2] px-3 py-1.5 font-inter text-xs font-semibold leading-tight text-[#101828] dark:bg-[#2f5f35] dark:text-[#f4fff6]">
               {currentMonth}
             </span>
           </div>
         </section>
 
-        <section className="mt-6 rounded-[14px] border border-[#dedede] bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-[#1e1e1e]">
+        <section className="mt-6 rounded-[22px] border border-[#dedede] bg-white p-5 shadow-sm dark:border-[#3f6548] dark:bg-[#182d1f]">
           <div className="mb-5 flex items-center gap-3">
-            <Download size={24} className="text-[#475467] dark:text-gray-300" />
-            <h2 className="font-arimo text-[22px] font-bold text-[#101828] dark:text-white">
+            <Download size={24} className="text-[#475467] dark:text-[#d9f99d]" />
+
+            <h2 className="font-arimo text-[22px] font-bold text-[#101828] dark:text-[#f4fff6]">
               Export Data
             </h2>
           </div>
@@ -393,29 +399,30 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
-              className="flex h-[110px] flex-col items-center justify-center gap-3 rounded-[14px] border border-[#dedede] bg-white font-inter text-lg font-semibold text-[#344054] dark:border-gray-700 dark:bg-[#1e1e1e] dark:text-gray-100"
+              className="flex h-[100px] flex-col items-center justify-center gap-3 rounded-[18px] border border-[#dedede] bg-white font-inter text-base font-semibold text-[#344054] shadow-sm dark:border-[#3f6548] dark:bg-[#213826] dark:text-[#f4fff6]"
               onClick={exportCsv}
             >
-              <FileText size={34} />
+              <FileText size={32} />
               Export CSV
             </button>
+
             <button
               type="button"
-              className="flex h-[110px] flex-col items-center justify-center gap-3 rounded-[14px] border border-[#dedede] bg-white font-inter text-lg font-semibold text-[#344054] dark:border-gray-700 dark:bg-[#1e1e1e] dark:text-gray-100"
+              className="flex h-[100px] flex-col items-center justify-center gap-3 rounded-[18px] border border-[#dedede] bg-white font-inter text-base font-semibold text-[#344054] shadow-sm dark:border-[#3f6548] dark:bg-[#213826] dark:text-[#f4fff6]"
               onClick={exportPdf}
             >
-              <FileText size={34} />
+              <FileText size={32} />
               Export PDF
             </button>
           </div>
 
-          <p className="mt-5 font-inter text-lg leading-snug text-[#667085] dark:text-gray-400">
+          <p className="mt-5 font-inter text-base leading-snug text-[#667085] dark:text-[#c6d8c8]">
             Export your expense data for backup or analysis in other tools.
           </p>
         </section>
 
-        <section className="mt-6 rounded-[14px] border border-[#dedede] bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-[#1e1e1e]">
-          <h2 className="mb-6 font-arimo text-[22px] font-bold text-[#101828] dark:text-white">
+        <section className="mt-6 rounded-[22px] border border-[#dedede] bg-white p-5 shadow-sm dark:border-[#3f6548] dark:bg-[#182d1f]">
+          <h2 className="mb-6 font-arimo text-[22px] font-bold text-[#101828] dark:text-[#f4fff6]">
             Category Breakdown
           </h2>
 
@@ -424,16 +431,17 @@ export default function AnalyticsPage() {
               comparisons.map((category) => (
                 <article key={category.name}>
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-inter text-lg font-semibold text-[#344054] dark:text-gray-100">
+                    <h3 className="font-inter text-lg font-semibold text-[#344054] dark:text-[#f4fff6]">
                       {category.name}
                     </h3>
-                    <span className="font-inter text-lg text-[#667085] dark:text-gray-300">
+
+                    <span className="font-inter text-lg text-[#667085] dark:text-[#c6d8c8]">
                       {formatCurrency(category.current)}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="h-8 overflow-hidden rounded-xl bg-[#f0f1f4]">
+                    <div className="h-8 overflow-hidden rounded-xl bg-[#f0f1f4] dark:bg-[#2f4f38]">
                       <div
                         className="h-full rounded-xl"
                         style={{
@@ -445,9 +453,10 @@ export default function AnalyticsPage() {
                         }}
                       />
                     </div>
-                    <div className="h-8 overflow-hidden rounded-xl bg-[#f0f1f4]">
+
+                    <div className="h-8 overflow-hidden rounded-xl bg-[#f0f1f4] dark:bg-[#2f4f38]">
                       <div
-                        className="h-full rounded-xl bg-[#c8cdd5]"
+                        className="h-full rounded-xl bg-[#c8cdd5] dark:bg-[#9ca3af]"
                         style={{
                           width: `${Math.max(
                             8,
@@ -458,14 +467,14 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between font-inter text-base text-[#667085] dark:text-gray-400">
+                  <div className="mt-3 flex items-center justify-between font-inter text-base text-[#667085] dark:text-[#c6d8c8]">
                     <span>This Month</span>
                     <span>Last Month</span>
                   </div>
                 </article>
               ))
             ) : (
-              <p className="font-inter text-sm text-[#667085] dark:text-gray-400">
+              <p className="font-inter text-sm text-[#667085] dark:text-[#c6d8c8]">
                 No category data for this month.
               </p>
             )}
@@ -480,6 +489,7 @@ export default function AnalyticsPage() {
             value={bestCategory}
             positive
           />
+
           <InsightCard
             direction="up"
             label="Needs Attention"
@@ -506,23 +516,30 @@ function InsightCard({
   positive?: boolean;
 }) {
   const change = value ? calculateChange(value.current, value.previous) : null;
-  const tone = positive ? "text-[#00a63e]" : "text-red-600";
+  const tone = positive
+    ? "text-[#00a63e] dark:text-[#a7f3a1]"
+    : "text-red-600 dark:text-red-300";
 
   return (
-    <article className="rounded-[14px] border border-[#dedede] bg-white px-3 py-5 text-center shadow-sm dark:border-gray-700 dark:bg-[#1e1e1e]">
+    <article className="rounded-[22px] border border-[#dedede] bg-white px-3 py-5 text-center shadow-sm dark:border-[#3f6548] dark:bg-[#182d1f]">
       <div
         className={`mx-auto mb-4 flex h-[58px] w-[58px] items-center justify-center rounded-3xl ${
-          positive ? "bg-[#d9f0a0] text-brand-green" : "bg-red-100 text-red-600"
+          positive
+            ? "bg-[#d9f0a0] text-brand-green"
+            : "bg-red-100 text-red-600"
         }`}
       >
         {direction === "down" ? <ArrowDown size={30} /> : <ArrowUp size={30} />}
       </div>
-      <p className="font-inter text-base text-[#667085] dark:text-gray-400">
+
+      <p className="font-inter text-base text-[#667085] dark:text-[#c6d8c8]">
         {label}
       </p>
-      <h3 className="mt-2 truncate font-arimo text-xl font-bold text-[#101828] dark:text-white">
+
+      <h3 className="mt-2 truncate font-arimo text-xl font-bold text-[#101828] dark:text-[#f4fff6]">
         {category}
       </h3>
+
       <p className={`mt-2 font-inter text-base font-semibold ${tone}`}>
         {change === null
           ? "No comparison"
