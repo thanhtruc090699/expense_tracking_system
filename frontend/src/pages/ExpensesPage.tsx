@@ -558,9 +558,7 @@ export function ExpensesPage() {
                       setShowCategoryMenu(false);
                     }}
                   >
-                    {category.name === 'Clothing / Apparel'
-                      ? 'Clothing'
-                      : category.name}
+                    {category.name}
                   </button>
                 ))}
               </div>

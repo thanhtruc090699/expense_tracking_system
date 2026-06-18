@@ -37,12 +37,19 @@ export class LisaService {
     private readonly expenseItemsService: ExpenseItemsService,
   ) {}
 
-  private async getUserContext(userId: string): Promise<string> {
+  private async getUserContext(
+    userId: string,
+    request?: Request,
+  ): Promise<string> {
     try {
       const now = new Date();
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
       const expenseSummary = await this.expensesService.getSummary(
+        userId,
+        currentMonth,
+      );
+      const spendingSummary = await this.expensesService.getSpendingSummary(
         userId,
         currentMonth,
       );
@@ -53,7 +60,7 @@ export class LisaService {
 
       let budgets: any[] = [];
       try {
-        budgets = await this.budgetsService.findAllBudgets(userId);
+        budgets = await this.budgetsService.findAllBudgets(userId, request);
       } catch (budgetError) {
         console.error(
           '[LisaService.getUserContext] budgets error:',
@@ -102,17 +109,30 @@ export class LisaService {
       }
 
       // Budgets
-      if (budgets.length > 0) {
-        contextParts.push('BUDGETS:');
-        budgets.forEach((b) => {
+      const currentMonthBudgets = budgets.filter((budget) => {
+        if (!budget.endDate) return false;
+        const endDate = new Date(budget.endDate);
+        return (
+          endDate.getFullYear() === currentMonth.getFullYear() &&
+          endDate.getMonth() === currentMonth.getMonth()
+        );
+      });
+
+      if (currentMonthBudgets.length > 0) {
+        contextParts.push(
+          `BUDGETS (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}):`,
+        );
+        currentMonthBudgets.forEach((b) => {
           const categoryName = b.category?.name || 'General';
-          const remaining = b.amount - expenseSummary.totalAmount;
-          const percentUsed = (
-            (expenseSummary.totalAmount / b.amount) *
-            100
-          ).toFixed(0);
+          const categorySpent =
+            spendingSummary.categoryBreakdown.find(
+              (category) => category.categoryId === b.categoryId,
+            )?.amount ?? 0;
+          const remaining = b.amount - categorySpent;
+          const percentUsed =
+            b.amount > 0 ? ((categorySpent / b.amount) * 100).toFixed(0) : '0';
           contextParts.push(
-            `- ${categoryName}: €${b.amount.toFixed(2)} budget, €${remaining.toFixed(2)} remaining (${percentUsed}% used)`,
+            `- ${categoryName}: €${b.amount.toFixed(2)} budget, €${categorySpent.toFixed(2)} spent, €${remaining.toFixed(2)} remaining (${percentUsed}% used, warning threshold ${b.notifyThreshold ?? 80}%)`,
           );
         });
         contextParts.push('');
@@ -152,7 +172,7 @@ export class LisaService {
     let messages: Array<{ role: string; content: LisaMessageContent }> = [];
 
     if (user?.id) {
-      const userContext = await this.getUserContext(user.id);
+      const userContext = await this.getUserContext(user.id, request);
 
       const systemPrompt = `You are Lisa, a helpful financial assistant for Bill Buddy, an expense tracking application.
 

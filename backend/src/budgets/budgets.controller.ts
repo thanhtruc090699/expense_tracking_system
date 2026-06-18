@@ -12,13 +12,7 @@ import {
   UseGuards,
   Patch,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import type {
-  Budget,
-  CreateBudgetDto,
-  DeleteBudget200Response,
-  UpdateBudgetDto,
-} from '../generated/models';
+import type { CreateBudgetDto, UpdateBudgetDto } from '../generated/models';
 import { BudgetsApi } from '../generated/api/BudgetsApi';
 import { BUDGETS_API_PROVIDER } from './budgets.constants';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
