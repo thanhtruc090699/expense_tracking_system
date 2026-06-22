@@ -10,26 +10,6 @@ interface Merchant {
   name: string;
 }
 
-interface ValidatedInvoiceItem {
-  name: string | null;
-  quantity: number | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  categoryName: string | null;
-  categoryId: string | null;
-  confidence: number;
-  status: "ok" | "missing_price" | "uncertain";
-}
-
-interface ValidatedInvoice {
-  merchant: string | null;
-  totalAmount: number | null;
-  date: string | null;
-  currency: string | null;
-  items: ValidatedInvoiceItem[];
-  validationStatus: "valid" | "needs_review" | "invalid";
-}
-
 interface Category {
   id: string;
   name: string;
@@ -197,11 +177,11 @@ export default function NavBar() {
         throw new Error("OCR did not return expense ID");
       }
 
-      const currentScanning = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
-      currentScanning.push(expenseId);
-      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(currentScanning));
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify([expenseId]));
 
-      setShowAddExpense(true);
+      setShowAddExpense(false);
+      window.dispatchEvent(new CustomEvent('expense-starting-validation', { detail: { expenseId } }));
+      window.dispatchEvent(new CustomEvent('expense-refresh'));
       navigate("/expenses");
 
       const lisaFormData = new FormData();
@@ -221,12 +201,15 @@ export default function NavBar() {
         if (lisaResponse.ok) {
           const lisaResult = await lisaResponse.json();
           console.log("[Lisa Validation] Completed:", lisaResult);
+          window.dispatchEvent(new CustomEvent('lisa-validation-complete', { detail: { expenseId } }));
         } else {
           const lisaError = await lisaResponse.json();
           console.error("[Lisa Validation] Error:", lisaError);
+          window.dispatchEvent(new CustomEvent('lisa-validation-error', { detail: { expenseId } }));
         }
       }).catch((err) => {
         console.error("[Lisa Validation] Failed:", err);
+        window.dispatchEvent(new CustomEvent('lisa-validation-error', { detail: { expenseId } }));
       });
 
     } catch (err) {
@@ -372,6 +355,7 @@ export default function NavBar() {
 
       setShowAddExpense(false);
       resetForm();
+      window.dispatchEvent(new CustomEvent('expense-refresh'));
       navigate("/expenses");
     } catch (err) {
       setManualError(

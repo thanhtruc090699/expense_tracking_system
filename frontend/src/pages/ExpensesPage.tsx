@@ -21,6 +21,8 @@ type PendingDelete =
 
 const EXPENSES_PER_PAGE = 50;
 
+const pollingIntervals = new Map<string, number>();
+
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,18 +177,99 @@ export function ExpensesPage() {
     const recentlyScanned = sessionStorage.getItem('recentlyScannedExpenseIds');
     if (recentlyScanned) {
       const ids = JSON.parse(recentlyScanned);
-      setValidatingExpenseIds(new Set(ids));
-      ids.forEach((id: string) => {
-        pollLisaValidation(id);
+      const idsArray = Array.isArray(ids) ? ids : [];
+      setValidatingExpenseIds(new Set(idsArray));
+      idsArray.forEach((id: string) => {
+        if (!pollingIntervals.has(id)) {
+          pollLisaValidation(id);
+        }
       });
     }
-  }, [activeFilter]);
+    
+    const handleRefresh = () => {
+      fetchExpenses(activeFilter, 0, false, selectedCategoryId);
+    };
+    
+    const handleStartingValidation = (event: CustomEvent<{ expenseId: string }>) => {
+      console.log('[Expense Starting Validation] Event received:', event.detail);
+      setValidatingExpenseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.add(event.detail.expenseId);
+        return newSet;
+      });
+      
+      if (!pollingIntervals.has(event.detail.expenseId)) {
+        pollLisaValidation(event.detail.expenseId);
+      }
+    };
+    
+    const handleLisaComplete = (event: CustomEvent<{ expenseId: string }>) => {
+      console.log('[Lisa Validation Complete] Event received:', event.detail);
+      setValidatingExpenseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(event.detail.expenseId);
+        return newSet;
+      });
+      
+      const stored = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
+      const filtered = stored.filter((eid: string) => eid !== event.detail.expenseId);
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(filtered));
+      
+      fetchExpenses(activeFilter, 0, false, selectedCategoryId);
+    };
+    
+    const handleLisaError = (event: CustomEvent<{ expenseId: string }>) => {
+      console.error('[Lisa Validation Error] Event received:', event.detail);
+      setValidatingExpenseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(event.detail.expenseId);
+        return newSet;
+      });
+      
+      const stored = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
+      const filtered = stored.filter((eid: string) => eid !== event.detail.expenseId);
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(filtered));
+    };
+    
+    window.addEventListener('expense-starting-validation', handleStartingValidation as EventListener);
+    window.addEventListener('expense-refresh', handleRefresh as EventListener);
+    window.addEventListener('lisa-validation-complete', handleLisaComplete as EventListener);
+    window.addEventListener('lisa-validation-error', handleLisaError as EventListener);
+    
+    return () => {
+      window.removeEventListener('expense-starting-validation', handleStartingValidation as EventListener);
+      window.removeEventListener('expense-refresh', handleRefresh as EventListener);
+      window.removeEventListener('lisa-validation-complete', handleLisaComplete as EventListener);
+      window.removeEventListener('lisa-validation-error', handleLisaError as EventListener);
+    };
+  }, [activeFilter, selectedCategoryId]);
 
-  const pollLisaValidation = async (expenseId: string, maxAttempts = 30) => {
+  const pollLisaValidation = (expenseId: string, maxAttempts = 30) => {
     const token = getToken();
     if (!token) return;
 
     let attempts = 0;
+    
+    const stopPolling = () => {
+      const intervalId = pollingIntervals.get(expenseId);
+      if (intervalId) {
+        clearInterval(intervalId);
+        pollingIntervals.delete(expenseId);
+      }
+      
+      setValidatingExpenseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(expenseId);
+        return newSet;
+      });
+      
+      const stored = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
+      const filtered = stored.filter((eid: string) => eid !== expenseId);
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(filtered));
+      
+      fetchExpenses(activeFilter, 0, false, selectedCategoryId);
+    };
+    
     const pollInterval = setInterval(async () => {
       attempts++;
       
@@ -200,29 +283,19 @@ export function ExpensesPage() {
         if (res.ok) {
           const expense = await res.json();
           
-          if (expense.note?.includes('Lisa validation:') || attempts >= maxAttempts) {
-            clearInterval(pollInterval);
-            setValidatingExpenseIds(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(expenseId);
-              sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify([...newSet]));
-              return newSet;
-            });
-            
-            setExpenses(prev => 
-              prev.map(e => e.id === expenseId ? expense : e)
-            );
+          if (expense.note?.includes('Lisa validation:')) {
+            stopPolling();
           }
         }
       } catch (err) {
         console.error('Polling error:', err);
         if (attempts >= maxAttempts) {
-          clearInterval(pollInterval);
+          stopPolling();
         }
       }
     }, 2000);
-
-    setTimeout(() => clearInterval(pollInterval), maxAttempts * 2000);
+    
+    pollingIntervals.set(expenseId, pollInterval as unknown as number);
   };
 
   const fetchExpenseWithItems = async (expenseId: string) => {
@@ -483,6 +556,22 @@ export function ExpensesPage() {
         },
       });
 
+      const intervalId = pollingIntervals.get(id);
+      if (intervalId) {
+        clearInterval(intervalId);
+        pollingIntervals.delete(id);
+      }
+      
+      setValidatingExpenseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+      
+      const stored = JSON.parse(sessionStorage.getItem('recentlyScannedExpenseIds') || '[]');
+      const filtered = stored.filter((eid: string) => eid !== id);
+      sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify(filtered));
+
       fetchExpenses(activeFilter, 0, false, selectedCategoryId);
       setPendingDelete(null);
     } catch (err) {
@@ -593,13 +682,13 @@ export function ExpensesPage() {
                   <span className="expense-badge recurring">Recurring</span>
                 )}
                 {validatingExpenseIds.has(expense.id) && (
-                  <span className="expense-badge validating">Lisa validating...</span>
+                  <span className="expense-badge validating">Scanning...</span>
                 )}
                 {!validatingExpenseIds.has(expense.id) && expense.note?.includes('Lisa validation: valid') && (
-                  <span className="expense-badge validated">✓ Lisa validated</span>
+                  <span className="expense-badge validated">Scanned</span>
                 )}
                 {!validatingExpenseIds.has(expense.id) && expense.note?.includes('Lisa validation: needs_review') && (
-                  <span className="expense-badge needs-review">Lisa needs review</span>
+                  <span className="expense-badge needs-review">Need review</span>
                 )}
                 {expense.note && !expense.note.includes('Lisa validation:') && (
                   <span className="expense-note">{expense.note}</span>
