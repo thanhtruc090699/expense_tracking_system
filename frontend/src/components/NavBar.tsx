@@ -199,8 +199,7 @@ export default function NavBar() {
         }
       ).then(async (lisaResponse) => {
         if (lisaResponse.ok) {
-          const lisaResult = await lisaResponse.json();
-          console.log("[Lisa Validation] Completed:", lisaResult);
+          await lisaResponse.json();
           window.dispatchEvent(new CustomEvent('lisa-validation-complete', { detail: { expenseId } }));
         } else {
           const lisaError = await lisaResponse.json();

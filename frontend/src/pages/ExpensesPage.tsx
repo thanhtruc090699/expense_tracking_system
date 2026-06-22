@@ -191,7 +191,6 @@ export function ExpensesPage() {
     };
     
     const handleStartingValidation = (event: CustomEvent<{ expenseId: string }>) => {
-      console.log('[Expense Starting Validation] Event received:', event.detail);
       setValidatingExpenseIds(prev => {
         const newSet = new Set(prev);
         newSet.add(event.detail.expenseId);
@@ -204,7 +203,6 @@ export function ExpensesPage() {
     };
     
     const handleLisaComplete = (event: CustomEvent<{ expenseId: string }>) => {
-      console.log('[Lisa Validation Complete] Event received:', event.detail);
       setValidatingExpenseIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(event.detail.expenseId);
