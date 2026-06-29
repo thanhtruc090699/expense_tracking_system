@@ -22,6 +22,9 @@ import { ExpenseItemsService } from '../expense-items/expense-items.service';
 import { BudgetsService } from '../budgets/budgets.service';
 import { Multer } from 'multer';
 import { prisma } from '../prisma';
+import { CacheService } from '../cache/cache.service';
+import { TTL_CONFIG } from '../cache/cache.strategy';
+import { createHash } from 'crypto';
 
 type LisaMessageContent = ChatRequest['messages'][number]['content'];
 
@@ -31,6 +34,7 @@ export class LisaService {
     'https://chat-1.ki-awz.iisys.de/api/chat/completions';
 
   constructor(
+    private readonly cacheService: CacheService,
     private readonly expensesService: ExpensesService,
     private readonly budgetsService: BudgetsService,
     private readonly merchantsService: MerchantsService,
@@ -41,6 +45,16 @@ export class LisaService {
     userId: string,
     request?: Request,
   ): Promise<string> {
+    const cacheKey = `user:${userId}:lisa:context`;
+    
+    const cached = await this.cacheService.get<{ content: string; hash: string }>(cacheKey);
+    if (cached) {
+      const currentHash = await this.computeContextDataHash(userId, request);
+      if (cached.hash === currentHash) {
+        return cached.content;
+      }
+    }
+
     try {
       const now = new Date();
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -138,10 +152,50 @@ export class LisaService {
         contextParts.push('');
       }
 
-      return contextParts.join('\n');
+      const content = contextParts.join('\n');
+      const hash = await this.computeContextDataHash(userId, request);
+      
+      await this.cacheService.set(
+        cacheKey,
+        { content, hash },
+        TTL_CONFIG.LISA_CONTEXT,
+        [`tag:user:${userId}:lisa:context`, `tag:user:${userId}:expenses`, `tag:user:${userId}:budgets`],
+      );
+      
+      return content;
     } catch (error) {
       console.error('[LisaService.getUserContext] error:', error);
       return 'Unable to load user financial data.';
+    }
+  }
+
+  private async computeContextDataHash(userId: string, request?: Request): Promise<string> {
+    try {
+      const now = new Date();
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const [expenseSummary, spendingSummary, recentExpenses, budgets] = await Promise.all([
+        this.expensesService.getSummary(userId, currentMonth),
+        this.expensesService.getSpendingSummary(userId, currentMonth),
+        this.expensesService.findAll({ userId, limit: 10 }),
+        this.budgetsService.findAllBudgets(userId, request).catch(() => []),
+      ]);
+
+      const hashContent = JSON.stringify({
+        totalAmount: expenseSummary.totalAmount,
+        transactionCount: expenseSummary.transactionCount,
+        spendingTotal: spendingSummary.totalAmount,
+        categoryCount: spendingSummary.categoryBreakdown.length,
+        expensesCount: recentExpenses.length,
+        lastExpenseDate: recentExpenses[0]?.expenseDate,
+        budgetsCount: budgets.length,
+        budgetsTotal: (budgets as any[]).reduce((sum, b) => sum + Number(b.amount || 0), 0),
+      });
+
+      return createHash('sha256').update(hashContent).digest('hex');
+    } catch (error) {
+      console.error('[LisaService.computeContextDataHash] error:', error);
+      return 'error';
     }
   }
 

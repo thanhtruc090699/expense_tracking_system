@@ -5,9 +5,13 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { prisma } from '../prisma';
+import { CacheService } from '../cache/cache.service';
+import { TTL_CONFIG } from '../cache/cache.strategy';
 
 @Injectable()
 export class ExpenseItemsService {
+  constructor(private readonly cacheService: CacheService) {}
+
   async validateExpenseExists(expenseId: string) {
     const expense = await prisma.expense.findUnique({
       where: { id: expenseId },
@@ -57,7 +61,7 @@ export class ExpenseItemsService {
     const totalPrice = data.quantity * data.unitPrice;
 
     try {
-      return await prisma.expenseItem.create({
+      const result = await prisma.expenseItem.create({
         data: {
           expenseId: data.expenseId,
           itemName: data.itemName,
@@ -70,6 +74,20 @@ export class ExpenseItemsService {
           category: true,
         },
       });
+
+      const expense = await prisma.expense.findUnique({
+        where: { id: data.expenseId },
+      });
+
+      if (expense) {
+        const monthKey = `${new Date(expense.expenseDate).getFullYear()}-${String(new Date(expense.expenseDate).getMonth() + 1).padStart(2, '0')}`;
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:expenses`);
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:month:${monthKey}`);
+      }
+
+      await this.cacheService.delete(`expense:${data.expenseId}:items`);
+      
+      return result;
     } catch (error: any) {
       if (error.code === 'P2003') {
         throw new BadRequestException('Invalid expense or category ID');
@@ -85,14 +103,29 @@ export class ExpenseItemsService {
 
   async findAll(expenseId?: string) {
     if (expenseId) {
-      await this.validateExpenseExists(expenseId);
+      const cacheKey = `expense:${expenseId}:items`;
+      const cached = await this.cacheService.get<any[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
     }
 
-    return prisma.expenseItem.findMany({
+    const result = await prisma.expenseItem.findMany({
       where: expenseId ? { expenseId } : undefined,
       include: { category: true },
       orderBy: { createdAt: 'desc' },
     });
+
+    if (expenseId) {
+      await this.cacheService.set(
+        `expense:${expenseId}:items`,
+        result,
+        TTL_CONFIG.EXPENSE_ITEMS,
+        [`tag:expense:${expenseId}:items`],
+      );
+    }
+
+    return result;
   }
 
   async findOne(id: string) {
@@ -137,7 +170,7 @@ export class ExpenseItemsService {
       Number(data.unitPrice ?? existingItem.unitPrice);
 
     try {
-      return await prisma.expenseItem.update({
+      const result = await prisma.expenseItem.update({
         where: { id },
         data: {
           ...data,
@@ -145,6 +178,20 @@ export class ExpenseItemsService {
         },
         include: { category: true },
       });
+
+      const expense = await prisma.expense.findUnique({
+        where: { id: existingItem.expenseId },
+      });
+
+      if (expense) {
+        const monthKey = `${new Date(expense.expenseDate).getFullYear()}-${String(new Date(expense.expenseDate).getMonth() + 1).padStart(2, '0')}`;
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:expenses`);
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:month:${monthKey}`);
+      }
+
+      await this.cacheService.delete(`expense:${existingItem.expenseId}:items`);
+      
+      return result;
     } catch (error: any) {
       if (error.code === 'P2003') {
         throw new BadRequestException('Invalid expense or category ID');
@@ -159,12 +206,27 @@ export class ExpenseItemsService {
   }
 
   async delete(id: string) {
-    await this.findOne(id);
+    const expenseItem = await this.findOne(id);
 
     try {
-      return await prisma.expenseItem.delete({
+      const expenseId = expenseItem.expenseId;
+      await prisma.expenseItem.delete({
         where: { id },
       });
+
+      const expense = await prisma.expense.findUnique({
+        where: { id: expenseId },
+      });
+
+      if (expense) {
+        const monthKey = `${new Date(expense.expenseDate).getFullYear()}-${String(new Date(expense.expenseDate).getMonth() + 1).padStart(2, '0')}`;
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:expenses`);
+        await this.cacheService.invalidateByTag(`tag:user:${expense.userId}:month:${monthKey}`);
+      }
+
+      await this.cacheService.delete(`expense:${expenseId}:items`);
+      
+      return;
     } catch (error: any) {
       if (error.code === 'P2025') {
         throw new NotFoundException('Expense item not found');

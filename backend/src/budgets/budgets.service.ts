@@ -15,9 +15,13 @@ import {
 } from '../generated/models';
 
 import { BudgetMapper } from './budgets.mapper';
+import { CacheService } from '../cache/cache.service';
+import { TTL_CONFIG } from '../cache/cache.strategy';
 
 @Injectable()
 export class BudgetsService {
+  constructor(private readonly cacheService: CacheService) {}
+
   async createBudget(dto: CreateBudgetDto, request: Request): Promise<Budget> {
     const user = request['user'] as { id: string } | undefined;
 
@@ -86,6 +90,9 @@ export class BudgetsService {
       },
       include: { category: true },
     });
+
+    await this.cacheService.invalidateByTag(`tag:user:${user.id}:budgets`);
+    
     return BudgetMapper.toBudget(createdBudget);
   }
 
@@ -99,6 +106,12 @@ export class BudgetsService {
       throw new ForbiddenException('You can only access your own budgets');
     }
 
+    const cacheKey = `user:${user.id}:budgets:list`;
+    const cached = await this.cacheService.get<any[]>(cacheKey);
+    if (cached) {
+      return cached.map((b) => BudgetMapper.toBudget(b));
+    }
+
     const budgets = await prisma.budget.findMany({
       where: {
         userId: user.id,
@@ -110,10 +123,25 @@ export class BudgetsService {
         createdAt: 'desc',
       },
     });
+
+    await this.cacheService.set(
+      cacheKey,
+      budgets,
+      TTL_CONFIG.BUDGETS_LIST,
+      [`tag:user:${user.id}:budgets`],
+    );
+
     return budgets.map((budget) => BudgetMapper.toBudget(budget));
   }
 
   async findOneBudget(id: string, request?: Request): Promise<Budget> {
+    const cacheKey = `budget:id:${id}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+    
+    if (cached) {
+      return BudgetMapper.toBudget(cached);
+    }
+
     const user = request?.['user'] as { id: string } | undefined;
 
     if (!user?.id) {
@@ -124,9 +152,18 @@ export class BudgetsService {
       where: { id: id, userId: user.id },
       include: { category: true },
     });
+    
     if (!budget) {
       throw new NotFoundException('Budget not found');
     }
+
+    await this.cacheService.set(
+      cacheKey,
+      budget,
+      TTL_CONFIG.BUDGET_DETAIL,
+      [`tag:user:${user.id}:budgets`, `tag:budget:id:${id}`],
+    );
+
     return BudgetMapper.toBudget(budget);
   }
 
@@ -226,6 +263,9 @@ export class BudgetsService {
       },
       include: { category: true },
     });
+
+    await this.cacheService.invalidateByTag(`tag:user:${user.id}:budgets`);
+    await this.cacheService.delete(`budget:id:${id}`);
 
     return BudgetMapper.toBudget(updatedBudget);
   }
@@ -331,6 +371,9 @@ export class BudgetsService {
       include: { category: true },
     });
 
+    await this.cacheService.invalidateByTag(`tag:user:${user.id}:budgets`);
+    await this.cacheService.delete(`budget:id:${id}`);
+
     return BudgetMapper.toBudget(updatedBudget);
   }
 
@@ -352,6 +395,9 @@ export class BudgetsService {
     if (!existingBudget) {
       throw new NotFoundException('Budget not found');
     }
+
+    await this.cacheService.invalidateByTag(`tag:user:${user.id}:budgets`);
+    await this.cacheService.delete(`budget:id:${id}`);
 
     return prisma.budget.delete({ where: { id } });
   }

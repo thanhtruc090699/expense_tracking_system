@@ -5,9 +5,13 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { prisma } from '../prisma';
+import { CacheService } from '../cache/cache.service';
+import { TTL_CONFIG } from '../cache/cache.strategy';
 
 @Injectable()
 export class ExpensesService {
+  constructor(private readonly cacheService: CacheService) {}
+
   async create(data: {
     userId: string;
     merchantId?: string;
@@ -17,7 +21,9 @@ export class ExpensesService {
     note?: string;
   }) {
     try {
-      return await prisma.expense.create({ data });
+      const result = await prisma.expense.create({ data });
+      await this.invalidateUserExpenseCache(data.userId, data.expenseDate);
+      return result;
     } catch (error: any) {
       if (error.code === 'P2003') {
         throw new BadRequestException('Invalid expense data');
@@ -34,6 +40,12 @@ export class ExpensesService {
     limit?: number;
     offset?: number;
   }) {
+    const cacheKey = this.buildExpensesListCacheKey(filters);
+    const cached = await this.cacheService.get<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     try {
       const where: any = {};
 
@@ -62,7 +74,7 @@ export class ExpensesService {
       const limit = filters.limit ?? 20;
       const offset = filters.offset ?? 0;
 
-      return await prisma.expense.findMany({
+      const result = await prisma.expense.findMany({
         where: Object.keys(where).length > 0 ? where : undefined,
         include: {
           merchant: true,
@@ -72,12 +84,27 @@ export class ExpensesService {
         take: limit,
         skip: offset,
       });
+
+      const tags = ['tag:expenses:list'];
+      if (filters.userId) {
+        tags.push(`tag:user:${filters.userId}:expenses`);
+      }
+
+      await this.cacheService.set(cacheKey, result, TTL_CONFIG.EXPENSES_LIST, tags);
+      return result;
     } catch (error: any) {
       throw new BadRequestException('Failed to retrieve expenses');
     }
   }
 
   async findOne(id: string) {
+    const cacheKey = `expense:id:${id}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+    
+    if (cached) {
+      return cached;
+    }
+
     const expense = await prisma.expense.findUnique({
       where: { id },
       include: {
@@ -85,7 +112,15 @@ export class ExpensesService {
         expenseItems: true,
       },
     });
+    
     if (!expense) throw new NotFoundException('Expense not found');
+    
+    await this.cacheService.set(
+      cacheKey,
+      expense,
+      TTL_CONFIG.EXPENSE_DETAIL,
+      [`tag:expense:id:${id}`, `tag:user:${expense.userId}:expenses`],
+    );
     return expense;
   }
 
@@ -114,9 +149,19 @@ export class ExpensesService {
       note?: string;
     },
   ) {
-    await this.findOne(id);
+    const existingExpense = await this.findOne(id);
+    
     try {
-      return await prisma.expense.update({ where: { id }, data });
+      const result = await prisma.expense.update({ where: { id }, data });
+      
+      await this.cacheService.delete(`expense:id:${id}`);
+      await this.invalidateUserExpenseCache(existingExpense.userId, new Date(existingExpense.expenseDate));
+      
+      if (data.expenseDate) {
+        await this.invalidateUserExpenseCache(existingExpense.userId, new Date(data.expenseDate));
+      }
+      
+      return result;
     } catch (error: any) {
       if (error.code === 'P2002') {
         throw new ConflictException('Expense already exists');
@@ -129,9 +174,13 @@ export class ExpensesService {
   }
 
   async delete(id: string) {
-    await this.findOne(id);
+    const expense = await this.findOne(id);
+    
     try {
-      return await prisma.expense.delete({ where: { id } });
+      await prisma.expense.delete({ where: { id } });
+      await this.cacheService.delete(`expense:id:${id}`);
+      await this.invalidateUserExpenseCache(expense.userId, new Date(expense.expenseDate));
+      return;
     } catch (error: any) {
       if (error.code === 'P2025') {
         throw new NotFoundException('Expense not found');
@@ -141,6 +190,14 @@ export class ExpensesService {
   }
 
   async getSummary(userId: string, month: Date) {
+    const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+    const cacheKey = `user:${userId}:summary:month:${monthKey}`;
+    
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
     const endOfMonth = new Date(
       month.getFullYear(),
@@ -176,16 +233,33 @@ export class ExpensesService {
       transactionCount > 0 ? totalAmount / transactionCount : 0;
     const topTransactions = expenses.slice(0, 5);
 
-    return {
+    const result = {
       month: startOfMonth.toISOString(),
       totalAmount,
       transactionCount,
       averageTransactionAmount,
       topTransactions,
     };
+
+    await this.cacheService.set(
+      cacheKey,
+      result,
+      TTL_CONFIG.USER_SUMMARY,
+      [`tag:user:${userId}:expenses`, `tag:user:${userId}:month:${monthKey}`],
+    );
+    
+    return result;
   }
 
   async getSpendingSummary(userId: string, month: Date) {
+    const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+    const cacheKey = `user:${userId}:spending:month:${monthKey}`;
+    
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
     const endOfMonth = new Date(
       month.getFullYear(),
@@ -274,10 +348,46 @@ export class ExpensesService {
 
     categoryBreakdown.sort((a, b) => b.amount - a.amount);
 
-    return {
+    const result = {
       month: startOfMonth.toISOString(),
       totalAmount: Number(totalAmount.toFixed(2)),
       categoryBreakdown,
     };
+
+    await this.cacheService.set(
+      cacheKey,
+      result,
+      TTL_CONFIG.USER_SPENDING,
+      [`tag:user:${userId}:expenses`, `tag:user:${userId}:month:${monthKey}`],
+    );
+
+    return result;
+  }
+
+  private buildExpensesListCacheKey(filters: any): string {
+    const parts = ['user:' + (filters.userId || 'anonymous')];
+    
+    if (filters.startDate) {
+      parts.push('start:' + filters.startDate.toISOString());
+    }
+    if (filters.endDate) {
+      parts.push('end:' + filters.endDate.toISOString());
+    }
+    if (filters.categoryId) {
+      parts.push('category:' + filters.categoryId);
+    }
+    
+    parts.push('limit:' + (filters.limit ?? 20));
+    parts.push('offset:' + (filters.offset ?? 0));
+    
+    return 'expenses:list:' + parts.join(':');
+  }
+
+  private async invalidateUserExpenseCache(userId: string, expenseDate: Date) {
+    const monthKey = `${expenseDate.getFullYear()}-${String(expenseDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    await this.cacheService.invalidateByTag(`tag:user:${userId}:expenses`);
+    await this.cacheService.invalidateByTag(`tag:user:${userId}:month:${monthKey}`);
+    await this.cacheService.invalidateByTag('tag:expenses:list');
   }
 }
