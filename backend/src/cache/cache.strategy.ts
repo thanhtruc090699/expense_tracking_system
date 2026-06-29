@@ -1,0 +1,23 @@
+export enum CacheStrategy {
+  TIME_BASED = 'time_based',
+  TAG_BASED = 'tag_based',
+  HYBRID = 'hybrid',
+}
+
+export const TTL_CONFIG = {
+  CATEGORIES_LIST: 60 * 60 * 1000,
+  CATEGORIES_ID: 60 * 60 * 1000,
+  MERCHANTS_LIST: 5 * 60 * 1000,
+  MERCHANTS_ID: 5 * 60 * 1000,
+  MERCHANTS_SEARCH: 2 * 60 * 1000,
+  
+  USER_SUMMARY: 60 * 60 * 1000,
+  USER_SPENDING: 60 * 60 * 1000,
+  LISA_CONTEXT: 2 * 60 * 1000,
+  
+  EXPENSE_DETAIL: 5 * 60 * 1000,
+  EXPENSE_ITEMS: 5 * 60 * 1000,
+  EXPENSES_LIST: 2 * 60 * 1000,
+  BUDGETS_LIST: 10 * 60 * 1000,
+  BUDGET_DETAIL: 10 * 60 * 1000,
+} as const;
