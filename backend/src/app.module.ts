@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CacheModule } from './cache/cache.module';
 import { OcrModule } from './ocr/ocr.module';
 import { UsersModule } from './users/users.module';
 import { LisaModule } from './lisa/lisa.module';
@@ -14,6 +15,7 @@ import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
   imports: [
+    CacheModule,
     OcrModule,
     UsersModule,
     LisaModule,
