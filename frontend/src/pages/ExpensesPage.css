@@ -129,6 +129,106 @@ body.dark-mode .category-filter-option:hover {
   background: #f5f7f5;
 }
 
+.etag-demo {
+  background: white;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.etag-demo-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.etag-demo h2 {
+  margin: 0 0 4px;
+  color: #1a1a1a;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.etag-demo p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.etag-demo-button {
+  min-width: 74px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: #185925;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.etag-demo-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.etag-demo-details {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.etag-demo-details span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #f5f7f5;
+  border-radius: 8px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 9px;
+}
+
+.etag-demo.from-cache {
+  border-color: #8fd19e;
+}
+
+.etag-demo.updated {
+  border-color: #b7d4ff;
+}
+
+.etag-demo.error {
+  border-color: #ffb4b4;
+}
+
+body.dark-mode .etag-demo {
+  background: #1e1e1e;
+  border-color: #303030;
+}
+
+body.dark-mode .etag-demo h2 {
+  color: white;
+}
+
+body.dark-mode .etag-demo p {
+  color: #aaa;
+}
+
+body.dark-mode .etag-demo-details span {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
 @media (max-width: 430px) {
   .filter-tab-row {
     gap: 8px;
@@ -157,6 +257,18 @@ body.dark-mode .category-filter-option:hover {
     min-height: 40px;
     padding: 0 14px;
     font-size: 14px;
+  }
+
+  .etag-demo-main {
+    flex-direction: column;
+  }
+
+  .etag-demo-button {
+    width: 100%;
+  }
+
+  .etag-demo-details {
+    grid-template-columns: 1fr;
   }
 }
 

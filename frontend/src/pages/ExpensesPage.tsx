@@ -9,7 +9,7 @@ import type { AddItemFormData, EditingItemData } from '../components/expenses/Ad
 import { AddItemModal } from '../components/expenses/AddItemModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, RefreshCw, Trash2 } from 'lucide-react';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -18,6 +18,15 @@ type PendingDelete =
   | { type: 'expense'; id: string }
   | { type: 'item'; id: string }
   | null;
+
+type EtagDemoState = {
+  status: 'idle' | 'loading' | 'from-cache' | 'updated' | 'error';
+  firstStatus?: number;
+  secondStatus?: number;
+  etag?: string;
+  cachedCount?: number;
+  message: string;
+};
 
 const EXPENSES_PER_PAGE = 50;
 
@@ -56,6 +65,10 @@ export function ExpensesPage() {
   
   // Categories state
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [etagDemo, setEtagDemo] = useState<EtagDemoState>({
+    status: 'idle',
+    message: 'Run the request pair to capture an ETag and revalidate it.',
+  });
 
   const fetchCategories = async () => {
     const token = getToken();
@@ -147,6 +160,83 @@ export function ExpensesPage() {
       console.error('Failed to fetch expenses:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const runEtagDemo = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    setEtagDemo({
+      status: 'loading',
+      message: 'First GET is loading the representation.',
+    });
+
+    try {
+      const demoUrl = apiUrl(`/expenses?limit=${EXPENSES_PER_PAGE}&offset=0`);
+      const authHeaders = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const firstResponse = await fetch(demoUrl, {
+        headers: authHeaders,
+      });
+
+      if (!firstResponse.ok) {
+        throw new Error(`First request failed with ${firstResponse.status}`);
+      }
+
+      const cachedData = (await firstResponse.json()) as Expense[];
+      const etag = firstResponse.headers.get('ETag') ?? undefined;
+
+      if (!etag) {
+        setEtagDemo({
+          status: 'error',
+          firstStatus: firstResponse.status,
+          cachedCount: cachedData.length,
+          message: 'The first response did not expose an ETag header.',
+        });
+        return;
+      }
+
+      const secondResponse = await fetch(demoUrl, {
+        headers: {
+          ...authHeaders,
+          'If-None-Match': etag,
+        },
+      });
+
+      if (secondResponse.status === 304) {
+        setEtagDemo({
+          status: 'from-cache',
+          firstStatus: firstResponse.status,
+          secondStatus: secondResponse.status,
+          etag,
+          cachedCount: cachedData.length,
+          message: '304 Not Modified; loaded from client cache.',
+        });
+        return;
+      }
+
+      if (secondResponse.ok) {
+        const freshData = (await secondResponse.json()) as Expense[];
+        setEtagDemo({
+          status: 'updated',
+          firstStatus: firstResponse.status,
+          secondStatus: secondResponse.status,
+          etag: secondResponse.headers.get('ETag') ?? etag,
+          cachedCount: freshData.length,
+          message: 'Representation changed; client cache was refreshed.',
+        });
+        return;
+      }
+
+      throw new Error(`Second request failed with ${secondResponse.status}`);
+    } catch (err) {
+      setEtagDemo({
+        status: 'error',
+        message: err instanceof Error ? err.message : 'ETag demo failed.',
+      });
     }
   };
 
@@ -663,6 +753,30 @@ export function ExpensesPage() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className={`etag-demo ${etagDemo.status}`}>
+        <div className="etag-demo-main">
+          <div>
+            <h2>ETag cache demo</h2>
+            <p>{etagDemo.message}</p>
+          </div>
+          <button
+            className="etag-demo-button"
+            onClick={runEtagDemo}
+            disabled={etagDemo.status === 'loading'}
+            title="Run ETag revalidation"
+          >
+            <RefreshCw size={16} strokeWidth={2} />
+            Run
+          </button>
+        </div>
+        <div className="etag-demo-details">
+          <span>GET: {etagDemo.firstStatus ?? '-'}</span>
+          <span>If-None-Match: {etagDemo.secondStatus ?? '-'}</span>
+          <span>Items: {etagDemo.cachedCount ?? '-'}</span>
+          <span>ETag: {etagDemo.etag ?? '-'}</span>
         </div>
       </div>
 
