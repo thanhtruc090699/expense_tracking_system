@@ -14,6 +14,21 @@ import type {
 import { ExpensesApi } from '../generated/api/ExpensesApi';
 import { ExpensesService } from './expenses.service';
 
+type ExpenseHypermediaLink = {
+  rel: string;
+  href: string;
+  method: 'GET' | 'PUT' | 'DELETE';
+  title: string;
+};
+
+type ExpenseHypermediaLinks = {
+  self: ExpenseHypermediaLink;
+  items: ExpenseHypermediaLink;
+  update: ExpenseHypermediaLink;
+  delete: ExpenseHypermediaLink;
+  merchant?: ExpenseHypermediaLink;
+};
+
 @Injectable()
 export class ExpensesApiImpl extends ExpensesApi {
   constructor(private readonly expensesService: ExpensesService) {
@@ -160,11 +175,54 @@ export class ExpensesApiImpl extends ExpensesApi {
   }
 
   private toExpense(expense: any): Expense {
-    return {
+    const response = {
       ...expense,
       totalAmount: Number(expense.totalAmount),
       expenseDate: expense.expenseDate.toISOString(),
       createdAt: expense.createdAt.toISOString(),
+      _links: this.buildExpenseLinks(expense),
     };
+
+    return response;
+  }
+
+  private buildExpenseLinks(expense: any): ExpenseHypermediaLinks {
+    const links: ExpenseHypermediaLinks = {
+      self: {
+        rel: 'self',
+        href: `/expenses/${expense.id}`,
+        method: 'GET',
+        title: 'Get this expense',
+      },
+      items: {
+        rel: 'items',
+        href: `/expense-items?expenseId=${expense.id}`,
+        method: 'GET',
+        title: 'Get the items that belong to this expense',
+      },
+      update: {
+        rel: 'update',
+        href: `/expenses/${expense.id}`,
+        method: 'PUT',
+        title: 'Update this expense',
+      },
+      delete: {
+        rel: 'delete',
+        href: `/expenses/${expense.id}`,
+        method: 'DELETE',
+        title: 'Delete this expense',
+      },
+    };
+
+    if (expense.merchantId) {
+      links.merchant = {
+        rel: 'merchant',
+        href: `/merchants/${expense.merchantId}`,
+        method: 'GET',
+        title: 'Get the merchant for this expense',
+      };
+    }
+
+    return links;
   }
 }

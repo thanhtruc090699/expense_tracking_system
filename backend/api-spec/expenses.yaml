@@ -287,6 +287,50 @@ paths:
 
 components:
   schemas:
+    ExpenseLink:
+      type: object
+      description: Hypermedia link describing a related resource or allowed action.
+      properties:
+        rel:
+          type: string
+          description: Relation type of the linked resource or action.
+          example: self
+        href:
+          type: string
+          description: Relative URI of the linked resource or action.
+          example: /expenses/550e8400-e29b-41d4-a716-446655440000
+        method:
+          type: string
+          description: HTTP method allowed for this link.
+          enum: [GET, POST, PUT, PATCH, DELETE]
+          example: GET
+        title:
+          type: string
+          description: Human-readable description of the link.
+          example: Get this expense
+      required:
+        - rel
+        - href
+        - method
+    ExpenseLinks:
+      type: object
+      description: Hypermedia links for the expense representation.
+      properties:
+        self:
+          $ref: '#/components/schemas/ExpenseLink'
+        items:
+          $ref: '#/components/schemas/ExpenseLink'
+        merchant:
+          $ref: '#/components/schemas/ExpenseLink'
+        update:
+          $ref: '#/components/schemas/ExpenseLink'
+        delete:
+          $ref: '#/components/schemas/ExpenseLink'
+      required:
+        - self
+        - items
+        - update
+        - delete
     Expense:
       type: object
       properties:
@@ -321,6 +365,8 @@ components:
           type: array
           items:
             $ref: './expense-items.yaml#/components/schemas/ExpenseItem'
+        _links:
+          $ref: '#/components/schemas/ExpenseLinks'
       required:
         - id
         - userId
