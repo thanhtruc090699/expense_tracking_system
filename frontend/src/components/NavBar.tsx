@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ChevronDown, Plus, Upload, Search } from "lucide-react";
 import { getToken } from "../auth";
+import { markExpenseDataChanged } from "../utils/cacheRevalidation";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -178,6 +179,7 @@ export default function NavBar() {
       }
 
       sessionStorage.setItem('recentlyScannedExpenseIds', JSON.stringify([expenseId]));
+      markExpenseDataChanged();
 
       setShowAddExpense(false);
       window.dispatchEvent(new CustomEvent('expense-starting-validation', { detail: { expenseId } }));
@@ -352,6 +354,7 @@ export default function NavBar() {
         throw new Error(errorData.message || "Failed to categorize expense");
       }
 
+      markExpenseDataChanged();
       setShowAddExpense(false);
       resetForm();
       window.dispatchEvent(new CustomEvent('expense-refresh'));

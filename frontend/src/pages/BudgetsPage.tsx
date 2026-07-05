@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { getToken } from "../auth";
 import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog";
+import { withExpenseRevalidation } from "../utils/cacheRevalidation";
 import "../styles/BudgetsPage.css";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
@@ -143,9 +144,9 @@ export function BudgetsPage() {
           `${ALLOWED_HOST}:3000/expenses/spendingSummary?month=${encodeURIComponent(
             monthParam,
           )}`,
-          {
+          withExpenseRevalidation({
             headers: { Authorization: `Bearer ${token}` },
-          },
+          }),
         ),
       ]);
 

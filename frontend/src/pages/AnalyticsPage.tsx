@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Download, FileText } from "lucide-react";
 import { getToken } from "../auth";
+import { withExpenseRevalidation } from "../utils/cacheRevalidation";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -163,11 +164,11 @@ export default function AnalyticsPage() {
               `${ALLOWED_HOST}:3000/expenses/spendingSummary?month=${encodeURIComponent(
                 monthParam(month),
               )}`,
-              {
+              withExpenseRevalidation({
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
-              },
+              }),
             ),
           ),
         );

@@ -10,6 +10,10 @@ import { AddItemModal } from '../components/expenses/AddItemModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
 import { Edit, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  markExpenseDataChanged,
+  withExpenseRevalidation,
+} from '../utils/cacheRevalidation';
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? '';
 
@@ -142,11 +146,11 @@ export function ExpensesPage() {
         url += `?${queryString}`;
       }
 
-      const res = await fetch(url, {
+      const res = await fetch(url, withExpenseRevalidation({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      }));
       const data = await res.json();
       
       if (append) {
@@ -179,6 +183,7 @@ export function ExpensesPage() {
       };
 
       const firstResponse = await fetch(demoUrl, {
+        cache: 'reload',
         headers: authHeaders,
       });
 
@@ -200,6 +205,7 @@ export function ExpensesPage() {
       }
 
       const secondResponse = await fetch(demoUrl, {
+        cache: 'no-cache',
         headers: {
           ...authHeaders,
           'If-None-Match': etag,
@@ -371,6 +377,7 @@ export function ExpensesPage() {
       
       try {
         const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${expenseId}`, {
+          cache: 'no-cache',
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -402,21 +409,21 @@ export function ExpensesPage() {
     }
 
     try {
-      const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${expenseId}`, {
+      const res = await fetch(`${ALLOWED_HOST}:3000/expenses/${expenseId}`, withExpenseRevalidation({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      }));
       if (res.ok) {
         const expense = await res.json();
         setSelectedExpense(expense);
         
         const itemsHref = expense._links?.items.href ?? `/expense-items?expenseId=${expenseId}`;
-        const itemsRes = await fetch(apiUrl(itemsHref), {
+        const itemsRes = await fetch(apiUrl(itemsHref), withExpenseRevalidation({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        }));
         if (itemsRes.ok) {
           const items = await itemsRes.json();
           
@@ -467,6 +474,7 @@ export function ExpensesPage() {
       }),
     });
 
+    markExpenseDataChanged();
     await refreshExpenseItems();
     setIsAddItemModalOpen(false);
   };
@@ -492,6 +500,7 @@ export function ExpensesPage() {
       }),
     });
 
+    markExpenseDataChanged();
     await refreshExpenseItems();
     setEditingItem(null);
   };
@@ -507,6 +516,7 @@ export function ExpensesPage() {
       },
     });
 
+    markExpenseDataChanged();
     await refreshExpenseItems();
     setPendingDelete(null);
   };
@@ -518,11 +528,11 @@ export function ExpensesPage() {
     if (!token) return;
 
     try {
-      const itemsRes = await fetch(`${ALLOWED_HOST}:3000/expense-items?expenseId=${selectedExpense.id}`, {
+      const itemsRes = await fetch(`${ALLOWED_HOST}:3000/expense-items?expenseId=${selectedExpense.id}`, withExpenseRevalidation({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      }));
       if (itemsRes.ok) {
         const items = await itemsRes.json();
         
@@ -634,6 +644,7 @@ export function ExpensesPage() {
       });
 
       if (res.ok) {
+        markExpenseDataChanged();
         fetchExpenses(activeFilter, 0, false, selectedCategoryId);
       }
     } catch (err) {
@@ -656,6 +667,7 @@ export function ExpensesPage() {
         },
       });
 
+      markExpenseDataChanged();
       const intervalId = pollingIntervals.get(id);
       if (intervalId) {
         clearInterval(intervalId);

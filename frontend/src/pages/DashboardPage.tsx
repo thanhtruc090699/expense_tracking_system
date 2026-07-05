@@ -4,6 +4,7 @@ import { getToken, getFullName } from "../auth";
 import { AskAIInput } from "../components/AskAIInput";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import billbuddyLogo from "../assets/billbuddy.svg";
+import { withExpenseRevalidation } from "../utils/cacheRevalidation";
 
 const ALLOWED_HOST = import.meta.env.VITE_ALLOWED_HOSTS ?? "";
 
@@ -81,27 +82,27 @@ export function DashboardPage() {
         const [summaryRes, spendingRes, lastMonthRes] = await Promise.all([
           fetch(
             `${ALLOWED_HOST}:3000/expenses/summary?month=${encodeURIComponent(currentMonthParam)}`,
-            {
+            withExpenseRevalidation({
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            })
           ),
           fetch(
             `${ALLOWED_HOST}:3000/expenses/spendingSummary?month=${encodeURIComponent(currentMonthParam)}`,
-            {
+            withExpenseRevalidation({
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            })
           ),
           fetch(
             `${ALLOWED_HOST}:3000/expenses/summary?month=${encodeURIComponent(lastMonthParam)}`,
-            {
+            withExpenseRevalidation({
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            })
           ),
         ]);
 
