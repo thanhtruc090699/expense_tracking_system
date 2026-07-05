@@ -23,6 +23,14 @@ const EXPENSES_PER_PAGE = 50;
 
 const pollingIntervals = new Map<string, number>();
 
+const apiUrl = (href: string) => {
+  if (href.startsWith('http://') || href.startsWith('https://')) {
+    return href;
+  }
+
+  return `${ALLOWED_HOST}:3000${href.startsWith('/') ? href : `/${href}`}`;
+};
+
 export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -313,7 +321,8 @@ export function ExpensesPage() {
         const expense = await res.json();
         setSelectedExpense(expense);
         
-        const itemsRes = await fetch(`${ALLOWED_HOST}:3000/expense-items?expenseId=${expenseId}`, {
+        const itemsHref = expense._links?.items.href ?? `/expense-items?expenseId=${expenseId}`;
+        const itemsRes = await fetch(apiUrl(itemsHref), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -547,7 +556,10 @@ export function ExpensesPage() {
     if (!token) return;
 
     try {
-      await fetch(`${ALLOWED_HOST}:3000/expenses/${id}`, {
+      const expense = expenses.find((entry) => entry.id === id);
+      const deleteHref = expense?._links?.delete.href ?? `/expenses/${id}`;
+
+      await fetch(apiUrl(deleteHref), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
