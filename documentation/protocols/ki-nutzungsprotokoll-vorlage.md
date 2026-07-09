@@ -69,6 +69,6 @@ Hier können Sie bei Bedarf kurz ergänzen,
 Wir bestätigen, dass die KI-Nutzung in dieser Arbeit vollständig und nach bestem Wissen dokumentiert wurde.
 Wir übernehmen die Verantwortung für die fachliche Richtigkeit, die Auswahl der übernommenen Inhalte und die gesamte abgegebene Arbeit.
 
-- Datum:
-- Gruppenname:
+- Datum: 09.07.206
+- Gruppenname: Blue Team
 
