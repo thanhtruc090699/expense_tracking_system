@@ -4,11 +4,11 @@ Minimal setup guide to run Bill Buddy on Ubuntu with Docker-based external servi
 
 ## 1. Install Requirements
 
-Install Git, curl, jq, Docker, Docker Compose, Node.js and npm.
+Install Git, curl, jq, Java, Docker, Docker Compose, Node.js and npm.
 
 ```bash
 sudo apt update
-sudo apt install -y git curl jq ca-certificates docker.io docker-compose-plugin nodejs npm
+sudo apt install -y git curl jq ca-certificates default-jre docker.io docker-compose-plugin nodejs npm
 sudo systemctl enable --now docker
 ```
 
@@ -135,10 +135,13 @@ DISABLE_AUTH=false
 INVOICE_OCR_URL=http://localhost:8000/scan
 ```
 
-Install dependencies and run migrations:
+Install dependencies, generate backend API code and run migrations.
+
+The OpenAPI generator command requires Java. On Ubuntu, `default-jre` from the install step above is enough.
 
 ```bash
 npm install
+npx @openapitools/openapi-generator-cli generate -i ./api-spec/openapi.yaml -g typescript-nestjs-server -o ./src/generated
 npx prisma generate
 npx prisma migrate deploy
 ```
